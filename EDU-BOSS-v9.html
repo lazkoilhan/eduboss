@@ -750,6 +750,7 @@ hr.dv{border:none;border-top:1px solid rgba(255,255,255,.055);margin:12px 0}
       <div class="op-tab" onclick="opTab('takvim',this)">📅 Takvim</div>
       <div class="op-tab" onclick="opTab('notlar',this)">💬 Notlarım</div>
       <div class="op-tab" onclick="opTab('program',this)">🗓 Program</div>
+      <div class="op-tab" onclick="opTab('gorevlerim',this)">📺 Görevlerim</div>
     </div>
     <!-- Sınav Sonuçları -->
     <div class="op-content show" id="op-sinav">
@@ -796,6 +797,11 @@ hr.dv{border:none;border-top:1px solid rgba(255,255,255,.055);margin:12px 0}
         <div class="ct">📬 Taleplerim</div>
         <div id="op-taleplerim-ic"></div>
       </div>
+
+    <!-- Görevlerim -->
+    <div class="op-content" id="op-gorevlerim">
+      <div id="op-gorevlerim-ic"></div>
+    </div>
     </div>
   </div>
 </div>
@@ -828,6 +834,7 @@ hr.dv{border:none;border-top:1px solid rgba(255,255,255,.055);margin:12px 0}
     <div class="sb-sec">Finansal</div>
     <div class="ni" onclick="goPg('ogrenciler')"><span class="ni-ic">👥</span><span>Öğrenciler</span></div>
     <div class="sb-sec">Yönetim</div>
+    <div class="ni" onclick="goPg('gorev')"><span class="ni-ic">📺</span><span>Görev Ata</span></div>
     <div class="ni" onclick="goPg('ai')"><span class="ni-ic">🤖</span><span>AI Koçluk</span></div>
     <div class="ni" onclick="goPg('ayarlar')"><span class="ni-ic">⚙️</span><span>Ayarlar</span></div>
     <div class="ni" onclick="goPg('hesaplar')"><span class="ni-ic">🔐</span><span>Hesap Yönetimi</span></div>
@@ -1188,6 +1195,16 @@ hr.dv{border:none;border-top:1px solid rgba(255,255,255,.055);margin:12px 0}
   <div id="rp-ic"></div>
 </div>
 
+
+<!-- GOREV ATAMALARI -->
+<div class="pg" id="pg-gorev">
+  <div class="ph">
+    <div><div class="pt">Gorev Atamalari</div><div class="psub">Video ve PDF gorevleri olustur, ogrencilere ata</div></div>
+    <button class="btn btn-p" onclick="mAcGorev()">+ Yeni Gorev</button>
+  </div>
+  <div id="gorev-liste"></div>
+</div>
+
 <!-- AYARLAR -->
 <div class="pg" id="pg-ayarlar">
   <div class="ph">
@@ -1438,6 +1455,53 @@ hr.dv{border:none;border-top:1px solid rgba(255,255,255,.055);margin:12px 0}
 </div>
 
 <!-- Ödeme -->
+
+<!-- MODAL gorev-ekle -->
+<div class="mo" id="modal-gorev-ekle">
+  <div class="md" style="width:min(640px,100%)">
+    <div class="mtit">Yeni Egitim Gorevi</div>
+    <input type="hidden" id="gv-id">
+    <div class="fg">
+      <div class="fr">
+        <div class="f"><label>Ders</label>
+          <select id="gv-ders">
+            <option>TYT - Turkce</option><option>TYT - Matematik</option>
+            <option>TYT - Sosyal</option><option>TYT - Fen</option>
+            <option>AYT - Matematik</option><option>AYT - Fizik</option>
+            <option>AYT - Kimya</option><option>AYT - Biyoloji</option>
+            <option>AYT - Edebiyat</option><option>Diger</option>
+          </select></div>
+        <div class="f"><label>Konu</label><input id="gv-konu" placeholder="Trigonometri..."></div>
+      </div>
+      <div class="f"><label>YouTube Linkleri (her satira bir link)</label>
+        <textarea id="gv-videolar" rows="4" placeholder="https://youtube.com/watch?v=..."></textarea></div>
+      <div class="f"><label>PDF Linki</label><input id="gv-pdf" placeholder="https://drive.google.com/..."></div>
+      <div class="f"><label>PDF Adi</label><input id="gv-pdf-ad" placeholder="Soru Seti"></div>
+      <div class="f"><label>Son Tarih</label><input id="gv-tarih" type="date"></div>
+      <div class="f"><label>Hedef</label>
+        <div style="display:flex;gap:14px;margin-top:4px">
+          <label style="display:flex;align-items:center;gap:6px;font-size:12px;text-transform:none;letter-spacing:0;color:var(--tx);cursor:pointer;font-weight:500">
+            <input type="radio" name="gv-hedef-tip" value="hepsi" id="gv-hedef-hepsi" checked onchange="gvHedefDegis()"> Tum ogrenciler
+          </label>
+          <label style="display:flex;align-items:center;gap:6px;font-size:12px;text-transform:none;letter-spacing:0;color:var(--tx);cursor:pointer;font-weight:500">
+            <input type="radio" name="gv-hedef-tip" value="secim" onchange="gvHedefDegis()"> Secili ogrenciler
+          </label>
+        </div>
+      </div>
+      <div id="gv-ogr-sec-wrap" style="display:none">
+        <div class="f"><label>Ogrenci Sec</label>
+          <select id="gv-ogrenciler" multiple size="5" style="height:auto"></select></div>
+      </div>
+      <div class="f"><label>Not</label>
+        <textarea id="gv-not" rows="2" placeholder="Ogrencilere mesaj..."></textarea></div>
+    </div>
+    <div class="mft">
+      <button class="btn btn-n" onclick="mKapat('gorev-ekle')">Iptal</button>
+      <button class="btn btn-p" onclick="gorevKaydet()">Kaydet</button>
+    </div>
+  </div>
+</div>
+
 <div class="mo" id="modal-od">
   <div class="md"><div class="mtit">💳 Ödeme</div>
     <input type="hidden" id="od-id">
@@ -1730,10 +1794,11 @@ function fbInit(){
 }
 
 // ── Koleksiyon adları ──
-const COL={aok:'v5_aok',fok:'v5_fok',ders:'v5_ders',odem:'v5_odem',gidr:'v5_gidr',prog:'v5_prog',devam:'v5_devam',musait:'v5_musait',talep:'v5_talep',takvim:'v5_takvim',notlar:'v5_notlar',cevap:'v5_cevap',optik:'v5_optik'};
+const COL={aok:'v5_aok',fok:'v5_fok',ders:'v5_ders',odem:'v5_odem',gidr:'v5_gidr',prog:'v5_prog',devam:'v5_devam',musait:'v5_musait',talep:'v5_talep',takvim:'v5_takvim',notlar:'v5_notlar',cevap:'v5_cevap',optik:'v5_optik',gorev:'v5_gorev'};
 
 // ── Yerel değişkenler (bellekte çalışır, Firebase ile senkronize) ──
-let AOK=[], FOK=[], DERS=[], ODEM=[], GIDR=[], PROG=[], DEVAM=[], MUSAIT=[], TALEP=[], TAKVIM=[], NOTLAR=[], CEVAPLAR=[], OPTIKLER=[];
+let AOK=[], FOK=[], DERS=[], ODEM=[], GIDR=[], PROG=[], DEVAM=[], MUSAIT=[], TALEP=[], TAKVIM=[], NOTLAR=[], GOREVLER=[];
+let _GOREVLER_dummy=[], CEVAPLAR=[], OPTIKLER=[];
 
 // localStorage fallback (offline için)
 const LS={
@@ -1784,6 +1849,7 @@ const sv={
   talep:()=>fbSet(COL.talep,TALEP),
   takvim:()=>fbSet(COL.takvim,TAKVIM),
   notlar:()=>fbSet(COL.notlar,NOTLAR),
+  gorev:()=>fbSet(COL.gorev,GOREVLER),
   cevap:()=>fbSet(COL.cevap,CEVAPLAR),
   optik:()=>fbSet(COL.optik,OPTIKLER)
 };
@@ -1802,13 +1868,14 @@ async function fbYukle(){
       fbGet(COL.musait),fbGet(COL.talep),fbGet(COL.takvim),fbGet(COL.notlar)
     ]);
     HEDEFLER=await fbGet('v5_hedef');
+    GOREVLER=await fbGet(COL.gorev);
     [CEVAPLAR,OPTIKLER]=await Promise.all([fbGet(COL.cevap),fbGet(COL.optik)]);
     if(fbOk&&syncEl){syncEl.textContent='✓ Bulut bağlantısı aktif';syncEl.style.background='var(--Gd)';syncEl.style.color='var(--G)';}
     if(syncEl)setTimeout(()=>{syncEl.textContent='☁️ Firebase';syncEl.style.background='';syncEl.style.color='var(--G)';},4000);
   }catch(e){
     AOK=LS.g(COL.aok,[]);FOK=LS.g(COL.fok,[]);DERS=LS.g(COL.ders,[]);
     ODEM=LS.g(COL.odem,[]);GIDR=LS.g(COL.gidr,[]);PROG=LS.g(COL.prog,[]);DEVAM=LS.g(COL.devam,[]);
-    MUSAIT=LS.g(COL.musait,[]);TALEP=LS.g(COL.talep,[]);TAKVIM=LS.g(COL.takvim,[]);NOTLAR=LS.g(COL.notlar,[]);
+    MUSAIT=LS.g(COL.musait,[]);TALEP=LS.g(COL.talep,[]);TAKVIM=LS.g(COL.takvim,[]);NOTLAR=LS.g(COL.notlar,[]);GOREVLER=LS.g(COL.gorev,[]);
     if(syncEl){syncEl.textContent='⚠️ Offline mod';syncEl.style.background='var(--Yd)';syncEl.style.color='var(--Y)';}
     toast('Offline çalışıyor — veriler localStorage\'da','inf');
   }
@@ -1942,6 +2009,7 @@ function render(id){
     talepler:renderTalepler,hedef:renderHedef,takvim:renderTakvim,
     ai:renderAI,ayarlar:renderAyarlar,
     optik:renderOptik,cevap:renderCevap,
+    gorev:renderGorev,
     hesaplar:()=>{renderHesaplar();fbGet(COL.aok).then(taze=>{AOK=taze;const s=document.getElementById('nh-ogr-sec');if(s){s.innerHTML='<option value="">— Seçin —</option>'+AOK.map(o=>`<option value="${o.id}">${o.ad}</option>`).join('');}})}
   }[id]||function(){})();
 }
@@ -4991,6 +5059,9 @@ function opTab(tab, el){
   document.getElementById('op-'+tab).classList.add('show');
   if(!mevcutKullanici)return;
   const ad=mevcutKullanici.ad||'';
+  if(tab==='gorevlerim'&&_opOgr){
+    Promise.all([fbGet(COL.gorev)]).then(([g])=>{GOREVLER=g;opRenderGorevlerim(_opOgr);});
+  }
   if(tab==='program'){
     Promise.all([fbGet(COL.musait),fbGet(COL.talep)]).then(([m,t])=>{
       MUSAIT=m;TALEP=t;opRenderMusait(ad);opRenderTaleplerim(ad);
@@ -5086,6 +5157,9 @@ function opRender(ogr, userData){
 
   // Program
   opRenderProgram(ogr.ad);
+
+  // Görevlerim
+  fbGet(COL.gorev).then(g=>{GOREVLER=g;opRenderGorevlerim(ogr);});
 }
 
 function opSinavFiltre(ogrParam){
@@ -5317,7 +5391,8 @@ async function talepGonder(musaitId, ogrenciAd){
 let HEDEFLER=[];
 // HEDEFLER'i fbGet/set ile yönet — COL.notlar içinde saklıyoruz ayrı alan olarak
 // Aslında ayrı key kullanacağız: v5_hedef
-async function hedeflerYukle(){try{HEDEFLER=await fbGet('v5_hedef');}catch{HEDEFLER=[];}}
+async function hedeflerYukle(){try{HEDEFLER=await fbGet('v5_hedef');
+    GOREVLER=await fbGet(COL.gorev);}catch{HEDEFLER=[];}}
 const svHedef=()=>fbSet('v5_hedef',HEDEFLER);
 
 function hedefKaydet(){
@@ -6430,6 +6505,340 @@ async function hesapSil(uid){
     }
   });
 })();
+
+
+// ═══════════════════════════════════════════════════════
+// GÖREV ATAMALARI MODÜLÜ
+// ═══════════════════════════════════════════════════════
+
+// ── Yardımcı: YouTube URL'den embed URL üret ──
+function ytEmbed(url) {
+  if (!url) return null;
+  url = url.trim();
+  // youtu.be/ID
+  let m = url.match(/youtu\.be\/([A-Za-z0-9_-]{11})/);
+  if (m) return 'https://www.youtube.com/embed/' + m[1];
+  // youtube.com/watch?v=ID
+  m = url.match(/[?&]v=([A-Za-z0-9_-]{11})/);
+  if (m) return 'https://www.youtube.com/embed/' + m[1];
+  // youtube.com/embed/ID
+  m = url.match(/embed\/([A-Za-z0-9_-]{11})/);
+  if (m) return 'https://www.youtube.com/embed/' + m[1];
+  return null;
+}
+
+// ── Yardımcı: YouTube thumbnail ──
+function ytThumb(url) {
+  const embed = ytEmbed(url);
+  if (!embed) return null;
+  const id = embed.split('/embed/')[1];
+  return 'https://img.youtube.com/vi/' + id + '/mqdefault.jpg';
+}
+
+// ── Modal: hedef tipi değişince ──
+function gvHedefDegis() {
+  const tip = document.querySelector('input[name="gv-hedef-tip"]:checked')?.value;
+  const wrap = document.getElementById('gv-ogr-sec-wrap');
+  if (wrap) wrap.style.display = tip === 'secim' ? 'block' : 'none';
+}
+
+// ── Modal açılınca öğrenci listesi doldur ──
+const _origMAc = mAc;
+// Extend mAc for gorev-ekle
+const _mAcOrig = window.mAc || mAc;
+function mAcGorev(editId) {
+  // Öğrenci multi-select doldur
+  const sel = document.getElementById('gv-ogrenciler');
+  if (sel) {
+    const tumOgr = [...AOK, ...FOK.filter(f => !AOK.find(a => a.id === f.id))];
+    tumOgr.sort((a,b) => a.ad.localeCompare(b.ad, 'tr'));
+    sel.innerHTML = tumOgr.map(o => `<option value="${o.id}">${o.ad}</option>`).join('');
+  }
+  document.getElementById('gv-tarih').value = new Date(Date.now() + 7*864e5).toISOString().slice(0,10);
+  document.getElementById('gv-id').value = '';
+  document.getElementById('gv-konu').value = '';
+  document.getElementById('gv-videolar').value = '';
+  document.getElementById('gv-pdf').value = '';
+  document.getElementById('gv-pdf-ad').value = '';
+  document.getElementById('gv-not').value = '';
+  document.getElementById('gv-hedef-hepsi').checked = true;
+  gvHedefDegis();
+  if (editId) {
+    const g = GOREVLER.find(x => x.id === editId);
+    if (g) {
+      document.getElementById('gv-id').value = g.id;
+      document.getElementById('gv-ders').value = g.ders || '';
+      document.getElementById('gv-konu').value = g.konu || '';
+      document.getElementById('gv-videolar').value = (g.videolar || []).join('\n');
+      document.getElementById('gv-pdf').value = g.pdf || '';
+      document.getElementById('gv-pdf-ad').value = g.pdfAd || '';
+      document.getElementById('gv-tarih').value = g.tarih || '';
+      document.getElementById('gv-not').value = g.not || '';
+      if (g.hedefTip === 'secim') {
+        document.querySelector('input[name="gv-hedef-tip"][value="secim"]').checked = true;
+        gvHedefDegis();
+        const sel = document.getElementById('gv-ogrenciler');
+        if (sel) Array.from(sel.options).forEach(o => { o.selected = (g.hedefOgr||[]).includes(o.value); });
+      }
+    }
+  }
+  document.getElementById('modal-gorev-ekle').classList.add('open');
+}
+
+function gorevKaydet() {
+  const id = document.getElementById('gv-id').value;
+  const ders = document.getElementById('gv-ders').value;
+  const konu = document.getElementById('gv-konu').value.trim();
+  const videolarRaw = document.getElementById('gv-videolar').value.trim();
+  const pdf = document.getElementById('gv-pdf').value.trim();
+  const pdfAd = document.getElementById('gv-pdf-ad').value.trim() || 'Ders Notu';
+  const tarih = document.getElementById('gv-tarih').value;
+  const not = document.getElementById('gv-not').value.trim();
+  const hedefTip = document.querySelector('input[name="gv-hedef-tip"]:checked')?.value || 'hepsi';
+
+  if (!konu) { toast('Konu giriniz', 'err'); return; }
+  if (!videolarRaw && !pdf) { toast('En az bir video veya PDF ekleyiniz', 'err'); return; }
+
+  const videolar = videolarRaw.split('\n').map(s => s.trim()).filter(Boolean);
+  let hedefOgr = [];
+  if (hedefTip === 'secim') {
+    const sel = document.getElementById('gv-ogrenciler');
+    hedefOgr = Array.from(sel.selectedOptions).map(o => o.value);
+    if (!hedefOgr.length) { toast('En az bir öğrenci seçiniz', 'err'); return; }
+  }
+
+  const yeni = { id: id || uid(), ders, konu, videolar, pdf, pdfAd, tarih, not, hedefTip, hedefOgr,
+    olusturma: bugun(), tamamlayan: [] };
+
+  if (id) {
+    const i = GOREVLER.findIndex(x => x.id === id);
+    if (i >= 0) GOREVLER[i] = { ...GOREVLER[i], ...yeni };
+  } else {
+    GOREVLER.unshift(yeni);
+  }
+  sv.gorev();
+  mKapat('gorev-ekle');
+  toast(id ? 'Görev güncellendi' : 'Görev oluşturuldu ve atandı', 'ok');
+  renderGorev();
+}
+
+function gorevSil(id) {
+  if (!confirm('Bu görevi silmek istiyor musunuz?')) return;
+  GOREVLER = GOREVLER.filter(g => g.id !== id);
+  sv.gorev();
+  renderGorev();
+  toast('Görev silindi', 'ok');
+}
+
+function renderGorev() {
+  const el = document.getElementById('gorev-liste');
+  if (!el) return;
+  if (!GOREVLER.length) {
+    el.innerHTML = '<div class="empty"><div class="empty-ic">📺</div><div>Henüz görev oluşturulmamış</div><div style="margin-top:8px;font-size:11px;color:var(--mu)">Öğrencilerinize video ve PDF görevleri atayın</div></div>';
+    return;
+  }
+
+  el.innerHTML = GOREVLER.map(g => {
+    const tumOgr = [...AOK, ...FOK.filter(f => !AOK.find(a => a.id === f.id))];
+    const hedefSayisi = g.hedefTip === 'hepsi' ? tumOgr.length : (g.hedefOgr||[]).length;
+    const tamamSayisi = (g.tamamlayan||[]).length;
+    const yuzde = hedefSayisi > 0 ? Math.round(tamamSayisi / hedefSayisi * 100) : 0;
+    const gecti = g.tarih && g.tarih < bugun();
+    const videoSayisi = (g.videolar||[]).length;
+
+    return `<div class="card" style="margin-bottom:14px">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:14px">
+        <div>
+          <div style="font-family:'Syne',sans-serif;font-size:14px;font-weight:800;color:#fff">${g.konu}</div>
+          <div style="font-size:11px;color:var(--mu2);margin-top:3px">${g.ders} · ${g.olusturma ? tfmt(g.olusturma) : ''}</div>
+        </div>
+        <div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center">
+          ${gecti ? '<span class="b bR">Süresi Doldu</span>' : g.tarih ? `<span class="b bY">Son: ${tfmt(g.tarih)}</span>` : ''}
+          <span class="b bC">📹 ${videoSayisi} video</span>
+          ${g.pdf ? '<span class="b bP">📄 PDF</span>' : ''}
+          <button class="btn btn-n btn-sm" onclick="mAcGorev('${g.id}')">✏️</button>
+          <button class="btn btn-d btn-sm" onclick="gorevSil('${g.id}')">🗑</button>
+        </div>
+      </div>
+
+      <!-- İlerleme -->
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px">
+        <div style="flex:1">
+          <div style="display:flex;justify-content:space-between;margin-bottom:5px">
+            <span style="font-size:11px;color:var(--mu2)">
+              ${g.hedefTip === 'hepsi' ? 'Tüm öğrenciler' : hedefSayisi + ' öğrenci'} · ${tamamSayisi}/${hedefSayisi} tamamladı
+            </span>
+            <span style="font-size:11px;font-weight:700;color:${yuzde===100?'var(--G)':yuzde>50?'var(--Y)':'var(--C)'}">${yuzde}%</span>
+          </div>
+          <div class="pb">
+            <div class="pf" style="width:${yuzde}%;background:${yuzde===100?'var(--G)':yuzde>50?'var(--Y)':'var(--C)'}"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tamamlayan öğrenciler -->
+      ${(g.tamamlayan||[]).length ? `<div style="margin-bottom:12px">
+        <div style="font-size:10px;color:var(--mu);margin-bottom:6px;text-transform:uppercase;letter-spacing:1px">Tamamlayanlar</div>
+        <div style="display:flex;flex-wrap:wrap;gap:5px">
+          ${(g.tamamlayan||[]).map(ogrId => {
+            const ogr = [...AOK,...FOK].find(o=>o.id===ogrId);
+            return ogr ? `<span class="b bG">✓ ${ogr.ad}</span>` : '';
+          }).join('')}
+        </div>
+      </div>` : ''}
+
+      <!-- Video önizleme -->
+      ${videoSayisi > 0 ? `<div style="display:flex;gap:8px;overflow-x:auto;padding-bottom:4px">
+        ${(g.videolar||[]).slice(0,4).map((v,i) => {
+          const thumb = ytThumb(v);
+          return thumb ? `<div style="flex-shrink:0;width:100px;border-radius:8px;overflow:hidden;border:1px solid rgba(255,255,255,.1);cursor:pointer" title="${v}" onclick="window.open('${v}','_blank')">
+            <img src="${thumb}" style="width:100%;display:block;height:56px;object-fit:cover">
+            <div style="padding:3px 5px;font-size:9px;color:var(--mu2);background:var(--s2)">Video ${i+1}</div>
+          </div>` : '';
+        }).join('')}
+        ${videoSayisi > 4 ? `<div style="flex-shrink:0;width:100px;border-radius:8px;background:var(--s2);border:1px solid rgba(255,255,255,.1);display:flex;align-items:center;justify-content:center;height:77px;font-size:12px;color:var(--mu2)">+${videoSayisi-4} daha</div>` : ''}
+      </div>` : ''}
+
+      ${g.not ? `<div style="margin-top:10px;font-size:11px;color:var(--mu2);font-style:italic;padding:8px 12px;background:rgba(255,255,255,.03);border-radius:8px;border-left:3px solid var(--C)">📝 ${g.not}</div>` : ''}
+    </div>`;
+  }).join('');
+}
+
+// ── Öğrenci: görevi tamamla ──
+async function opGorevTamamla(gorevId) {
+  const g = GOREVLER.find(x => x.id === gorevId);
+  if (!g || !_opOgr) return;
+  const ogrId = _opOgr.id || _opOgr.ad;
+  if ((g.tamamlayan||[]).includes(ogrId)) { toast('Bu görevi zaten tamamladınız!', 'inf'); return; }
+  if (!g.tamamlayan) g.tamamlayan = [];
+  g.tamamlayan.push(ogrId);
+  await sv.gorev();
+  toast('Görev tamamlandı! Öğretmeninize bildirildi.', 'ok');
+  opRenderGorevlerim(_opOgr);
+}
+
+// ── Öğrenci paneli: görevlerim render ──
+function opRenderGorevlerim(ogr) {
+  const el = document.getElementById('op-gorevlerim-ic');
+  if (!el || !ogr) return;
+
+  // Bu öğrenciye ait görevler (hepsi veya özel seçimde bu öğrenci varsa)
+  const ogrId = ogr.id || ogr.ad;
+  const benimGorevler = GOREVLER.filter(g => {
+    if (g.hedefTip === 'hepsi') return true;
+    return (g.hedefOgr||[]).includes(ogrId);
+  });
+
+  if (!benimGorevler.length) {
+    el.innerHTML = '<div class="empty"><div class="empty-ic">✅</div><div>Şu an aktif göreviniz yok</div><div style="margin-top:6px;font-size:11px;color:var(--mu)">Öğretmeniniz henüz görev atamamış</div></div>';
+    return;
+  }
+
+  el.innerHTML = benimGorevler.map(g => {
+    const tamamlandi = (g.tamamlayan||[]).includes(ogrId);
+    const videoSayisi = (g.videolar||[]).length;
+    const gecti = g.tarih && g.tarih < bugun();
+    const videolar = g.videolar || [];
+
+    // İlk video ana player, diğerleri galeri
+    const anaVideo = videolar[0];
+    const anaEmbed = anaVideo ? ytEmbed(anaVideo) : null;
+
+    return `<div class="card" style="margin-bottom:18px;${tamamlandi?'border-color:rgba(0,229,160,.3);background:linear-gradient(135deg,rgba(0,229,160,.04),var(--s1))':''}">
+      <!-- Başlık -->
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:14px;flex-wrap:wrap">
+        <div>
+          <div style="font-family:'Syne',sans-serif;font-size:14px;font-weight:800;color:#fff;display:flex;align-items:center;gap:8px">
+            ${tamamlandi ? '<span style="color:var(--G)">✓</span>' : ''}
+            ${g.konu}
+          </div>
+          <div style="font-size:11px;color:var(--mu2);margin-top:3px">${g.ders}</div>
+        </div>
+        <div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center">
+          ${tamamlandi ? '<span class="b bG">✓ Tamamlandı</span>' : gecti ? '<span class="b bR">Süresi Doldu</span>' : g.tarih ? `<span class="b bY">Son: ${tfmt(g.tarih)}</span>` : ''}
+          <span class="b bC">📹 ${videoSayisi}</span>
+          ${g.pdf ? '<span class="b bP">📄 PDF</span>' : ''}
+        </div>
+      </div>
+
+      ${g.not ? `<div style="margin-bottom:14px;font-size:11px;color:var(--mu2);padding:8px 12px;background:rgba(0,212,255,.06);border-radius:8px;border-left:3px solid var(--C)">📝 Öğretmen notu: ${g.not}</div>` : ''}
+
+      <!-- Ana Video Player -->
+      ${anaEmbed ? `<div style="margin-bottom:12px">
+        <div style="font-size:10px;color:var(--mu);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px">📺 İzle</div>
+        <div style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;border-radius:10px;background:#000">
+          <iframe id="yt-frame-${g.id}" src="" data-src="${anaEmbed}?rel=0&modestbranding=1"
+            style="position:absolute;top:0;left:0;width:100%;height:100%;border:none;border-radius:10px"
+            allowfullscreen loading="lazy" title="${g.konu}"></iframe>
+        </div>
+        <button class="btn btn-n btn-sm" style="margin-top:8px" onclick="ytYukle('yt-frame-${g.id}')">▶ Videoyu Yükle</button>
+      </div>` : ''}
+
+      <!-- Diğer videolar (galeri) -->
+      ${videolar.length > 1 ? `<div style="margin-bottom:12px">
+        <div style="font-size:10px;color:var(--mu);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px">Diğer Videolar</div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:8px">
+          ${videolar.slice(1).map((v, i) => {
+            const thumb = ytThumb(v);
+            const embed = ytEmbed(v);
+            return `<div style="border-radius:10px;overflow:hidden;border:1px solid rgba(255,255,255,.1);cursor:pointer;background:var(--s2)"
+              onclick="opVideoAc('${g.id}', '${embed}', ${i+2})">
+              ${thumb ? `<img src="${thumb}" style="width:100%;height:70px;object-fit:cover;display:block">` : '<div style="width:100%;height:70px;background:var(--s3);display:flex;align-items:center;justify-content:center;font-size:20px">▶</div>'}
+              <div style="padding:5px 7px;font-size:9px;color:var(--mu2)">Video ${i+2}</div>
+            </div>`;
+          }).join('')}
+        </div>
+      </div>` : ''}
+
+      <!-- PDF Bölümü -->
+      ${g.pdf ? `<div style="margin-bottom:14px">
+        <div style="font-size:10px;color:var(--mu);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px">📄 Çözülecek Doküman</div>
+        <div style="display:flex;align-items:center;gap:10px;padding:12px 14px;background:rgba(180,125,255,.08);border:1px solid rgba(180,125,255,.2);border-radius:10px">
+          <span style="font-size:24px">📋</span>
+          <div style="flex:1">
+            <div style="font-size:12px;font-weight:600;color:#fff">${g.pdfAd || 'Ders Notu'}</div>
+            <div style="font-size:10px;color:var(--mu2)">İndir, çöz, tamamla butonuna bas</div>
+          </div>
+          <a href="${g.pdf}" target="_blank" class="btn btn-pf btn-sm">⬇ İndir</a>
+        </div>
+      </div>` : ''}
+
+      <!-- Tamamla butonu -->
+      ${!tamamlandi ? `<button class="btn btn-g" style="width:100%;justify-content:center;padding:12px" onclick="opGorevTamamla('${g.id}')">
+        ✓ Videoları İzledim & PDF'i Çözdüm — Tamamlandı!
+      </button>` : `<div style="text-align:center;color:var(--G);font-size:12px;font-weight:600;padding:10px">
+        ✅ Bu görevi tamamladınız!
+      </div>`}
+    </div>`;
+  }).join('');
+
+  // Lazy iframe yükleme — görünürse yükle
+  setTimeout(() => {
+    document.querySelectorAll('iframe[data-src]').forEach(frame => {
+      // Lazy: sadece "Yükle" butonuyla yükle
+    });
+  }, 100);
+}
+
+// ── Video galeri: alt video tıklandığında ana player değişir ──
+function opVideoAc(gorevId, embedUrl, no) {
+  const frame = document.getElementById('yt-frame-' + gorevId);
+  if (frame && embedUrl) {
+    frame.src = embedUrl + '?rel=0&modestbranding=1&autoplay=1';
+  }
+}
+
+// ── Lazy iframe yükleme ──
+function ytYukle(frameId) {
+  const frame = document.getElementById(frameId);
+  if (frame) {
+    frame.src = frame.getAttribute('data-src');
+    frame.removeAttribute('data-src');
+    // Yükle butonunu gizle
+    const btn = frame.parentElement.nextElementSibling;
+    if (btn && btn.tagName === 'BUTTON') btn.style.display = 'none';
+  }
+}
 
 </script>
 </body>
