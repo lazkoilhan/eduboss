@@ -4821,7 +4821,7 @@ function yedekAl(){
   a.click();URL.revokeObjectURL(a.href);
   toast('Yedek indirildi ✓','ok');
 }
-function yedekYukle(e){
+async function yedekYukle(e){
   const file=e.target.files[0];if(!file)return;
   const reader=new FileReader();
   reader.onload=async ev=>{
@@ -5014,7 +5014,7 @@ async function ogretmenGiris(){
   await fbYukle();
 }
 
-async function ogrenciGiris(userData){
+async async function ogrenciGiris(userData){
   _opUserData=userData;
   document.getElementById('ogrenci-panel').classList.add('show');
   document.getElementById('op-ad').textContent=userData.ad||'';
