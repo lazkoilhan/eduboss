@@ -4821,7 +4821,7 @@ function yedekAl(){
   a.click();URL.revokeObjectURL(a.href);
   toast('Yedek indirildi ✓','ok');
 }
-async function yedekYukle(e){
+function yedekYukle(e){
   const file=e.target.files[0];if(!file)return;
   const reader=new FileReader();
   reader.onload=async ev=>{
@@ -4857,28 +4857,28 @@ async function yedekYukle(e){
 function introGiris(){
   // v9: intro yok, direkt login veya app
   fbInit();
-  var ls = document.getElementById('login-screen');
   if(!auth){
-    if(ls) ls.classList.add('show');
+    document.getElementById('login-screen').classList.add('show');
     return;
   }
-  var mevcut = auth.currentUser;
+  const mevcut=auth.currentUser;
   if(mevcut){
-    db.collection('users').where('email','==',mevcut.email).limit(1).get()
-      .then(function(snap){
+    (async()=>{
+      try{
+        const snap=await db.collection('users').where('email','==',mevcut.email).limit(1).get();
         if(!snap.empty){
-          var kul = snap.docs[0].data();
-          mevcutKullanici = {uid:mevcut.uid, ad:kul.ad, email:kul.email, rol:kul.rol, ogrenciId:kul.ogrenciId};
+          const kul=snap.docs[0].data();
+          mevcutKullanici={uid:mevcut.uid,...kul};
           document.getElementById('app-wrap').classList.add('show');
-          if(kul.rol==='ogrenci'){ ogrenciGiris(mevcutKullanici); }
-          else{ ogretmenGiris(); }
-        } else {
-          if(ls) ls.classList.add('show');
+          if(kul.rol==='ogrenci'){ogrenciGiris(mevcutKullanici);}
+          else{ogretmenGiris();}
+          return;
         }
-      })
-      .catch(function(){ if(ls) ls.classList.add('show'); });
+      }catch(e){}
+      document.getElementById('login-screen').classList.add('show');
+    })();
   } else {
-    if(ls) ls.classList.add('show');
+    document.getElementById('login-screen').classList.add('show');
   }
 }
 
@@ -5014,7 +5014,7 @@ async function ogretmenGiris(){
   await fbYukle();
 }
 
-async async function ogrenciGiris(userData){
+async function ogrenciGiris(userData){
   _opUserData=userData;
   document.getElementById('ogrenci-panel').classList.add('show');
   document.getElementById('op-ad').textContent=userData.ad||'';
@@ -6727,118 +6727,120 @@ function opRenderGorevlerim(ogr, userData) {
   const el = document.getElementById('op-gorevlerim-ic');
   if (!el) return;
 
-  el.innerHTML = '<div class="ai-yukleniyor">Görevler yükleniyor...</div>';
+  // Öğrenci kimliğini tüm olası ID'lerle topla
+  const kimlikler = new Set();
+  if (ogr) {
+    if (ogr.id)  kimlikler.add(ogr.id);
+    if (ogr.ad)  kimlikler.add(ogr.ad);
+  }
+  if (userData) {
+    if (userData.ogrenciId) kimlikler.add(userData.ogrenciId);
+    if (userData.ad)        kimlikler.add(userData.ad);
+    if (userData.uid)       kimlikler.add(userData.uid);
+    if (userData.email)     kimlikler.add(userData.email);
+  }
 
-  // HER ZAMAN Firebase'den taze çek
-  fbGet(COL.gorev).then(function(tumGorevler) {
-    GOREVLER = tumGorevler || [];
-
-    // Öğrenci kimliklerini topla
-    const kimlikler = new Set();
-    if (ogr) { if(ogr.id) kimlikler.add(ogr.id); if(ogr.ad) kimlikler.add(ogr.ad); }
-    if (userData) {
-      if(userData.ogrenciId) kimlikler.add(userData.ogrenciId);
-      if(userData.ad)        kimlikler.add(userData.ad);
-      if(userData.uid)       kimlikler.add(userData.uid);
-      if(userData.email)     kimlikler.add(userData.email);
-    }
-
-    // "Tüm öğrenciler" veya ID eşleşmesi
-    const benimGorevler = GOREVLER.filter(function(g) {
-      if (!g.hedefTip || g.hedefTip === 'hepsi') return true;
-      var hedef = g.hedefOgr || [];
-      for (var i=0; i<hedef.length; i++) { if (kimlikler.has(hedef[i])) return true; }
-      return false;
-    });
-
-    const ogrId = (ogr && (ogr.id||ogr.ad)) || (userData && (userData.ogrenciId||userData.ad)) || '';
-
-    if (!benimGorevler.length) {
-      el.innerHTML = '<div class="empty"><div class="empty-ic">📺</div>' +
-        '<div>Şu an aktif göreviniz yok</div>' +
-        '<div style="margin-top:6px;font-size:11px;color:var(--mu)">Toplam ' + GOREVLER.length + ' görev var, size atanmış yok</div></div>';
-      return;
-    }
-
-    el.innerHTML = benimGorevler.map(function(g) {
-      var tamamlandi = (g.tamamlayan||[]).indexOf(ogrId) >= 0;
-      var videoSayisi = (g.videolar||[]).length;
-      var gecti = g.tarih && g.tarih < bugun();
-      var videolar = g.videolar || [];
-      var anaEmbed = videolar[0] ? ytEmbed(videolar[0]) : null;
-
-      var html = '<div class="card" style="margin-bottom:18px;' +
-        (tamamlandi ? 'border-color:rgba(0,229,160,.3);background:linear-gradient(135deg,rgba(0,229,160,.04),var(--s1))' : '') + '">';
-
-      // Başlık
-      html += '<div style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:14px;flex-wrap:wrap">';
-      html += '<div><div style="font-family:Syne,sans-serif;font-size:14px;font-weight:800;color:#fff">' +
-        (tamamlandi?'<span style="color:var(--G)">✓ </span>':'') + g.konu + '</div>';
-      html += '<div style="font-size:11px;color:var(--mu2);margin-top:3px">' + (g.ders||'') + '</div></div>';
-      html += '<div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center">';
-      if (tamamlandi) html += '<span class="b bG">✓ Tamamlandı</span>';
-      else if (gecti)  html += '<span class="b bR">Süresi Doldu</span>';
-      else if (g.tarih) html += '<span class="b bY">Son: ' + tfmt(g.tarih) + '</span>';
-      html += '<span class="b bC">📹 ' + videoSayisi + '</span>';
-      if (g.pdf) html += '<span class="b bP">📄 PDF</span>';
-      html += '</div></div>';
-
-      // Not
-      if (g.not) html += '<div style="margin-bottom:14px;font-size:11px;color:var(--mu2);padding:8px 12px;background:rgba(0,212,255,.06);border-radius:8px;border-left:3px solid var(--C)">📝 ' + g.not + '</div>';
-
-      // Ana video
-      if (anaEmbed) {
-        html += '<div style="margin-bottom:12px">';
-        html += '<div style="font-size:10px;color:var(--mu);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px">📺 İzle</div>';
-        html += '<div style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;border-radius:10px;background:#000">';
-        html += '<iframe id="yt-frame-' + g.id + '" src="" data-src="' + anaEmbed + '?rel=0&modestbranding=1" ';
-        html += 'style="position:absolute;top:0;left:0;width:100%;height:100%;border:none;border-radius:10px" allowfullscreen></iframe></div>';
-        html += '<button class="btn btn-n btn-sm" style="margin-top:8px" onclick="ytYukle('yt-frame-' + g.id + '')">▶ Videoyu Yükle</button>';
-        html += '</div>';
-      }
-
-      // Diğer videolar
-      if (videolar.length > 1) {
-        html += '<div style="margin-bottom:12px"><div style="font-size:10px;color:var(--mu);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px">Diğer Videolar</div>';
-        html += '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:8px">';
-        for (var vi=1; vi<videolar.length; vi++) {
-          var th = ytThumb(videolar[vi]);
-          var em = ytEmbed(videolar[vi]);
-          html += '<div style="border-radius:10px;overflow:hidden;border:1px solid rgba(255,255,255,.1);cursor:pointer;background:var(--s2)" onclick="opVideoAc('' + g.id + '','' + em + '',' + (vi+1) + ')">';
-          if (th) html += '<img src="' + th + '" style="width:100%;height:68px;object-fit:cover;display:block">';
-          else html += '<div style="width:100%;height:68px;background:var(--s3);display:flex;align-items:center;justify-content:center;font-size:20px">▶</div>';
-          html += '<div style="padding:5px 7px;font-size:9px;color:var(--mu2)">Video ' + (vi+1) + '</div></div>';
-        }
-        html += '</div></div>';
-      }
-
-      // PDF
-      if (g.pdf) {
-        html += '<div style="margin-bottom:14px">';
-        html += '<div style="font-size:10px;color:var(--mu);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px">📄 Çözülecek Doküman</div>';
-        html += '<div style="display:flex;align-items:center;gap:10px;padding:12px 14px;background:rgba(180,125,255,.08);border:1px solid rgba(180,125,255,.2);border-radius:10px">';
-        html += '<span style="font-size:22px">📋</span><div style="flex:1"><div style="font-size:12px;font-weight:600;color:#fff">' + (g.pdfAd||'Ders Notu') + '</div>';
-        html += '<div style="font-size:10px;color:var(--mu2)">İndir, çöz, tamamla butonuna bas</div></div>';
-        html += '<a href="' + g.pdf + '" target="_blank" class="btn btn-pf btn-sm">⬇ İndir</a></div></div>';
-      }
-
-      // Tamamla butonu
-      if (!tamamlandi) {
-        html += '<button class="btn btn-g" style="width:100%;justify-content:center;padding:12px" onclick="opGorevTamamla('' + g.id + '')">';
-        html += '✓ İzledim & Çözdüm — Tamamlandı!</button>';
-      } else {
-        html += '<div style="text-align:center;color:var(--G);font-size:12px;font-weight:600;padding:10px">✅ Bu görevi tamamladınız!</div>';
-      }
-
-      html += '</div>';
-      return html;
-    }).join('');
-
-  }).catch(function(err) {
-    el.innerHTML = '<div class="empty"><div class="empty-ic">⚠️</div><div>Görevler yüklenemedi: ' + err.message + '</div></div>';
+  // Bu öğrenciye ait görevler
+  const benimGorevler = GOREVLER.filter(g => {
+    if (g.hedefTip === 'hepsi') return true;
+    const hedef = g.hedefOgr || [];
+    return hedef.some(h => kimlikler.has(h));
   });
-}
 
+  // tamamlandı kontrolü için de kimlikler kullan
+  const ogrId = ogr ? (ogr.id || ogr.ad) : (userData?.ogrenciId || userData?.ad || '');
+
+
+  if (!benimGorevler.length) {
+    el.innerHTML = '<div class="empty"><div class="empty-ic">✅</div><div>Şu an aktif göreviniz yok</div><div style="margin-top:6px;font-size:11px;color:var(--mu)">Öğretmeniniz henüz görev atamamış</div></div>';
+    return;
+  }
+
+  el.innerHTML = benimGorevler.map(g => {
+    const tamamlandi = (g.tamamlayan||[]).includes(ogrId);
+    const videoSayisi = (g.videolar||[]).length;
+    const gecti = g.tarih && g.tarih < bugun();
+    const videolar = g.videolar || [];
+
+    // İlk video ana player, diğerleri galeri
+    const anaVideo = videolar[0];
+    const anaEmbed = anaVideo ? ytEmbed(anaVideo) : null;
+
+    return `<div class="card" style="margin-bottom:18px;${tamamlandi?'border-color:rgba(0,229,160,.3);background:linear-gradient(135deg,rgba(0,229,160,.04),var(--s1))':''}">
+      <!-- Başlık -->
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:14px;flex-wrap:wrap">
+        <div>
+          <div style="font-family:'Syne',sans-serif;font-size:14px;font-weight:800;color:#fff;display:flex;align-items:center;gap:8px">
+            ${tamamlandi ? '<span style="color:var(--G)">✓</span>' : ''}
+            ${g.konu}
+          </div>
+          <div style="font-size:11px;color:var(--mu2);margin-top:3px">${g.ders}</div>
+        </div>
+        <div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center">
+          ${tamamlandi ? '<span class="b bG">✓ Tamamlandı</span>' : gecti ? '<span class="b bR">Süresi Doldu</span>' : g.tarih ? `<span class="b bY">Son: ${tfmt(g.tarih)}</span>` : ''}
+          <span class="b bC">📹 ${videoSayisi}</span>
+          ${g.pdf ? '<span class="b bP">📄 PDF</span>' : ''}
+        </div>
+      </div>
+
+      ${g.not ? `<div style="margin-bottom:14px;font-size:11px;color:var(--mu2);padding:8px 12px;background:rgba(0,212,255,.06);border-radius:8px;border-left:3px solid var(--C)">📝 Öğretmen notu: ${g.not}</div>` : ''}
+
+      <!-- Ana Video Player -->
+      ${anaEmbed ? `<div style="margin-bottom:12px">
+        <div style="font-size:10px;color:var(--mu);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px">📺 İzle</div>
+        <div style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;border-radius:10px;background:#000">
+          <iframe id="yt-frame-${g.id}" src="" data-src="${anaEmbed}?rel=0&modestbranding=1"
+            style="position:absolute;top:0;left:0;width:100%;height:100%;border:none;border-radius:10px"
+            allowfullscreen loading="lazy" title="${g.konu}"></iframe>
+        </div>
+        <button class="btn btn-n btn-sm" style="margin-top:8px" onclick="ytYukle('yt-frame-${g.id}')">▶ Videoyu Yükle</button>
+      </div>` : ''}
+
+      <!-- Diğer videolar (galeri) -->
+      ${videolar.length > 1 ? `<div style="margin-bottom:12px">
+        <div style="font-size:10px;color:var(--mu);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px">Diğer Videolar</div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:8px">
+          ${videolar.slice(1).map((v, i) => {
+            const thumb = ytThumb(v);
+            const embed = ytEmbed(v);
+            return `<div style="border-radius:10px;overflow:hidden;border:1px solid rgba(255,255,255,.1);cursor:pointer;background:var(--s2)"
+              onclick="opVideoAc('${g.id}', '${embed}', ${i+2})">
+              ${thumb ? `<img src="${thumb}" style="width:100%;height:70px;object-fit:cover;display:block">` : '<div style="width:100%;height:70px;background:var(--s3);display:flex;align-items:center;justify-content:center;font-size:20px">▶</div>'}
+              <div style="padding:5px 7px;font-size:9px;color:var(--mu2)">Video ${i+2}</div>
+            </div>`;
+          }).join('')}
+        </div>
+      </div>` : ''}
+
+      <!-- PDF Bölümü -->
+      ${g.pdf ? `<div style="margin-bottom:14px">
+        <div style="font-size:10px;color:var(--mu);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px">📄 Çözülecek Doküman</div>
+        <div style="display:flex;align-items:center;gap:10px;padding:12px 14px;background:rgba(180,125,255,.08);border:1px solid rgba(180,125,255,.2);border-radius:10px">
+          <span style="font-size:24px">📋</span>
+          <div style="flex:1">
+            <div style="font-size:12px;font-weight:600;color:#fff">${g.pdfAd || 'Ders Notu'}</div>
+            <div style="font-size:10px;color:var(--mu2)">İndir, çöz, tamamla butonuna bas</div>
+          </div>
+          <a href="${g.pdf}" target="_blank" class="btn btn-pf btn-sm">⬇ İndir</a>
+        </div>
+      </div>` : ''}
+
+      <!-- Tamamla butonu -->
+      ${!tamamlandi ? `<button class="btn btn-g" style="width:100%;justify-content:center;padding:12px" onclick="opGorevTamamla('${g.id}')">
+        ✓ Videoları İzledim & PDF'i Çözdüm — Tamamlandı!
+      </button>` : `<div style="text-align:center;color:var(--G);font-size:12px;font-weight:600;padding:10px">
+        ✅ Bu görevi tamamladınız!
+      </div>`}
+    </div>`;
+  }).join('');
+
+  // Lazy iframe yükleme — görünürse yükle
+  setTimeout(() => {
+    document.querySelectorAll('iframe[data-src]').forEach(frame => {
+      // Lazy: sadece "Yükle" butonuyla yükle
+    });
+  }, 100);
+}
 
 // ── Video galeri: alt video tıklandığında ana player değişir ──
 function opVideoAc(gorevId, embedUrl, no) {
