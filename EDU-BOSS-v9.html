@@ -4857,28 +4857,28 @@ async function yedekYukle(e){
 function introGiris(){
   // v9: intro yok, direkt login veya app
   fbInit();
+  var ls = document.getElementById('login-screen');
   if(!auth){
-    document.getElementById('login-screen').classList.add('show');
+    if(ls) ls.classList.add('show');
     return;
   }
-  const mevcut=auth.currentUser;
+  var mevcut = auth.currentUser;
   if(mevcut){
-    (async()=>{
-      try{
-        const snap=await db.collection('users').where('email','==',mevcut.email).limit(1).get();
+    db.collection('users').where('email','==',mevcut.email).limit(1).get()
+      .then(function(snap){
         if(!snap.empty){
-          const kul=snap.docs[0].data();
-          mevcutKullanici={uid:mevcut.uid,...kul};
+          var kul = snap.docs[0].data();
+          mevcutKullanici = {uid:mevcut.uid, ad:kul.ad, email:kul.email, rol:kul.rol, ogrenciId:kul.ogrenciId};
           document.getElementById('app-wrap').classList.add('show');
-          if(kul.rol==='ogrenci'){ogrenciGiris(mevcutKullanici);}
-          else{ogretmenGiris();}
-          return;
+          if(kul.rol==='ogrenci'){ ogrenciGiris(mevcutKullanici); }
+          else{ ogretmenGiris(); }
+        } else {
+          if(ls) ls.classList.add('show');
         }
-      }catch(e){}
-      document.getElementById('login-screen').classList.add('show');
-    })();
+      })
+      .catch(function(){ if(ls) ls.classList.add('show'); });
   } else {
-    document.getElementById('login-screen').classList.add('show');
+    if(ls) ls.classList.add('show');
   }
 }
 
