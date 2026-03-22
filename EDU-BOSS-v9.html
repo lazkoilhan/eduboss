@@ -5015,6 +5015,7 @@ async function ogretmenGiris(){
 }
 
 async function ogrenciGiris(userData){
+  _opUserData=userData;
   document.getElementById('ogrenci-panel').classList.add('show');
   document.getElementById('op-ad').textContent=userData.ad||'';
   // Öğrencinin verisini yükle
@@ -5052,6 +5053,7 @@ function cikisYap(){
 // ─── Öğrenci Paneli Render ───
 const opCharts={};
 let _opOgr=null;
+let _opUserData=null;
 function opTab(tab, el){
   document.querySelectorAll('.op-tab').forEach(t=>t.classList.remove('active'));
   document.querySelectorAll('.op-content').forEach(c=>c.classList.remove('show'));
@@ -5060,7 +5062,7 @@ function opTab(tab, el){
   if(!mevcutKullanici)return;
   const ad=mevcutKullanici.ad||'';
   if(tab==='gorevlerim'&&_opOgr){
-    Promise.all([fbGet(COL.gorev)]).then(([g])=>{GOREVLER=g;opRenderGorevlerim(_opOgr);});
+    Promise.all([fbGet(COL.gorev)]).then(([g])=>{GOREVLER=g;opRenderGorevlerim(_opOgr,_opUserData);});
   }
   if(tab==='program'){
     Promise.all([fbGet(COL.musait),fbGet(COL.talep)]).then(([m,t])=>{
@@ -5088,6 +5090,8 @@ function opRender(ogr, userData){
     opRenderTakvim();
     opRenderNotlar(userData?.ogrenciId||'');
     opRenderHedef(null);
+    // ogr bulunamasa da görevleri yükle (userData ile eşleştir)
+    fbGet(COL.gorev).then(g=>{GOREVLER=g;opRenderGorevlerim(null,userData);});
     return;
   }
   // Hedef, takvim, notlar paralel yükle
@@ -5159,7 +5163,7 @@ function opRender(ogr, userData){
   opRenderProgram(ogr.ad);
 
   // Görevlerim
-  fbGet(COL.gorev).then(g=>{GOREVLER=g;opRenderGorevlerim(ogr);});
+  fbGet(COL.gorev).then(g=>{GOREVLER=g;opRenderGorevlerim(ogr,_opUserData);});
 }
 
 function opSinavFiltre(ogrParam){
@@ -6707,8 +6711,9 @@ function renderGorev() {
 // ── Öğrenci: görevi tamamla ──
 async function opGorevTamamla(gorevId) {
   const g = GOREVLER.find(x => x.id === gorevId);
-  if (!g || !_opOgr) return;
-  const ogrId = _opOgr.id || _opOgr.ad;
+  if (!g) return;
+  if (!_opOgr && !_opUserData) return;
+  const ogrId = _opOgr?.id || _opOgr?.ad || _opUserData?.ogrenciId || _opUserData?.ad || '';
   if ((g.tamamlayan||[]).includes(ogrId)) { toast('Bu görevi zaten tamamladınız!', 'inf'); return; }
   if (!g.tamamlayan) g.tamamlayan = [];
   g.tamamlayan.push(ogrId);
@@ -6718,16 +6723,33 @@ async function opGorevTamamla(gorevId) {
 }
 
 // ── Öğrenci paneli: görevlerim render ──
-function opRenderGorevlerim(ogr) {
+function opRenderGorevlerim(ogr, userData) {
   const el = document.getElementById('op-gorevlerim-ic');
-  if (!el || !ogr) return;
+  if (!el) return;
 
-  // Bu öğrenciye ait görevler (hepsi veya özel seçimde bu öğrenci varsa)
-  const ogrId = ogr.id || ogr.ad;
+  // Öğrenci kimliğini tüm olası ID'lerle topla
+  const kimlikler = new Set();
+  if (ogr) {
+    if (ogr.id)  kimlikler.add(ogr.id);
+    if (ogr.ad)  kimlikler.add(ogr.ad);
+  }
+  if (userData) {
+    if (userData.ogrenciId) kimlikler.add(userData.ogrenciId);
+    if (userData.ad)        kimlikler.add(userData.ad);
+    if (userData.uid)       kimlikler.add(userData.uid);
+    if (userData.email)     kimlikler.add(userData.email);
+  }
+
+  // Bu öğrenciye ait görevler
   const benimGorevler = GOREVLER.filter(g => {
     if (g.hedefTip === 'hepsi') return true;
-    return (g.hedefOgr||[]).includes(ogrId);
+    const hedef = g.hedefOgr || [];
+    return hedef.some(h => kimlikler.has(h));
   });
+
+  // tamamlandı kontrolü için de kimlikler kullan
+  const ogrId = ogr ? (ogr.id || ogr.ad) : (userData?.ogrenciId || userData?.ad || '');
+
 
   if (!benimGorevler.length) {
     el.innerHTML = '<div class="empty"><div class="empty-ic">✅</div><div>Şu an aktif göreviniz yok</div><div style="margin-top:6px;font-size:11px;color:var(--mu)">Öğretmeniniz henüz görev atamamış</div></div>';
