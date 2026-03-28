@@ -6,6 +6,8 @@
     <title>BOOM-GO!</title>
     <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@700;800;900&family=Fredoka+One&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <!-- Google AdSense -->
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7409786977281783" crossorigin="anonymous"></script>
     <style>
         :root{
             --yellow:#FFD600;--red:#F03E3E;--red-dark:#C0392B;
@@ -255,6 +257,39 @@
 
         .slide-in{animation:slideIn .28s ease;}
         @keyframes slideIn{from{transform:translateX(22px);opacity:0}to{transform:translateX(0);opacity:1}}
+
+        /* REKLAM — Sabit alt banner */
+        .ad-bottom-bar{
+            position:fixed; bottom:0; left:0; right:0;
+            background:var(--white);
+            border-top:1px solid #eee;
+            display:flex; align-items:center; justify-content:center;
+            padding:4px 0;
+            z-index:200;
+            min-height:60px;
+        }
+        /* Alt reklam için sayfa içeriğini yukarı it */
+        body{ padding-bottom:60px; }
+
+        /* Level arası reklam kutusu */
+        .ad-between-levels{
+            background:var(--white);
+            border-radius:20px;
+            margin:0 15px 14px;
+            padding:10px;
+            box-shadow:var(--sh-wht);
+            text-align:center;
+            overflow:hidden;
+            min-height:100px;
+            display:flex;
+            flex-direction:column;
+            align-items:center;
+            justify-content:center;
+        }
+        .ad-label{
+            font-size:10px;color:#bbb;font-weight:700;
+            margin-bottom:4px;letter-spacing:1px;
+        }
     </style>
 </head>
 <body>
@@ -348,6 +383,18 @@
             <div class="lvl-sub">15 level · Her levelde 10 yeni kelime</div>
         </div>
     </div>
+
+    <!-- Level ekranı arası reklam -->
+    <div class="ad-between-levels">
+        <div class="ad-label">REKLAM</div>
+        <ins class="adsbygoogle"
+             style="display:block;width:100%;height:90px;"
+             data-ad-client="ca-pub-7409786977281783"
+             data-ad-slot="YOUR_SLOT_ID_1"
+             data-ad-format="horizontal"
+             data-full-width-responsive="true"></ins>
+    </div>
+
     <div class="lvl-list" id="levelList"></div>
 </div>
 
@@ -1049,5 +1096,26 @@ function goHome(){
 
 init();
 </script>
+
+<!-- Sabit Alt Reklam Banner -->
+<div class="ad-bottom-bar">
+    <ins class="adsbygoogle"
+         style="display:inline-block;width:320px;height:50px"
+         data-ad-client="ca-pub-7409786977281783"
+         data-ad-slot="YOUR_SLOT_ID_2"></ins>
+</div>
+
+<script>
+    // AdSense reklamlarını başlat
+    (function(){
+        try {
+            // Alt banner
+            (adsbygoogle = window.adsbygoogle || []).push({});
+            // Level arası reklam
+            (adsbygoogle = window.adsbygoogle || []).push({});
+        } catch(e){ console.log('AdSense:', e); }
+    })();
+</script>
+
 </body>
 </html>
