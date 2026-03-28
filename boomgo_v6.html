@@ -1,0 +1,939 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+    <title>BOOM-GO!</title>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@700;800;900&family=Fredoka+One&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <style>
+        :root{
+            --yellow:#FFD600;--red:#F03E3E;--red-dark:#C0392B;
+            --white:#FFFFFF;--gray:#F2F2F2;--text:#1a1a2e;
+            --sh-red:0 8px 0 #b71c1c;--sh-wht:0 8px 0 #ddd;
+            --sh-ylw:0 6px 0 #e6b800;--sh-grn:0 6px 0 #27ae60;
+            --sh-pur:0 6px 0 #6c3483;--sh-blu:0 6px 0 #1a5276;
+            --gold:#FFD700;--gold-dk:#e6b800;
+        }
+        *{box-sizing:border-box;margin:0;padding:0;}
+        body{font-family:'Nunito',sans-serif;background:var(--yellow);min-height:100vh;overflow-x:hidden;}
+
+        .bg-deco{position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden;}
+        .bg-deco span{position:absolute;border-radius:50%;}
+        .bg-deco span:nth-child(1){width:130px;height:130px;top:-35px;right:-25px;background:rgba(240,62,62,.35);}
+        .bg-deco span:nth-child(2){width:80px;height:80px;top:140px;left:-20px;background:rgba(255,255,255,.25);}
+        .bg-deco span:nth-child(3){width:60px;height:60px;bottom:220px;right:15px;background:rgba(255,255,255,.2);}
+        .bg-deco span:nth-child(4){width:45px;height:45px;bottom:120px;left:25px;background:rgba(240,62,62,.25);}
+
+        .screen{display:none;position:relative;z-index:1;padding-bottom:44px;}
+        .screen.active{display:block;}
+        #game-screen.active{display:flex;}
+
+        /* TOP BAR */
+        .top-bar{
+            display:flex;justify-content:space-between;align-items:center;
+            padding:10px 14px;background:var(--white);
+            border-radius:0 0 26px 26px;
+            box-shadow:0 4px 15px rgba(0,0,0,.1);
+            position:sticky;top:0;z-index:100;gap:6px;
+        }
+        .top-btn{
+            width:40px;height:40px;border-radius:50%;
+            background:#f0f0f0;border:none;font-size:18px;
+            cursor:pointer;display:flex;align-items:center;justify-content:center;
+            transition:transform .15s;flex-shrink:0;
+        }
+        .top-btn:active{transform:scale(.9);}
+        .top-btn.hidden{visibility:hidden;}
+        .top-btn.home-btn{background:#FFF3E0;font-size:20px;}
+        .gold-badge{
+            background:var(--gold);padding:7px 14px;border-radius:18px;
+            font-weight:900;font-size:14px;box-shadow:var(--sh-ylw);
+            display:flex;align-items:center;gap:4px;flex:1;justify-content:center;
+            cursor:pointer;transition:.15s;
+        }
+        .gold-badge:active{transform:translateY(2px);box-shadow:none;}
+        .lives-badge{
+            background:#fff0f0;padding:6px 10px;border-radius:16px;
+            font-size:15px;border:2px solid #ffe0e0;flex-shrink:0;text-align:center;
+        }
+
+        /* HERO */
+        .hero-card{
+            background:var(--white);margin:14px 15px 18px;
+            border-radius:30px;padding:0 16px 20px;
+            text-align:center;box-shadow:var(--sh-wht);
+            position:relative;overflow:hidden;
+        }
+        .hero-banner{
+            height:100px;margin:0 -16px 0;
+            background:linear-gradient(135deg,var(--yellow) 0%,#FFE566 100%);
+            border-radius:30px 30px 50% 50%;
+            display:flex;align-items:flex-end;justify-content:center;
+        }
+        .hero-avatar-wrap{
+            position:relative;top:26px;display:inline-block;
+            cursor:pointer;
+        }
+        .hero-avatar-base{font-size:85px;filter:drop-shadow(0 10px 15px rgba(0,0,0,.2));animation:float 3s ease-in-out infinite;display:block;line-height:1;}
+        .hero-hat{font-size:48px;position:absolute;top:-28px;left:50%;transform:translateX(-50%);pointer-events:none;}
+        .hero-glasses{font-size:32px;position:absolute;top:22px;left:50%;transform:translateX(-50%);pointer-events:none;}
+        .avatar-edit-hint{font-size:11px;color:#aaa;font-weight:700;margin-top:32px;margin-bottom:2px;}
+        @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-12px)}}
+        .hero-title{font-family:'Fredoka One',cursive;font-size:30px;color:var(--text);margin-top:6px;}
+        .hero-sub{color:#aaa;font-size:12px;margin-bottom:14px;font-weight:700;}
+        .hero-btns{display:flex;gap:8px;justify-content:center;align-items:center;}
+        .btn-play{background:var(--yellow);border:none;border-radius:22px;padding:11px 26px;font-size:14px;font-weight:900;font-family:'Nunito';cursor:pointer;box-shadow:var(--sh-ylw);transition:.15s;}
+        .btn-play:active{transform:translateY(4px);box-shadow:none;}
+        .btn-info{background:var(--red);color:white;border:none;border-radius:22px;padding:11px 18px;font-size:13px;font-weight:800;font-family:'Nunito';cursor:pointer;box-shadow:var(--sh-red);transition:.15s;}
+        .btn-info:active{transform:translateY(3px);box-shadow:none;}
+        .btn-quest{background:#9B59B6;color:white;border:none;border-radius:22px;padding:11px 16px;font-size:13px;font-weight:800;font-family:'Nunito';cursor:pointer;box-shadow:var(--sh-pur);transition:.15s;position:relative;}
+        .btn-quest:active{transform:translateY(3px);box-shadow:none;}
+        .quest-dot{position:absolute;top:-3px;right:-3px;width:10px;height:10px;background:var(--red);border-radius:50%;border:2px solid white;display:none;}
+
+        /* SECTION */
+        .sec-hdr{display:flex;justify-content:space-between;align-items:center;padding:0 16px;margin-bottom:11px;}
+        .sec-ttl{font-family:'Fredoka One',cursive;font-size:20px;color:var(--text);}
+
+        /* CAT GRID */
+        .cat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;padding:4px 15px 6px;}
+        .cat-card{
+            background:var(--white);border-radius:20px;padding:14px 7px;
+            text-align:center;cursor:pointer;box-shadow:var(--sh-wht);transition:.15s;
+            position:relative;
+        }
+        .cat-card:active{transform:translateY(4px);box-shadow:0 3px 0 #ddd;}
+        .cat-card.red-card{background:var(--red);color:white;box-shadow:var(--sh-red);}
+        .cat-card.red-card:active{box-shadow:0 3px 0 #b71c1c;}
+        .cat-card.ylw-card{background:var(--yellow);box-shadow:var(--sh-ylw);}
+        .cat-card.ylw-card:active{box-shadow:0 3px 0 #e6b800;}
+        .cat-card.locked{opacity:.7;filter:grayscale(.4);}
+        .lock-overlay{
+            position:absolute;inset:0;border-radius:20px;
+            background:rgba(0,0,0,.35);
+            display:flex;flex-direction:column;align-items:center;justify-content:center;
+            color:white;font-size:11px;font-weight:900;gap:2px;
+        }
+        .lock-overlay span{font-size:22px;}
+        .cat-ico{width:46px;height:46px;border-radius:50%;background:rgba(255,255,255,.3);display:flex;align-items:center;justify-content:center;margin:0 auto 6px;font-size:25px;}
+        .cat-nm{font-weight:900;font-size:11px;line-height:1.2;}
+        .cat-lv{font-size:10px;opacity:.75;margin-top:2px;font-weight:700;}
+
+        /* EMOJI GRID */
+        .emoji-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;padding:4px 15px 6px;}
+        .e-bubble{aspect-ratio:1;border-radius:50%;background:var(--white);display:flex;align-items:center;justify-content:center;font-size:26px;box-shadow:var(--sh-wht);cursor:pointer;transition:.15s;}
+        .e-bubble:active{transform:scale(.9);}
+        .e-bubble.rb{background:var(--red);box-shadow:var(--sh-red);}
+        .e-bubble.yb{background:var(--yellow);box-shadow:var(--sh-ylw);}
+
+        /* LEVEL SCREEN */
+        .lvl-hero{background:var(--white);margin:13px 15px 15px;border-radius:30px;overflow:hidden;box-shadow:var(--sh-wht);}
+        .lvl-banner{background:var(--red);padding:24px 16px;text-align:center;}
+        .lvl-emoji{font-size:72px;display:block;filter:drop-shadow(0 8px 12px rgba(0,0,0,.3));animation:float 3s ease-in-out infinite;}
+        .lvl-info{padding:13px 16px 16px;}
+        .lvl-title{font-family:'Fredoka One',cursive;font-size:22px;color:var(--text);}
+        .lvl-sub{color:#aaa;font-size:12px;margin-top:2px;font-weight:700;}
+        .lvl-list{padding:0 15px;}
+        .lvl-item{
+            background:var(--red);border-radius:18px;padding:13px 14px;margin-bottom:10px;
+            display:flex;align-items:center;gap:11px;
+            cursor:pointer;box-shadow:var(--sh-red);transition:.15s;color:white;
+        }
+        .lvl-item:active{transform:translateY(4px);box-shadow:0 3px 0 #b71c1c;}
+        .lvl-badge{width:42px;height:42px;border-radius:50%;background:rgba(255,255,255,.25);display:flex;align-items:center;justify-content:center;font-size:21px;flex-shrink:0;}
+        .lvl-inf{flex:1;}
+        .lvl-nm{font-weight:900;font-size:15px;}
+        .lvl-st-txt{font-size:11px;opacity:.85;}
+        .lvl-stars{font-size:17px;letter-spacing:1px;}
+
+        /* GAME SCREEN */
+        #game-screen{flex-direction:column;align-items:center;padding:14px 15px 26px;min-height:calc(100vh - 68px);}
+        .prog-wrap{width:100%;max-width:420px;background:rgba(255,255,255,.4);border-radius:20px;height:10px;margin-bottom:12px;overflow:hidden;}
+        .prog-fill{height:100%;background:var(--red);border-radius:20px;transition:width .4s ease;}
+        .q-cnt{font-family:'Fredoka One',cursive;font-size:13px;color:rgba(0,0,0,.3);width:100%;max-width:420px;text-align:right;margin-bottom:7px;}
+        .game-card{background:var(--white);width:100%;max-width:420px;border-radius:36px;padding:24px 18px 22px;text-align:center;box-shadow:0 16px 0 rgba(0,0,0,.07),0 20px 36px rgba(0,0,0,.05);}
+        .q-emoji{font-size:100px;display:block;margin-bottom:4px;filter:drop-shadow(0 10px 15px rgba(0,0,0,.15));animation:float 2.5s ease-in-out infinite;}
+        .q-label{font-size:12px;color:#ccc;font-weight:700;margin-bottom:16px;}
+        .opt-btn{width:100%;padding:14px;margin-top:9px;border-radius:16px;border:none;background:var(--gray);font-size:17px;font-weight:900;font-family:'Nunito';cursor:pointer;box-shadow:0 5px 0 #ddd;transition:.15s;color:var(--text);}
+        .opt-btn:active:not(:disabled){transform:translateY(3px);box-shadow:0 2px 0 #ddd;}
+        .opt-btn.correct{background:#2ecc71;color:white;box-shadow:0 5px 0 #27ae60;animation:pop .3s ease;}
+        .opt-btn.wrong{background:var(--red);color:white;box-shadow:0 5px 0 var(--red-dark);animation:shake .4s ease;}
+        @keyframes pop{0%{transform:scale(1)}50%{transform:scale(1.05)}100%{transform:scale(1)}}
+        @keyframes shake{0%,100%{transform:translateX(0)}25%,75%{transform:translateX(-8px)}50%{transform:translateX(8px)}}
+
+        /* GOLD COIN ANIMATION */
+        .gold-pop{
+            position:fixed;font-size:28px;font-weight:900;color:#e6b800;
+            font-family:'Fredoka One',cursive;
+            pointer-events:none;z-index:999;
+            animation:goldFly 1.2s ease forwards;
+        }
+        @keyframes goldFly{0%{opacity:1;transform:translateY(0) scale(1)}100%{opacity:0;transform:translateY(-80px) scale(1.4)}}
+
+        /* MODAL */
+        .m-overlay{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:500;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .3s;backdrop-filter:blur(4px);}
+        .m-overlay.show{opacity:1;pointer-events:all;}
+        .m-box{background:white;border-radius:30px;padding:28px 22px;text-align:center;max-width:320px;width:92%;transform:scale(.85);transition:transform .3s;box-shadow:0 20px 60px rgba(0,0,0,.3);}
+        .m-overlay.show .m-box{transform:scale(1);}
+        .m-ico{font-size:68px;display:block;margin-bottom:8px;}
+        .m-ttl{font-family:'Fredoka One',cursive;font-size:25px;margin-bottom:4px;color:var(--text);}
+        .m-sub{color:#aaa;margin-bottom:16px;font-size:13px;font-weight:700;line-height:1.5;}
+        .m-btn{display:block;width:100%;padding:13px;border-radius:16px;border:none;font-size:15px;font-weight:900;font-family:'Nunito';cursor:pointer;margin-bottom:8px;transition:.15s;}
+        .m-btn:active{transform:translateY(3px);}
+        .m-grn{background:#2ecc71;color:white;box-shadow:var(--sh-grn);}
+        .m-red{background:var(--red);color:white;box-shadow:var(--sh-red);}
+        .m-ylw{background:var(--yellow);color:var(--text);box-shadow:var(--sh-ylw);}
+        .m-pur{background:#9B59B6;color:white;box-shadow:var(--sh-pur);}
+        .m-blu{background:#2980B9;color:white;box-shadow:var(--sh-blu);}
+
+        /* AVATAR SCREEN */
+        #avatar-screen{padding:0;}
+        .av-hero{background:var(--white);margin:14px 15px 16px;border-radius:30px;padding:24px 18px;text-align:center;box-shadow:var(--sh-wht);}
+        .av-preview{
+            font-size:90px;display:block;position:relative;
+            filter:drop-shadow(0 10px 18px rgba(0,0,0,.15));
+            animation:float 3s ease-in-out infinite;
+            margin-bottom:10px;
+        }
+        .av-section-title{font-family:'Fredoka One',cursive;font-size:16px;color:var(--text);text-align:left;padding:0 15px;margin:14px 0 8px;}
+        .av-items{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;padding:0 15px 12px;}
+        .av-item{
+            background:var(--white);border-radius:18px;padding:12px 6px;
+            text-align:center;cursor:pointer;box-shadow:var(--sh-wht);
+            transition:.15s;position:relative;
+        }
+        .av-item:active{transform:translateY(3px);box-shadow:0 2px 0 #ddd;}
+        .av-item.selected{background:var(--yellow);box-shadow:var(--sh-ylw);}
+        .av-item.locked-item{opacity:.5;filter:grayscale(.5);}
+        .av-item-ico{font-size:30px;display:block;margin-bottom:4px;}
+        .av-item-price{font-size:10px;font-weight:900;color:#888;}
+        .av-item-price.owned{color:#27ae60;}
+        .av-lock{position:absolute;top:4px;right:6px;font-size:13px;}
+
+        /* QUEST SCREEN */
+        #quest-screen{padding:0;}
+        .quest-hero{background:var(--white);margin:14px 15px 16px;border-radius:30px;padding:22px 18px;text-align:center;box-shadow:var(--sh-wht);}
+        .quest-title{font-family:'Fredoka One',cursive;font-size:28px;color:var(--text);}
+        .quest-sub{color:#aaa;font-size:13px;margin-top:4px;font-weight:700;}
+        .quest-timer{
+            display:inline-block;background:var(--red);color:white;
+            padding:6px 16px;border-radius:20px;font-size:13px;font-weight:900;
+            margin-top:10px;box-shadow:var(--sh-red);
+        }
+        .quest-list{padding:0 15px;}
+        .quest-item{
+            background:var(--white);border-radius:22px;padding:16px;margin-bottom:12px;
+            box-shadow:var(--sh-wht);
+        }
+        .quest-item-top{display:flex;align-items:center;gap:12px;margin-bottom:10px;}
+        .quest-ico-wrap{width:50px;height:50px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:26px;flex-shrink:0;}
+        .quest-ico-wrap.q-ylw{background:#FFF9C4;box-shadow:0 4px 0 #e6b800;}
+        .quest-ico-wrap.q-red{background:#FFEBEE;box-shadow:0 4px 0 #b71c1c;}
+        .quest-ico-wrap.q-pur{background:#F3E5F5;box-shadow:0 4px 0 #6c3483;}
+        .quest-item-info{flex:1;}
+        .quest-item-nm{font-weight:900;font-size:15px;color:var(--text);}
+        .quest-item-desc{font-size:12px;color:#aaa;margin-top:2px;}
+        .quest-reward{font-weight:900;font-size:14px;color:var(--gold-dk);}
+        .quest-prog-wrap{background:#f0f0f0;border-radius:20px;height:10px;overflow:hidden;}
+        .quest-prog-fill{height:100%;background:linear-gradient(90deg,#FFD600,#FF9800);border-radius:20px;transition:width .5s ease;}
+        .quest-prog-txt{font-size:11px;color:#aaa;font-weight:700;text-align:right;margin-top:4px;}
+        .quest-claim-btn{
+            display:block;width:100%;padding:11px;border-radius:14px;border:none;
+            background:var(--yellow);font-size:14px;font-weight:900;font-family:'Nunito';
+            cursor:pointer;box-shadow:var(--sh-ylw);margin-top:10px;transition:.15s;
+        }
+        .quest-claim-btn:active{transform:translateY(3px);box-shadow:none;}
+        .quest-claim-btn.claimed{background:#ddd;color:#aaa;box-shadow:0 4px 0 #bbb;cursor:default;}
+
+        /* INFO */
+        .info-list{text-align:left;margin-bottom:14px;}
+        .info-row{display:flex;align-items:flex-start;gap:9px;padding:7px 0;border-bottom:1px solid #f0f0f0;font-size:12px;color:#555;font-weight:700;}
+        .info-row:last-child{border:none;}
+        .info-row span:first-child{font-size:18px;flex-shrink:0;}
+
+        .slide-in{animation:slideIn .28s ease;}
+        @keyframes slideIn{from{transform:translateX(22px);opacity:0}to{transform:translateX(0);opacity:1}}
+    </style>
+</head>
+<body>
+<div class="bg-deco"><span></span><span></span><span></span><span></span></div>
+
+<!-- SONUÇ MODAL -->
+<div class="m-overlay" id="modal">
+    <div class="m-box">
+        <span class="m-ico" id="mIco">🎉</span>
+        <div class="m-ttl" id="mTtl"></div>
+        <div class="m-sub" id="mSub"></div>
+        <button class="m-btn m-grn" id="mB1" onclick="mAct(1)"></button>
+        <button class="m-btn m-red" id="mB2" onclick="mAct(2)"></button>
+        <button class="m-btn m-ylw" id="mB3" onclick="mAct(3)"></button>
+        <button class="m-btn m-blu" id="mB4" onclick="mAct(4)" style="display:none"></button>
+    </div>
+</div>
+
+<!-- KATEGORİ KİLİT AÇMA MODAL -->
+<div class="m-overlay" id="unlockModal">
+    <div class="m-box">
+        <span class="m-ico" id="unlockIco">🔓</span>
+        <div class="m-ttl" id="unlockTtl">Kategoriyi Aç!</div>
+        <div class="m-sub" id="unlockSub">Bu kategoriyi açmak ister misin?</div>
+        <button class="m-btn m-ylw" id="unlockBuy" onclick="confirmUnlock()">🪙 Satın Al</button>
+        <button class="m-btn m-red" onclick="document.getElementById('unlockModal').classList.remove('show')">Vazgeç</button>
+    </div>
+</div>
+
+<!-- INFO MODAL -->
+<div class="m-overlay" id="infoModal">
+    <div class="m-box">
+        <span class="m-ico">📖</span>
+        <div class="m-ttl">Nasıl Oynanır?</div>
+        <div class="info-list">
+            <div class="info-row"><span>👀</span><span>Emojiye bak, İngilizce karşılığını bul.</span></div>
+            <div class="info-row"><span>🔊</span><span>Doğru seçince kelime sesli okunur.</span></div>
+            <div class="info-row"><span>❤️</span><span>3 canın var — can bitince altınla satın alabilirsin!</span></div>
+            <div class="info-row"><span>🪙</span><span>Doğru cevap = 10 altın, Level bitirince bonus!</span></div>
+            <div class="info-row"><span>🔓</span><span>Kilitli kategorileri altınla aç.</span></div>
+            <div class="info-row"><span>🎨</span><span>Avatarını şapka ve gözlükle özelleştir!</span></div>
+            <div class="info-row"><span>📋</span><span>Günlük görevleri tamamla, ekstra altın kazan!</span></div>
+        </div>
+        <button class="m-btn m-red" onclick="document.getElementById('infoModal').classList.remove('show')">Anladım! 🎮</button>
+    </div>
+</div>
+
+<!-- TOP BAR -->
+<div class="top-bar">
+    <button class="top-btn hidden" id="backBtn" onclick="goBack()">⬅</button>
+    <div class="gold-badge" id="goldBadge" onclick="showScreen('avatar-screen');document.getElementById('backBtn').classList.remove('hidden')">🪙 <span id="goldAmt">0</span></div>
+    <div class="lives-badge" id="lives">❤️❤️❤️</div>
+    <button class="top-btn home-btn" onclick="goHome()">🏠</button>
+</div>
+
+<!-- HOME -->
+<div class="screen active" id="home-screen">
+    <div class="hero-card">
+        <div class="hero-banner">
+            <div class="hero-avatar-wrap" onclick="showScreen('avatar-screen');document.getElementById('backBtn').classList.remove('hidden')">
+                <span class="hero-avatar-base" id="heroBase">😎</span>
+                <span class="hero-hat" id="heroHat"></span>
+                <span class="hero-glasses" id="heroGlasses"></span>
+            </div>
+        </div>
+        <div class="avatar-edit-hint">✏️ Avatarına dokun!</div>
+        <div class="hero-title">BOOM-GO!</div>
+        <div class="hero-sub">Emojilerle İngilizce Öğren 🚀</div>
+        <div class="hero-btns">
+            <button class="btn-play" onclick="playRandom()">▶ Oyna</button>
+            <button class="btn-info" onclick="document.getElementById('infoModal').classList.add('show')">📖 Nasıl?</button>
+            <button class="btn-quest" onclick="showScreen('quest-screen');document.getElementById('backBtn').classList.remove('hidden')">
+                📋 Görev
+                <span class="quest-dot" id="questDot"></span>
+            </button>
+        </div>
+    </div>
+    <div class="sec-hdr"><div class="sec-ttl">Kategoriler</div></div>
+    <div class="cat-grid" id="catGrid"></div>
+    <div class="sec-hdr" style="margin-top:18px"><div class="sec-ttl">Emoji Dünyası</div></div>
+    <div class="emoji-grid" id="emojiGrid"></div>
+</div>
+
+<!-- LEVEL -->
+<div class="screen" id="level-screen">
+    <div class="lvl-hero">
+        <div class="lvl-banner"><span class="lvl-emoji" id="lvlEmoji">🍎</span></div>
+        <div class="lvl-info">
+            <div class="lvl-title" id="catTitle">Fruits</div>
+            <div class="lvl-sub">10 level · Her levelde 10 yeni kelime</div>
+        </div>
+    </div>
+    <div class="lvl-list" id="levelList"></div>
+</div>
+
+<!-- GAME -->
+<div class="screen" id="game-screen">
+    <div class="prog-wrap" style="width:100%;max-width:420px">
+        <div class="prog-fill" id="progBar" style="width:0%"></div>
+    </div>
+    <div class="q-cnt" id="qCnt">1 / 10</div>
+    <div class="game-card">
+        <span id="gameEmoji" class="q-emoji">🍎</span>
+        <div class="q-label">Bu emojinin İngilizce karşılığı nedir?</div>
+        <div id="options"></div>
+    </div>
+</div>
+
+<!-- AVATAR SCREEN -->
+<div class="screen" id="avatar-screen">
+    <div class="av-hero">
+        <div style="position:relative;display:inline-block;margin-bottom:6px;">
+            <span class="av-preview" id="avPreviewBase">😎</span>
+            <span style="font-size:52px;position:absolute;top:-22px;left:50%;transform:translateX(-50%)" id="avPreviewHat"></span>
+            <span style="font-size:34px;position:absolute;top:20px;left:50%;transform:translateX(-50%)" id="avPreviewGlasses"></span>
+        </div>
+        <div style="font-family:'Fredoka One',cursive;font-size:22px;color:var(--text);margin-top:8px;">Avatarını Özelleştir!</div>
+        <div style="color:#aaa;font-size:12px;font-weight:700;">Üstüne dokunarak seç · 🪙 ile satın al</div>
+    </div>
+
+    <div class="av-section-title">😊 Yüz Seç</div>
+    <div class="av-items" id="avFaces"></div>
+
+    <div class="av-section-title">🎩 Şapka</div>
+    <div class="av-items" id="avHats"></div>
+
+    <div class="av-section-title">🕶️ Gözlük</div>
+    <div class="av-items" id="avGlasses"></div>
+</div>
+
+<!-- QUEST SCREEN -->
+<div class="screen" id="quest-screen">
+    <div class="quest-hero">
+        <div class="quest-title">📋 Günlük Görevler</div>
+        <div class="quest-sub">Her gün 3 yeni görev gelir!</div>
+        <div class="quest-timer" id="questTimer">⏰ Yenileniyor: --:--:--</div>
+    </div>
+    <div class="quest-list" id="questList"></div>
+</div>
+
+<script>
+// ===== SES =====
+const synth=window.speechSynthesis;
+const actx=new(window.AudioContext||window.webkitAudioContext)();
+function tone(f,t,d){const o=actx.createOscillator(),g=actx.createGain();o.type=t;o.frequency.value=f;o.connect(g);g.connect(actx.destination);o.start();g.gain.exponentialRampToValueAtTime(0.00001,actx.currentTime+d);o.stop(actx.currentTime+d);}
+function speak(tx){if(synth.speaking)synth.cancel();const u=new SpeechSynthesisUtterance(tx);u.lang='en-US';u.pitch=1.2;u.rate=0.85;synth.speak(u);}
+function ok(){tone(700,'sine',.25);}
+function err(){tone(160,'sawtooth',.35);}
+
+// ===== SAVE/LOAD =====
+const DB={
+    get(k,def){try{const v=localStorage.getItem('bg6_'+k);return v!==null?JSON.parse(v):def;}catch{return def;}},
+    set(k,v){try{localStorage.setItem('bg6_'+k,JSON.stringify(v));}catch{}}
+};
+
+// ===== OYUNCU VERİSİ =====
+let gold    = DB.get('gold', 200);   // başlangıç altını (yeni oyuncuya 200 ver)
+let lives   = DB.get('lives', 3);
+let unlockedCats = DB.get('unlocked', ['fruits','animals','colors']); // ilk 3 ücretsiz
+let avatar  = DB.get('avatar', {face:'😎', hat:'', glasses:''});
+let ownedItems = DB.get('owned', ['😎','😊','🥰','face_none','hat_none','glasses_none']);
+let starDB  = DB.get('stars', {});
+let questDB = DB.get('quests', null);
+
+function saveAll(){
+    DB.set('gold',gold); DB.set('lives',lives);
+    DB.set('unlocked',unlockedCats); DB.set('avatar',avatar);
+    DB.set('owned',ownedItems); DB.set('stars',starDB);
+    DB.set('quests',questDB);
+}
+function getStars(c,l){return starDB[c+'_'+l]||0;}
+function saveStars(c,l,s){const k=c+'_'+l;if(!starDB[k]||starDB[k]<s){starDB[k]=s;saveAll();}}
+
+// ===== AVATAR ITEMS =====
+const avFaceItems=[
+    {id:'😎',ico:'😎',price:0},{id:'😊',ico:'😊',price:0},
+    {id:'🥰',ico:'🥰',price:0},{id:'😜',ico:'😜',price:50},
+    {id:'🤩',ico:'🤩',price:50},{id:'😏',ico:'😏',price:80},
+    {id:'🤠',ico:'🤠',price:100},{id:'👽',ico:'👽',price:150},
+];
+const avHatItems=[
+    {id:'hat_none',ico:'🚫',price:0,val:''},{id:'hat_top',ico:'🎩',price:60,val:'🎩'},
+    {id:'hat_crown',ico:'👑',price:80,val:'👑'},{id:'hat_santa',ico:'🎅',price:70,val:'🎅'},
+    {id:'hat_cowboy',ico:'🤠',price:90,val:'🤠'},{id:'hat_witch',ico:'🧙',price:120,val:'🧙'},
+    {id:'hat_grad',ico:'🎓',price:100,val:'🎓'},{id:'hat_party',ico:'🥳',price:50,val:'🥳'},
+];
+const avGlassItems=[
+    {id:'glasses_none',ico:'🚫',price:0,val:''},{id:'gl_sun',ico:'🕶️',price:60,val:'🕶️'},
+    {id:'gl_star',ico:'⭐',price:80,val:'⭐'},{id:'gl_heart',ico:'🩷',price:70,val:'🩷'},
+    {id:'gl_cool',ico:'😎',price:50,val:'🤓'},{id:'gl_round',ico:'🔵',price:90,val:'🔵'},
+];
+
+// ===== KATEGORİ KİLİT FİYATLARI =====
+const CAT_PRICES={
+    fruits:0,animals:0,colors:0,
+    numbers:150,body:150,vehicles:200,
+    food:200,emojis:250,jobs:300
+};
+
+// ===== GAME DATA =====
+const gameData={
+  fruits:{n:'Fruits',i:'🍎',c:'red-card',lv:[
+    [{e:'Apple',i:'🍎'},{e:'Banana',i:'🍌'},{e:'Grape',i:'🍇'},{e:'Cherry',i:'🍒'},{e:'Mango',i:'🥭'},{e:'Pear',i:'🍐'},{e:'Peach',i:'🍑'},{e:'Kiwi',i:'🥝'},{e:'Lemon',i:'🍋'},{e:'Melon',i:'🍈'}],
+    [{e:'Watermelon',i:'🍉'},{e:'Strawberry',i:'🍓'},{e:'Pineapple',i:'🍍'},{e:'Coconut',i:'🥥'},{e:'Blueberry',i:'🫐'},{e:'Orange',i:'🍊'},{e:'Tomato',i:'🍅'},{e:'Avocado',i:'🥑'},{e:'Lime',i:'🍋'},{e:'Olive',i:'🫒'}],
+    [{e:'Plum',i:'🍑'},{e:'Apricot',i:'🍊'},{e:'Raspberry',i:'🍓'},{e:'Tangerine',i:'🍊'},{e:'Fig',i:'🍐'},{e:'Guava',i:'🥭'},{e:'Papaya',i:'🥭'},{e:'Mulberry',i:'🍇'},{e:'Blackberry',i:'🫐'},{e:'Cranberry',i:'🍓'}],
+    [{e:'Pomegranate',i:'🍎'},{e:'Lychee',i:'🍈'},{e:'Persimmon',i:'🍊'},{e:'Dragonfruit',i:'🍉'},{e:'Starfruit',i:'🍋'},{e:'Jackfruit',i:'🍈'},{e:'Quince',i:'🍐'},{e:'Date',i:'🌴'},{e:'Durian',i:'🥭'},{e:'Gooseberry',i:'🍇'}],
+    [{e:'Mandarin',i:'🍊'},{e:'Nectarine',i:'🍑'},{e:'Passion Fruit',i:'🟤'},{e:'Rambutan',i:'🌺'},{e:'Longan',i:'🍇'},{e:'Mangosteen',i:'🍇'},{e:'Breadfruit',i:'🍈'},{e:'Feijoa',i:'🟢'},{e:'Carambola',i:'🌟'},{e:'Calamansi',i:'🍋'}],
+    [{e:'Apple',i:'🍎'},{e:'Banana',i:'🍌'},{e:'Orange',i:'🍊'},{e:'Grape',i:'🍇'},{e:'Mango',i:'🥭'},{e:'Pineapple',i:'🍍'},{e:'Strawberry',i:'🍓'},{e:'Lemon',i:'🍋'},{e:'Coconut',i:'🥥'},{e:'Avocado',i:'🥑'}],
+    [{e:'Watermelon',i:'🍉'},{e:'Blueberry',i:'🫐'},{e:'Peach',i:'🍑'},{e:'Cherry',i:'🍒'},{e:'Kiwi',i:'🥝'},{e:'Pomegranate',i:'🍎'},{e:'Dragonfruit',i:'🍉'},{e:'Raspberry',i:'🍓'},{e:'Blackberry',i:'🫐'},{e:'Papaya',i:'🥭'}],
+    [{e:'Olive',i:'🫒'},{e:'Lime',i:'🍋'},{e:'Tangerine',i:'🍊'},{e:'Lychee',i:'🍈'},{e:'Guava',i:'🥭'},{e:'Fig',i:'🍐'},{e:'Mulberry',i:'🍇'},{e:'Pear',i:'🍐'},{e:'Apricot',i:'🍊'},{e:'Cranberry',i:'🍓'}],
+    [{e:'Nectarine',i:'🍑'},{e:'Persimmon',i:'🍊'},{e:'Jackfruit',i:'🍈'},{e:'Durian',i:'🥭'},{e:'Starfruit',i:'🍋'},{e:'Passion Fruit',i:'🟤'},{e:'Rambutan',i:'🌺'},{e:'Mandarin',i:'🍊'},{e:'Longan',i:'🍇'},{e:'Quince',i:'🍐'}],
+    [{e:'Apple',i:'🍎'},{e:'Mango',i:'🥭'},{e:'Strawberry',i:'🍓'},{e:'Pineapple',i:'🍍'},{e:'Lemon',i:'🍋'},{e:'Watermelon',i:'🍉'},{e:'Cherry',i:'🍒'},{e:'Blueberry',i:'🫐'},{e:'Kiwi',i:'🥝'},{e:'Pomegranate',i:'🍎'}]
+  ]},
+  animals:{n:'Animals',i:'🦁',c:'',lv:[
+    [{e:'Lion',i:'🦁'},{e:'Tiger',i:'🐯'},{e:'Cat',i:'🐱'},{e:'Dog',i:'🐶'},{e:'Elephant',i:'🐘'},{e:'Rabbit',i:'🐰'},{e:'Panda',i:'🐼'},{e:'Bear',i:'🐻'},{e:'Monkey',i:'🐵'},{e:'Bird',i:'🐦'}],
+    [{e:'Fish',i:'🐟'},{e:'Horse',i:'🐴'},{e:'Cow',i:'🐄'},{e:'Pig',i:'🐷'},{e:'Sheep',i:'🐑'},{e:'Chicken',i:'🐔'},{e:'Duck',i:'🦆'},{e:'Frog',i:'🐸'},{e:'Snake',i:'🐍'},{e:'Turtle',i:'🐢'}],
+    [{e:'Butterfly',i:'🦋'},{e:'Bee',i:'🐝'},{e:'Ant',i:'🐜'},{e:'Spider',i:'🕷️'},{e:'Crab',i:'🦀'},{e:'Dolphin',i:'🐬'},{e:'Whale',i:'🐳'},{e:'Octopus',i:'🐙'},{e:'Penguin',i:'🐧'},{e:'Koala',i:'🐨'}],
+    [{e:'Kangaroo',i:'🦘'},{e:'Giraffe',i:'🦒'},{e:'Zebra',i:'🦓'},{e:'Gorilla',i:'🦍'},{e:'Crocodile',i:'🐊'},{e:'Flamingo',i:'🦩'},{e:'Fox',i:'🦊'},{e:'Wolf',i:'🐺'},{e:'Deer',i:'🦌'},{e:'Hedgehog',i:'🦔'}],
+    [{e:'Camel',i:'🐫'},{e:'Llama',i:'🦙'},{e:'Peacock',i:'🦚'},{e:'Parrot',i:'🦜'},{e:'Shark',i:'🦈'},{e:'Lobster',i:'🦞'},{e:'Snail',i:'🐌'},{e:'Cricket',i:'🦗'},{e:'Rhino',i:'🦏'},{e:'Hippo',i:'🦛'}],
+    [{e:'Otter',i:'🦦'},{e:'Raccoon',i:'🦝'},{e:'Bat',i:'🦇'},{e:'Turkey',i:'🦃'},{e:'Owl',i:'🦉'},{e:'Eagle',i:'🦅'},{e:'Swan',i:'🦢'},{e:'Jellyfish',i:'🪼'},{e:'Starfish',i:'⭐'},{e:'Coral',i:'🪸'}],
+    [{e:'Lion',i:'🦁'},{e:'Elephant',i:'🐘'},{e:'Dolphin',i:'🐬'},{e:'Penguin',i:'🐧'},{e:'Koala',i:'🐨'},{e:'Kangaroo',i:'🦘'},{e:'Butterfly',i:'🦋'},{e:'Frog',i:'🐸'},{e:'Turtle',i:'🐢'},{e:'Bee',i:'🐝'}],
+    [{e:'Giraffe',i:'🦒'},{e:'Zebra',i:'🦓'},{e:'Flamingo',i:'🦩'},{e:'Peacock',i:'🦚'},{e:'Parrot',i:'🦜'},{e:'Shark',i:'🦈'},{e:'Camel',i:'🐫'},{e:'Rhino',i:'🦏'},{e:'Otter',i:'🦦'},{e:'Owl',i:'🦉'}],
+    [{e:'Tiger',i:'🐯'},{e:'Panda',i:'🐼'},{e:'Wolf',i:'🐺'},{e:'Fox',i:'🦊'},{e:'Bear',i:'🐻'},{e:'Gorilla',i:'🦍'},{e:'Crocodile',i:'🐊'},{e:'Snake',i:'🐍'},{e:'Octopus',i:'🐙'},{e:'Eagle',i:'🦅'}],
+    [{e:'Cat',i:'🐱'},{e:'Dog',i:'🐶'},{e:'Horse',i:'🐴'},{e:'Cow',i:'🐄'},{e:'Pig',i:'🐷'},{e:'Duck',i:'🦆'},{e:'Rabbit',i:'🐰'},{e:'Fish',i:'🐟'},{e:'Bird',i:'🐦'},{e:'Bee',i:'🐝'}]
+  ]},
+  colors:{n:'Colors',i:'🎨',c:'ylw-card',lv:[
+    [{e:'Red',i:'🔴'},{e:'Blue',i:'🔵'},{e:'Yellow',i:'🟡'},{e:'Green',i:'🟢'},{e:'Orange',i:'🟠'},{e:'Purple',i:'🟣'},{e:'Pink',i:'🩷'},{e:'Black',i:'⚫'},{e:'White',i:'⚪'},{e:'Brown',i:'🟤'}],
+    [{e:'Gray',i:'🩶'},{e:'Gold',i:'🌟'},{e:'Silver',i:'🪨'},{e:'Turquoise',i:'🩵'},{e:'Violet',i:'🔮'},{e:'Beige',i:'🌾'},{e:'Crimson',i:'🔴'},{e:'Teal',i:'🌊'},{e:'Magenta',i:'🌸'},{e:'Navy',i:'🌑'}],
+    [{e:'Coral',i:'🪸'},{e:'Mint',i:'🌿'},{e:'Lavender',i:'💜'},{e:'Peach',i:'🍑'},{e:'Ivory',i:'⚪'},{e:'Indigo',i:'🫐'},{e:'Maroon',i:'🍷'},{e:'Olive',i:'🫒'},{e:'Salmon',i:'🐟'},{e:'Cyan',i:'🩵'}],
+    [{e:'Khaki',i:'🌾'},{e:'Amber',i:'🌟'},{e:'Scarlet',i:'🔴'},{e:'Ruby',i:'💎'},{e:'Emerald',i:'💚'},{e:'Sapphire',i:'💙'},{e:'Cream',i:'🍦'},{e:'Charcoal',i:'⚫'},{e:'Rose',i:'🌹'},{e:'Tan',i:'🟫'}],
+    [{e:'Burgundy',i:'🍷'},{e:'Mauve',i:'💜'},{e:'Lilac',i:'🌸'},{e:'Cobalt',i:'🔵'},{e:'Jade',i:'💚'},{e:'Rust',i:'🟠'},{e:'Ochre',i:'🟡'},{e:'Taupe',i:'🟤'},{e:'Lemon',i:'🍋'},{e:'Sepia',i:'🟫'}],
+    [{e:'Red',i:'🔴'},{e:'Blue',i:'🔵'},{e:'Yellow',i:'🟡'},{e:'Green',i:'🟢'},{e:'Orange',i:'🟠'},{e:'Purple',i:'🟣'},{e:'Pink',i:'🩷'},{e:'Gray',i:'🩶'},{e:'Turquoise',i:'🩵'},{e:'Gold',i:'🌟'}],
+    [{e:'Silver',i:'🪨'},{e:'Crimson',i:'🔴'},{e:'Teal',i:'🌊'},{e:'Coral',i:'🪸'},{e:'Mint',i:'🌿'},{e:'Lavender',i:'💜'},{e:'Indigo',i:'🫐'},{e:'Maroon',i:'🍷'},{e:'Cyan',i:'🩵'},{e:'Ruby',i:'💎'}],
+    [{e:'Emerald',i:'💚'},{e:'Sapphire',i:'💙'},{e:'Amber',i:'🌟'},{e:'Scarlet',i:'🔴'},{e:'Beige',i:'🌾'},{e:'Magenta',i:'🌸'},{e:'Navy',i:'🌑'},{e:'Rose',i:'🌹'},{e:'Burgundy',i:'🍷'},{e:'Lilac',i:'🌸'}],
+    [{e:'Cobalt',i:'🔵'},{e:'Jade',i:'💚'},{e:'Rust',i:'🟠'},{e:'Ivory',i:'⚪'},{e:'Peach',i:'🍑'},{e:'Salmon',i:'🐟'},{e:'Mauve',i:'💜'},{e:'Khaki',i:'🌾'},{e:'Taupe',i:'🟤'},{e:'Ochre',i:'🟡'}],
+    [{e:'Red',i:'🔴'},{e:'Blue',i:'🔵'},{e:'Green',i:'🟢'},{e:'Yellow',i:'🟡'},{e:'Purple',i:'🟣'},{e:'Orange',i:'🟠'},{e:'Pink',i:'🩷'},{e:'Turquoise',i:'🩵'},{e:'Gold',i:'🌟'},{e:'Emerald',i:'💚'}]
+  ]},
+  numbers:{n:'Numbers',i:'🔢',c:'red-card',lv:[
+    [{e:'One',i:'1️⃣'},{e:'Two',i:'2️⃣'},{e:'Three',i:'3️⃣'},{e:'Four',i:'4️⃣'},{e:'Five',i:'5️⃣'},{e:'Six',i:'6️⃣'},{e:'Seven',i:'7️⃣'},{e:'Eight',i:'8️⃣'},{e:'Nine',i:'9️⃣'},{e:'Ten',i:'🔟'}],
+    [{e:'Eleven',i:'1️⃣1️⃣'},{e:'Twelve',i:'1️⃣2️⃣'},{e:'Thirteen',i:'1️⃣3️⃣'},{e:'Fourteen',i:'1️⃣4️⃣'},{e:'Fifteen',i:'1️⃣5️⃣'},{e:'Sixteen',i:'1️⃣6️⃣'},{e:'Seventeen',i:'1️⃣7️⃣'},{e:'Eighteen',i:'1️⃣8️⃣'},{e:'Nineteen',i:'1️⃣9️⃣'},{e:'Twenty',i:'2️⃣0️⃣'}],
+    [{e:'Zero',i:'0️⃣'},{e:'Thirty',i:'3️⃣0️⃣'},{e:'Forty',i:'4️⃣0️⃣'},{e:'Fifty',i:'5️⃣0️⃣'},{e:'Sixty',i:'6️⃣0️⃣'},{e:'Seventy',i:'7️⃣0️⃣'},{e:'Eighty',i:'8️⃣0️⃣'},{e:'Ninety',i:'9️⃣0️⃣'},{e:'Hundred',i:'💯'},{e:'Thousand',i:'🔢'}],
+    [{e:'First',i:'🥇'},{e:'Second',i:'🥈'},{e:'Third',i:'🥉'},{e:'Fourth',i:'4️⃣'},{e:'Fifth',i:'5️⃣'},{e:'Sixth',i:'6️⃣'},{e:'Seventh',i:'7️⃣'},{e:'Eighth',i:'8️⃣'},{e:'Ninth',i:'9️⃣'},{e:'Tenth',i:'🔟'}],
+    [{e:'Double',i:'2️⃣'},{e:'Triple',i:'3️⃣'},{e:'Half',i:'½'},{e:'Quarter',i:'¼'},{e:'Plus',i:'➕'},{e:'Minus',i:'➖'},{e:'Equals',i:'🟰'},{e:'Multiply',i:'✖️'},{e:'Divide',i:'➗'},{e:'Percent',i:'💯'}],
+    [{e:'One',i:'1️⃣'},{e:'Two',i:'2️⃣'},{e:'Three',i:'3️⃣'},{e:'Four',i:'4️⃣'},{e:'Five',i:'5️⃣'},{e:'Ten',i:'🔟'},{e:'Twenty',i:'2️⃣0️⃣'},{e:'Hundred',i:'💯'},{e:'First',i:'🥇'},{e:'Zero',i:'0️⃣'}],
+    [{e:'Six',i:'6️⃣'},{e:'Seven',i:'7️⃣'},{e:'Eight',i:'8️⃣'},{e:'Nine',i:'9️⃣'},{e:'Eleven',i:'1️⃣1️⃣'},{e:'Twelve',i:'1️⃣2️⃣'},{e:'Thirty',i:'3️⃣0️⃣'},{e:'Fifty',i:'5️⃣0️⃣'},{e:'Second',i:'🥈'},{e:'Third',i:'🥉'}],
+    [{e:'Plus',i:'➕'},{e:'Minus',i:'➖'},{e:'Multiply',i:'✖️'},{e:'Divide',i:'➗'},{e:'Double',i:'2️⃣'},{e:'Half',i:'½'},{e:'Percent',i:'💯'},{e:'Equals',i:'🟰'},{e:'Forty',i:'4️⃣0️⃣'},{e:'Sixty',i:'6️⃣0️⃣'}],
+    [{e:'One',i:'1️⃣'},{e:'Five',i:'5️⃣'},{e:'Ten',i:'🔟'},{e:'Twenty',i:'2️⃣0️⃣'},{e:'Fifty',i:'5️⃣0️⃣'},{e:'Hundred',i:'💯'},{e:'First',i:'🥇'},{e:'Second',i:'🥈'},{e:'Third',i:'🥉'},{e:'Zero',i:'0️⃣'}],
+    [{e:'One',i:'1️⃣'},{e:'Two',i:'2️⃣'},{e:'Three',i:'3️⃣'},{e:'Four',i:'4️⃣'},{e:'Five',i:'5️⃣'},{e:'Ten',i:'🔟'},{e:'Twenty',i:'2️⃣0️⃣'},{e:'Hundred',i:'💯'},{e:'First',i:'🥇'},{e:'Plus',i:'➕'}]
+  ]},
+  body:{n:'Body',i:'💪',c:'',lv:[
+    [{e:'Eye',i:'👁️'},{e:'Ear',i:'👂'},{e:'Nose',i:'👃'},{e:'Mouth',i:'👄'},{e:'Hand',i:'✋'},{e:'Foot',i:'🦶'},{e:'Arm',i:'💪'},{e:'Leg',i:'🦵'},{e:'Head',i:'👤'},{e:'Hair',i:'💇'}],
+    [{e:'Tooth',i:'🦷'},{e:'Tongue',i:'👅'},{e:'Finger',i:'☝️'},{e:'Nail',i:'💅'},{e:'Knee',i:'🦵'},{e:'Elbow',i:'💪'},{e:'Shoulder',i:'🙆'},{e:'Back',i:'🚶'},{e:'Stomach',i:'🫃'},{e:'Heart',i:'❤️'}],
+    [{e:'Lip',i:'👄'},{e:'Chin',i:'🫦'},{e:'Cheek',i:'😊'},{e:'Forehead',i:'🤔'},{e:'Eyebrow',i:'🤨'},{e:'Wrist',i:'⌚'},{e:'Ankle',i:'🦶'},{e:'Hip',i:'🕺'},{e:'Chest',i:'🦺'},{e:'Thumb',i:'👍'}],
+    [{e:'Palm',i:'✋'},{e:'Heel',i:'🦶'},{e:'Toe',i:'🦶'},{e:'Calf',i:'🦵'},{e:'Thigh',i:'🦵'},{e:'Waist',i:'🩱'},{e:'Neck',i:'🧣'},{e:'Spine',i:'🦴'},{e:'Rib',i:'🦴'},{e:'Lung',i:'🫁'}],
+    [{e:'Brain',i:'🧠'},{e:'Kidney',i:'🫘'},{e:'Bone',i:'🦴'},{e:'Muscle',i:'💪'},{e:'Blood',i:'🩸'},{e:'Skin',i:'🧴'},{e:'Pupil',i:'👁️'},{e:'Eardrum',i:'👂'},{e:'Nostril',i:'👃'},{e:'Vein',i:'🩸'}],
+    [{e:'Eye',i:'👁️'},{e:'Ear',i:'👂'},{e:'Nose',i:'👃'},{e:'Hand',i:'✋'},{e:'Foot',i:'🦶'},{e:'Arm',i:'💪'},{e:'Leg',i:'🦵'},{e:'Head',i:'👤'},{e:'Heart',i:'❤️'},{e:'Tooth',i:'🦷'}],
+    [{e:'Finger',i:'☝️'},{e:'Knee',i:'🦵'},{e:'Shoulder',i:'🙆'},{e:'Stomach',i:'🫃'},{e:'Tongue',i:'👅'},{e:'Thumb',i:'👍'},{e:'Neck',i:'🧣'},{e:'Brain',i:'🧠'},{e:'Bone',i:'🦴'},{e:'Muscle',i:'💪'}],
+    [{e:'Eye',i:'👁️'},{e:'Ear',i:'👂'},{e:'Nose',i:'👃'},{e:'Mouth',i:'👄'},{e:'Tooth',i:'🦷'},{e:'Finger',i:'☝️'},{e:'Thumb',i:'👍'},{e:'Knee',i:'🦵'},{e:'Shoulder',i:'🙆'},{e:'Brain',i:'🧠'}],
+    [{e:'Hand',i:'✋'},{e:'Foot',i:'🦶'},{e:'Arm',i:'💪'},{e:'Leg',i:'🦵'},{e:'Heart',i:'❤️'},{e:'Bone',i:'🦴'},{e:'Muscle',i:'💪'},{e:'Lung',i:'🫁'},{e:'Skin',i:'🧴'},{e:'Neck',i:'🧣'}],
+    [{e:'Eye',i:'👁️'},{e:'Nose',i:'👃'},{e:'Hand',i:'✋'},{e:'Arm',i:'💪'},{e:'Head',i:'👤'},{e:'Heart',i:'❤️'},{e:'Brain',i:'🧠'},{e:'Tooth',i:'🦷'},{e:'Muscle',i:'💪'},{e:'Bone',i:'🦴'}]
+  ]},
+  vehicles:{n:'Vehicles',i:'🚗',c:'ylw-card',lv:[
+    [{e:'Car',i:'🚗'},{e:'Plane',i:'✈️'},{e:'Ship',i:'🚢'},{e:'Bus',i:'🚌'},{e:'Bike',i:'🚲'},{e:'Train',i:'🚂'},{e:'Rocket',i:'🚀'},{e:'Helicopter',i:'🚁'},{e:'Truck',i:'🚚'},{e:'Tractor',i:'🚜'}],
+    [{e:'Motorcycle',i:'🏍️'},{e:'Taxi',i:'🚕'},{e:'Ambulance',i:'🚑'},{e:'Fire Truck',i:'🚒'},{e:'Police Car',i:'🚓'},{e:'Sailboat',i:'⛵'},{e:'Submarine',i:'🤿'},{e:'Scooter',i:'🛵'},{e:'Balloon',i:'🎈'},{e:'Cable Car',i:'🚡'}],
+    [{e:'Canoe',i:'🛶'},{e:'Speedboat',i:'🚤'},{e:'Ferry',i:'⛴️'},{e:'Cruise Ship',i:'🚢'},{e:'Yacht',i:'⛵'},{e:'UFO',i:'🛸'},{e:'Spacecraft',i:'🚀'},{e:'Satellite',i:'🛰️'},{e:'Glider',i:'🪂'},{e:'Drone',i:'🚁'}],
+    [{e:'Bulldozer',i:'🚜'},{e:'Crane',i:'🏗️'},{e:'Dump Truck',i:'🚚'},{e:'Forklift',i:'🔩'},{e:'Road Roller',i:'🚜'},{e:'Car',i:'🚗'},{e:'Plane',i:'✈️'},{e:'Train',i:'🚂'},{e:'Rocket',i:'🚀'},{e:'Helicopter',i:'🚁'}],
+    [{e:'Bus',i:'🚌'},{e:'Truck',i:'🚚'},{e:'Bike',i:'🚲'},{e:'Taxi',i:'🚕'},{e:'Motorcycle',i:'🏍️'},{e:'Ambulance',i:'🚑'},{e:'Sailboat',i:'⛵'},{e:'Submarine',i:'🤿'},{e:'Scooter',i:'🛵'},{e:'Tractor',i:'🚜'}],
+    [{e:'Canoe',i:'🛶'},{e:'UFO',i:'🛸'},{e:'Drone',i:'🚁'},{e:'Bulldozer',i:'🚜'},{e:'Car',i:'🚗'},{e:'Plane',i:'✈️'},{e:'Ship',i:'🚢'},{e:'Rocket',i:'🚀'},{e:'Bike',i:'🚲'},{e:'Train',i:'🚂'}],
+    [{e:'Helicopter',i:'🚁'},{e:'Motorcycle',i:'🏍️'},{e:'Taxi',i:'🚕'},{e:'Truck',i:'🚚'},{e:'Tractor',i:'🚜'},{e:'Scooter',i:'🛵'},{e:'Balloon',i:'🎈'},{e:'Canoe',i:'🛶'},{e:'Sailboat',i:'⛵'},{e:'Submarine',i:'🤿'}],
+    [{e:'Car',i:'🚗'},{e:'Bus',i:'🚌'},{e:'Plane',i:'✈️'},{e:'Train',i:'🚂'},{e:'Bike',i:'🚲'},{e:'Ship',i:'🚢'},{e:'Ambulance',i:'🚑'},{e:'Fire Truck',i:'🚒'},{e:'Police Car',i:'🚓'},{e:'Rocket',i:'🚀'}],
+    [{e:'UFO',i:'🛸'},{e:'Spacecraft',i:'🚀'},{e:'Satellite',i:'🛰️'},{e:'Drone',i:'🚁'},{e:'Glider',i:'🪂'},{e:'Speedboat',i:'🚤'},{e:'Ferry',i:'⛴️'},{e:'Yacht',i:'⛵'},{e:'Crane',i:'🏗️'},{e:'Bulldozer',i:'🚜'}],
+    [{e:'Car',i:'🚗'},{e:'Plane',i:'✈️'},{e:'Train',i:'🚂'},{e:'Rocket',i:'🚀'},{e:'Helicopter',i:'🚁'},{e:'Ship',i:'🚢'},{e:'Ambulance',i:'🚑'},{e:'Bike',i:'🚲'},{e:'Bus',i:'🚌'},{e:'UFO',i:'🛸'}]
+  ]},
+  food:{n:'Food',i:'🍕',c:'red-card',lv:[
+    [{e:'Pizza',i:'🍕'},{e:'Burger',i:'🍔'},{e:'Bread',i:'🍞'},{e:'Rice',i:'🍚'},{e:'Noodle',i:'🍜'},{e:'Soup',i:'🍲'},{e:'Salad',i:'🥗'},{e:'Sandwich',i:'🥪'},{e:'Egg',i:'🥚'},{e:'Cheese',i:'🧀'}],
+    [{e:'Butter',i:'🧈'},{e:'Milk',i:'🥛'},{e:'Juice',i:'🧃'},{e:'Water',i:'💧'},{e:'Tea',i:'🍵'},{e:'Cookie',i:'🍪'},{e:'Cake',i:'🎂'},{e:'Ice Cream',i:'🍦'},{e:'Candy',i:'🍬'},{e:'Chocolate',i:'🍫'}],
+    [{e:'Taco',i:'🌮'},{e:'Burrito',i:'🌯'},{e:'Hot Dog',i:'🌭'},{e:'French Fries',i:'🍟'},{e:'Popcorn',i:'🍿'},{e:'Waffle',i:'🧇'},{e:'Pancake',i:'🥞'},{e:'Croissant',i:'🥐'},{e:'Pretzel',i:'🥨'},{e:'Bagel',i:'🥯'}],
+    [{e:'Sushi',i:'🍣'},{e:'Ramen',i:'🍜'},{e:'Dumpling',i:'🥟'},{e:'Curry',i:'🍛'},{e:'Steak',i:'🥩'},{e:'Chicken',i:'🍗'},{e:'Fish',i:'🐟'},{e:'Shrimp',i:'🍤'},{e:'Bacon',i:'🥓'},{e:'Meatball',i:'🍝'}],
+    [{e:'Carrot',i:'🥕'},{e:'Corn',i:'🌽'},{e:'Potato',i:'🥔'},{e:'Broccoli',i:'🥦'},{e:'Pea',i:'🫛'},{e:'Onion',i:'🧅'},{e:'Garlic',i:'🧄'},{e:'Pepper',i:'🫑'},{e:'Mushroom',i:'🍄'},{e:'Cucumber',i:'🥒'}],
+    [{e:'Pizza',i:'🍕'},{e:'Burger',i:'🍔'},{e:'Bread',i:'🍞'},{e:'Egg',i:'🥚'},{e:'Milk',i:'🥛'},{e:'Cake',i:'🎂'},{e:'Ice Cream',i:'🍦'},{e:'Cookie',i:'🍪'},{e:'Chocolate',i:'🍫'},{e:'Candy',i:'🍬'}],
+    [{e:'Taco',i:'🌮'},{e:'Hot Dog',i:'🌭'},{e:'French Fries',i:'🍟'},{e:'Waffle',i:'🧇'},{e:'Pancake',i:'🥞'},{e:'Sushi',i:'🍣'},{e:'Ramen',i:'🍜'},{e:'Curry',i:'🍛'},{e:'Steak',i:'🥩'},{e:'Chicken',i:'🍗'}],
+    [{e:'Carrot',i:'🥕'},{e:'Corn',i:'🌽'},{e:'Potato',i:'🥔'},{e:'Broccoli',i:'🥦'},{e:'Mushroom',i:'🍄'},{e:'Cheese',i:'🧀'},{e:'Butter',i:'🧈'},{e:'Juice',i:'🧃'},{e:'Tea',i:'🍵'},{e:'Water',i:'💧'}],
+    [{e:'Pizza',i:'🍕'},{e:'Sushi',i:'🍣'},{e:'Taco',i:'🌮'},{e:'Burger',i:'🍔'},{e:'Ice Cream',i:'🍦'},{e:'Cake',i:'🎂'},{e:'Popcorn',i:'🍿'},{e:'Chocolate',i:'🍫'},{e:'Cookie',i:'🍪'},{e:'Waffle',i:'🧇'}],
+    [{e:'Pizza',i:'🍕'},{e:'Burger',i:'🍔'},{e:'Rice',i:'🍚'},{e:'Egg',i:'🥚'},{e:'Milk',i:'🥛'},{e:'Bread',i:'🍞'},{e:'Chicken',i:'🍗'},{e:'Carrot',i:'🥕'},{e:'Corn',i:'🌽'},{e:'Ice Cream',i:'🍦'}]
+  ]},
+  emojis:{n:'Emoji Mix',i:'🤪',c:'',lv:[
+    [{e:'Happy',i:'😊'},{e:'Angry',i:'😡'},{e:'Sad',i:'😢'},{e:'Cool',i:'😎'},{e:'Sick',i:'🤢'},{e:'Ghost',i:'👻'},{e:'Laugh',i:'😂'},{e:'Scared',i:'😱'},{e:'Sleepy',i:'😴'},{e:'Surprised',i:'😲'}],
+    [{e:'Bored',i:'🥱'},{e:'Silly',i:'🤪'},{e:'Nervous',i:'😬'},{e:'Love',i:'😍'},{e:'Thinking',i:'🤔'},{e:'Winking',i:'😉'},{e:'Crying',i:'😭'},{e:'Star Eyes',i:'🤩'},{e:'Confused',i:'😕'},{e:'Shy',i:'🫣'}],
+    [{e:'Dizzy',i:'😵'},{e:'Explode',i:'🤯'},{e:'Monocle',i:'🧐'},{e:'Smirk',i:'😏'},{e:'Pout',i:'😤'},{e:'Pleading',i:'🥺'},{e:'Hugging',i:'🤗'},{e:'Shush',i:'🤫'},{e:'Lying',i:'🤥'},{e:'Sunglasses',i:'🥸'}],
+    [{e:'Robot',i:'🤖'},{e:'Alien',i:'👽'},{e:'Clown',i:'🤡'},{e:'Zombie',i:'🧟'},{e:'Devil',i:'😈'},{e:'Angel',i:'😇'},{e:'Cowboy',i:'🤠'},{e:'Ninja',i:'🥷'},{e:'Vampire',i:'🧛'},{e:'Pirate',i:'🏴‍☠️'}],
+    [{e:'Thumbs Up',i:'👍'},{e:'Wave',i:'👋'},{e:'Clap',i:'👏'},{e:'Peace',i:'✌️'},{e:'Ok',i:'👌'},{e:'Fist',i:'✊'},{e:'Point',i:'👆'},{e:'Hugging',i:'🤗'},{e:'Shrug',i:'🤷'},{e:'Facepalm',i:'🤦'}],
+    [{e:'Happy',i:'😊'},{e:'Sad',i:'😢'},{e:'Angry',i:'😡'},{e:'Laugh',i:'😂'},{e:'Cool',i:'😎'},{e:'Scared',i:'😱'},{e:'Love',i:'😍'},{e:'Thinking',i:'🤔'},{e:'Silly',i:'🤪'},{e:'Sleepy',i:'😴'}],
+    [{e:'Ghost',i:'👻'},{e:'Robot',i:'🤖'},{e:'Alien',i:'👽'},{e:'Clown',i:'🤡'},{e:'Angel',i:'😇'},{e:'Devil',i:'😈'},{e:'Cowboy',i:'🤠'},{e:'Ninja',i:'🥷'},{e:'Dizzy',i:'😵'},{e:'Star Eyes',i:'🤩'}],
+    [{e:'Thumbs Up',i:'👍'},{e:'Wave',i:'👋'},{e:'Clap',i:'👏'},{e:'Peace',i:'✌️'},{e:'Ok',i:'👌'},{e:'Fist',i:'✊'},{e:'Point',i:'👆'},{e:'Pleading',i:'🥺'},{e:'Shush',i:'🤫'},{e:'Shrug',i:'🤷'}],
+    [{e:'Happy',i:'😊'},{e:'Sad',i:'😢'},{e:'Laugh',i:'😂'},{e:'Cool',i:'😎'},{e:'Love',i:'😍'},{e:'Ghost',i:'👻'},{e:'Robot',i:'🤖'},{e:'Angel',i:'😇'},{e:'Thumbs Up',i:'👍'},{e:'Clap',i:'👏'}],
+    [{e:'Happy',i:'😊'},{e:'Angry',i:'😡'},{e:'Sad',i:'😢'},{e:'Laugh',i:'😂'},{e:'Scared',i:'😱'},{e:'Love',i:'😍'},{e:'Silly',i:'🤪'},{e:'Cool',i:'😎'},{e:'Ghost',i:'👻'},{e:'Star Eyes',i:'🤩'}]
+  ]},
+  jobs:{n:'Jobs',i:'👨‍⚕️',c:'ylw-card',lv:[
+    [{e:'Doctor',i:'👨‍⚕️'},{e:'Teacher',i:'👨‍🏫'},{e:'Police',i:'👮'},{e:'Firefighter',i:'👨‍🚒'},{e:'Chef',i:'👨‍🍳'},{e:'Pilot',i:'👨‍✈️'},{e:'Farmer',i:'👨‍🌾'},{e:'Artist',i:'👨‍🎨'},{e:'Astronaut',i:'👨‍🚀'},{e:'Scientist',i:'👨‍🔬'}],
+    [{e:'Nurse',i:'👩‍⚕️'},{e:'Engineer',i:'👨‍🔧'},{e:'Dentist',i:'🦷'},{e:'Vet',i:'🐾'},{e:'Baker',i:'🥖'},{e:'Barber',i:'💈'},{e:'Singer',i:'🎤'},{e:'Dancer',i:'💃'},{e:'Painter',i:'🖌️'},{e:'Builder',i:'🏗️'}],
+    [{e:'Driver',i:'🚗'},{e:'Captain',i:'⚓'},{e:'Judge',i:'⚖️'},{e:'Lawyer',i:'📋'},{e:'Architect',i:'📐'},{e:'Librarian',i:'📚'},{e:'Journalist',i:'📰'},{e:'Photographer',i:'📷'},{e:'Actor',i:'🎭'},{e:'Musician',i:'🎵'}],
+    [{e:'Plumber',i:'🔧'},{e:'Electrician',i:'⚡'},{e:'Mechanic',i:'🔩'},{e:'Carpenter',i:'🪵'},{e:'Tailor',i:'✂️'},{e:'Florist',i:'💐'},{e:'Gardener',i:'🌱'},{e:'Cleaner',i:'🧹'},{e:'Waiter',i:'🍽️'},{e:'Cashier',i:'💰'}],
+    [{e:'Coach',i:'🏅'},{e:'Referee',i:'⚽'},{e:'Swimmer',i:'🏊'},{e:'Runner',i:'🏃'},{e:'Gymnast',i:'🤸'},{e:'Boxer',i:'🥊'},{e:'Cyclist',i:'🚴'},{e:'Archer',i:'🏹'},{e:'Skater',i:'⛸️'},{e:'Climber',i:'🧗'}],
+    [{e:'Doctor',i:'👨‍⚕️'},{e:'Teacher',i:'👨‍🏫'},{e:'Police',i:'👮'},{e:'Firefighter',i:'👨‍🚒'},{e:'Chef',i:'👨‍🍳'},{e:'Pilot',i:'👨‍✈️'},{e:'Astronaut',i:'👨‍🚀'},{e:'Nurse',i:'👩‍⚕️'},{e:'Baker',i:'🥖'},{e:'Singer',i:'🎤'}],
+    [{e:'Engineer',i:'👨‍🔧'},{e:'Farmer',i:'👨‍🌾'},{e:'Artist',i:'👨‍🎨'},{e:'Scientist',i:'👨‍🔬'},{e:'Driver',i:'🚗'},{e:'Captain',i:'⚓'},{e:'Lawyer',i:'📋'},{e:'Musician',i:'🎵'},{e:'Actor',i:'🎭'},{e:'Coach',i:'🏅'}],
+    [{e:'Doctor',i:'👨‍⚕️'},{e:'Teacher',i:'👨‍🏫'},{e:'Chef',i:'👨‍🍳'},{e:'Police',i:'👮'},{e:'Pilot',i:'👨‍✈️'},{e:'Firefighter',i:'👨‍🚒'},{e:'Nurse',i:'👩‍⚕️'},{e:'Astronaut',i:'👨‍🚀'},{e:'Baker',i:'🥖'},{e:'Engineer',i:'👨‍🔧'}],
+    [{e:'Farmer',i:'👨‍🌾'},{e:'Artist',i:'👨‍🎨'},{e:'Scientist',i:'👨‍🔬'},{e:'Dentist',i:'🦷'},{e:'Singer',i:'🎤'},{e:'Dancer',i:'💃'},{e:'Musician',i:'🎵'},{e:'Actor',i:'🎭'},{e:'Coach',i:'🏅'},{e:'Mechanic',i:'🔩'}],
+    [{e:'Doctor',i:'👨‍⚕️'},{e:'Teacher',i:'👨‍🏫'},{e:'Chef',i:'👨‍🍳'},{e:'Pilot',i:'👨‍✈️'},{e:'Astronaut',i:'👨‍🚀'},{e:'Engineer',i:'👨‍🔧'},{e:'Farmer',i:'👨‍🌾'},{e:'Nurse',i:'👩‍⚕️'},{e:'Police',i:'👮'},{e:'Firefighter',i:'👨‍🚒'}]
+  ]}
+};
+
+// ===== GÖREVLER =====
+const QUEST_TEMPLATES=[
+    {id:'q1',ico:'🎯',col:'q-ylw',nm:'Keskin Nişancı',desc:'Bir leveli hiç yanlış yapmadan bitir',goal:1,reward:80,type:'perfect'},
+    {id:'q2',ico:'⚡',col:'q-red',nm:'Hız Treni',desc:'5 doğru cevabı arka arkaya ver',goal:5,reward:60,type:'streak'},
+    {id:'q3',ico:'🏆',col:'q-pur',nm:'Altın Avcısı',desc:'Bugün 3 level tamamla',goal:3,reward:100,type:'levels'},
+];
+function getTodayKey(){return new Date().toISOString().slice(0,10);}
+function initQuests(){
+    const today=getTodayKey();
+    if(!questDB||questDB.day!==today){
+        questDB={day:today,quests:QUEST_TEMPLATES.map(q=>({...q,progress:0,claimed:false}))};
+        saveAll();
+    }
+}
+function renderQuests(){
+    initQuests();
+    const list=document.getElementById('questList');
+    list.innerHTML='';
+    let hasUnclaimed=false;
+    questDB.quests.forEach((q,qi)=>{
+        const pct=Math.min(100,q.progress/q.goal*100);
+        const done=q.progress>=q.goal;
+        if(done&&!q.claimed) hasUnclaimed=true;
+        list.innerHTML+=`
+        <div class="quest-item">
+            <div class="quest-item-top">
+                <div class="quest-ico-wrap ${q.col}">${q.ico}</div>
+                <div class="quest-item-info">
+                    <div class="quest-item-nm">${q.nm}</div>
+                    <div class="quest-item-desc">${q.desc}</div>
+                </div>
+                <div class="quest-reward">+${q.reward}🪙</div>
+            </div>
+            <div class="quest-prog-wrap"><div class="quest-prog-fill" style="width:${pct}%"></div></div>
+            <div class="quest-prog-txt">${Math.min(q.progress,q.goal)} / ${q.goal}</div>
+            ${done?`<button class="quest-claim-btn ${q.claimed?'claimed':''}" onclick="claimQuest(${qi})" ${q.claimed?'disabled':''}>
+                ${q.claimed?'✅ Alındı':'🎁 Ödülü Al!'}
+            </button>`:''}
+        </div>`;
+    });
+    document.getElementById('questDot').style.display=hasUnclaimed?'block':'none';
+    updateQuestTimer();
+}
+function claimQuest(qi){
+    const q=questDB.quests[qi];
+    if(q.progress>=q.goal&&!q.claimed){
+        q.claimed=true;
+        addGold(q.reward,true);
+        saveAll();
+        confetti({particleCount:80,spread:60,origin:{y:.6}});
+        renderQuests();
+    }
+}
+function updateQuestProgress(type,val=1){
+    if(!questDB) return;
+    questDB.quests.forEach(q=>{
+        if(q.type===type&&!q.claimed) q.progress=Math.min(q.goal,(q.progress||0)+val);
+    });
+    saveAll();
+    const dot=document.getElementById('questDot');
+    if(dot) dot.style.display=questDB.quests.some(q=>q.progress>=q.goal&&!q.claimed)?'block':'none';
+}
+let questTimerInterval=null;
+function updateQuestTimer(){
+    if(questTimerInterval) clearInterval(questTimerInterval);
+    function tick(){
+        const now=new Date();
+        const midnight=new Date(); midnight.setHours(24,0,0,0);
+        const diff=midnight-now;
+        const h=Math.floor(diff/3600000).toString().padStart(2,'0');
+        const m=Math.floor((diff%3600000)/60000).toString().padStart(2,'0');
+        const s=Math.floor((diff%60000)/1000).toString().padStart(2,'0');
+        const el=document.getElementById('questTimer');
+        if(el) el.innerText=`⏰ Yenileniyor: ${h}:${m}:${s}`;
+    }
+    tick();
+    questTimerInterval=setInterval(tick,1000);
+}
+
+// ===== KİLİT AÇMA =====
+let unlockTarget='';
+function tryUnlock(key){
+    const price=CAT_PRICES[key]||200;
+    unlockTarget=key;
+    document.getElementById('unlockIco').innerText=gameData[key].i;
+    document.getElementById('unlockTtl').innerText=`${gameData[key].n} Kategorisi`;
+    document.getElementById('unlockSub').innerText=`Bu kategoriyi açmak ister misin?\n🪙 ${price} altın gerekiyor.\nŞu an: 🪙 ${gold} altının var.`;
+    document.getElementById('unlockBuy').innerText=`🔓 ${price}🪙 ile Aç`;
+    document.getElementById('unlockModal').classList.add('show');
+}
+function confirmUnlock(){
+    const price=CAT_PRICES[unlockTarget]||200;
+    if(gold<price){
+        document.getElementById('unlockModal').classList.remove('show');
+        showModal('😢','Yeterli Altın Yok!',`Bu kategori ${price}🪙 gerektiriyor.\nDaha fazla altın kazan!`,null,'🎮 Oyna','🏠 Ana Menü',null,()=>playRandom(),()=>goHome());
+        return;
+    }
+    gold-=price; unlockedCats.push(unlockTarget); saveAll();
+    document.getElementById('unlockModal').classList.remove('show');
+    addGold(0); // UI güncelle
+    confetti({particleCount:100,spread:70});
+    speak("Category unlocked!");
+    renderCatGrid();
+}
+
+// ===== AVATAR =====
+function renderAvatar(){
+    document.getElementById('heroBase').innerText=avatar.face||'😎';
+    document.getElementById('heroHat').innerText=avatar.hat||'';
+    document.getElementById('heroGlasses').innerText=avatar.glasses||'';
+    document.getElementById('avPreviewBase').innerText=avatar.face||'😎';
+    document.getElementById('avPreviewHat').innerText=avatar.hat||'';
+    document.getElementById('avPreviewGlasses').innerText=avatar.glasses||'';
+}
+function renderAvatarShop(){
+    function renderSection(items, containerId, type){
+        const cont=document.getElementById(containerId);
+        cont.innerHTML='';
+        items.forEach(item=>{
+            const owned=ownedItems.includes(item.id);
+            const isSelected=
+                type==='face'?avatar.face===item.ico:
+                type==='hat'?avatar.hat===(item.val??''):
+                avatar.glasses===(item.val??'');
+            cont.innerHTML+=`
+            <div class="av-item ${isSelected?'selected':''} ${!owned&&item.price>0?'locked-item':''}"
+                 onclick="selectAvItem('${type}','${item.id}','${(item.val!==undefined?item.val:item.ico).replace(/'/g,'')}',${''+item.price},'${item.ico}')">
+                <span class="av-item-ico">${item.ico}</span>
+                <div class="av-item-price ${owned?'owned':''}">${owned?'✓':'🪙'+item.price}</div>
+                ${!owned&&item.price>0?'<span class="av-lock">🔒</span>':''}
+            </div>`;
+        });
+    }
+    renderSection(avFaceItems,'avFaces','face');
+    renderSection(avHatItems,'avHats','hat');
+    renderSection(avGlassItems,'avGlasses','glasses');
+}
+function selectAvItem(type,id,val,price,ico){
+    if(!ownedItems.includes(id)&&price>0){
+        if(gold<price){
+            alert(`Yeterli altın yok! Gerekli: ${price}🪙`); return;
+        }
+        gold-=price; ownedItems.push(id); saveAll(); addGold(0);
+        speak("Item purchased!"); confetti({particleCount:50,spread:50,origin:{y:.5}});
+    }
+    if(type==='face') avatar.face=ico;
+    else if(type==='hat') avatar.hat=val;
+    else avatar.glasses=val;
+    saveAll(); renderAvatar(); renderAvatarShop();
+}
+
+// ===== ALTIN =====
+function addGold(amt,animate=false){
+    gold+=amt; saveAll();
+    document.getElementById('goldAmt').innerText=gold;
+    if(animate&&amt>0){
+        const badge=document.getElementById('goldBadge');
+        const rect=badge.getBoundingClientRect();
+        const el=document.createElement('div');
+        el.className='gold-pop';
+        el.innerText='+'+amt+'🪙';
+        el.style.left=(rect.left+rect.width/2-20)+'px';
+        el.style.top=(rect.top-10)+'px';
+        document.body.appendChild(el);
+        setTimeout(()=>el.remove(),1300);
+    }
+}
+
+// ===== CAN SATIN AL =====
+function buyLife(){
+    const cost=10;
+    if(gold<cost){
+        showModal('😢','Yeterli Altın Yok!','Daha fazla altın kazan!',null,'🎮 Oyna','🏠 Ana Menü',null,()=>startGame(curLvl),()=>goHome());
+        return;
+    }
+    gold-=cost; lives=Math.min(lives+1,3); saveAll(); updateUI();
+    document.getElementById('modal').classList.remove('show');
+    // oyuna devam
+    document.querySelectorAll('.opt-btn').forEach(b=>{b.disabled=false;b.classList.remove('wrong','correct');});
+    speak("Extra life!");
+}
+
+// ===== INIT =====
+function init(){
+    initQuests();
+    addGold(0); updateUI(); renderAvatar();
+    renderCatGrid();
+    renderAvatarShop();
+
+    const eg=document.getElementById('emojiGrid');
+    eg.innerHTML='';
+    const all=Object.values(gameData).flatMap(c=>c.lv.flat()).sort(()=>Math.random()-.5).slice(0,16);
+    const cls=['','','rb','','yb','','','rb','','','yb','','rb','','',''];
+    all.forEach((item,i)=>{
+        eg.innerHTML+=`<div class="e-bubble ${cls[i]||''}" title="${item.e}" onclick="speak('${item.e}')">${item.i}</div>`;
+    });
+
+    setInterval(()=>{
+        const a=Object.values(gameData).flatMap(c=>c.lv.flat());
+        document.getElementById('heroBase').innerText=a[Math.floor(Math.random()*a.length)].i;
+    },2500);
+
+    // görev bildirimi güncelle
+    const hasPending=questDB&&questDB.quests.some(q=>q.progress>=q.goal&&!q.claimed);
+    document.getElementById('questDot').style.display=hasPending?'block':'none';
+}
+
+function renderCatGrid(){
+    const grid=document.getElementById('catGrid');
+    grid.innerHTML='';
+    Object.keys(gameData).forEach(key=>{
+        const c=gameData[key];
+        const isUnlocked=unlockedCats.includes(key);
+        const price=CAT_PRICES[key]||0;
+        grid.innerHTML+=`
+        <div class="cat-card ${c.c} ${!isUnlocked?'locked':''}"
+             onclick="${isUnlocked?`showLevels('${key}')`:`tryUnlock('${key}')`}">
+            <div class="cat-ico">${c.i}</div>
+            <div class="cat-nm">${c.n}</div>
+            <div class="cat-lv">100 Kelime</div>
+            ${!isUnlocked?`<div class="lock-overlay"><span>🔒</span>${price}🪙</div>`:''}
+        </div>`;
+    });
+}
+
+// ===== RANDOM OYNA =====
+function playRandom(){
+    const keys=unlockedCats.filter(k=>gameData[k]);
+    curCat=keys[Math.floor(Math.random()*keys.length)];
+    startGame(1);
+}
+
+// ===== LEVELS =====
+function showLevels(key){
+    curCat=key; const cat=gameData[key];
+    showScreen('level-screen');
+    document.getElementById('lvlEmoji').innerText=cat.i;
+    document.getElementById('catTitle').innerText=cat.n;
+    document.getElementById('backBtn').classList.remove('hidden');
+    const list=document.getElementById('levelList');
+    list.innerHTML='';
+    for(let i=1;i<=10;i++){
+        const s=getStars(key,i);
+        const sh='⭐'.repeat(s)+'☆'.repeat(Math.max(0,3-s));
+        list.innerHTML+=`
+        <div class="lvl-item" onclick="startGame(${i})">
+            <div class="lvl-badge">${cat.i}</div>
+            <div class="lvl-inf"><div class="lvl-nm">Level ${i}</div><div class="lvl-st-txt">10 benzersiz kelime</div></div>
+            <div class="lvl-stars">${sh}</div>
+        </div>`;
+    }
+}
+
+// ===== GAME =====
+const LEVELS=10, QPL=10;
+let curCat='',curLvl=0,score=0,qIdx=0,pool=[],wrongCount=0,streak=0;
+
+function startGame(lvl){
+    curLvl=lvl; lives=DB.get('lives',3); qIdx=0; wrongCount=0; streak=0;
+    updateUI();
+    pool=[...gameData[curCat].lv[lvl-1]].sort(()=>Math.random()-.5);
+    showScreen('game-screen');
+    document.getElementById('backBtn').classList.remove('hidden');
+    document.getElementById('progBar').style.width='0%';
+    nextQ();
+}
+
+function nextQ(){
+    if(qIdx>=QPL){
+        const s=wrongCount===0?3:wrongCount<=3?2:1;
+        saveStars(curCat,curLvl,s);
+        const goldEarned=QPL*10+(s===3?30:s===2?15:0);
+        addGold(goldEarned,true);
+        updateQuestProgress('levels',1);
+        if(wrongCount===0) updateQuestProgress('perfect',1);
+        confetti({particleCount:150,spread:90,origin:{y:.55}});
+        speak("Amazing! Level completed!");
+        const isLast=curLvl>=LEVELS;
+        showModal('🎉','Tebrikler!',
+            `Level ${curLvl} bitti! ${'⭐'.repeat(s)}\n+${goldEarned}🪙 kazandın!`,
+            isLast?null:`➡ Level ${curLvl+1}`,
+            '🔁 Tekrar Oyna','🏠 Ana Menü',
+            isLast?null:()=>startGame(curLvl+1),
+            ()=>startGame(curLvl),()=>goHome());
+        return;
+    }
+    const q=pool[qIdx];
+    document.getElementById('gameEmoji').innerText=q.i;
+    document.getElementById('qCnt').innerText=`${qIdx+1} / ${QPL}`;
+    document.getElementById('progBar').style.width=(qIdx/QPL*100)+'%';
+
+    const optCount=curLvl<=3?3:4;
+    const lvlWords=gameData[curCat].lv[curLvl-1].map(x=>x.e).filter(x=>x!==q.e);
+    lvlWords.sort(()=>Math.random()-.5);
+    let opts=[q.e,...lvlWords.slice(0,optCount-1)];
+    opts.sort(()=>Math.random()-.5);
+
+    const area=document.getElementById('options');
+    area.innerHTML='';
+    opts.forEach(o=>{
+        const btn=document.createElement('button');
+        btn.className='opt-btn'; btn.innerText=o;
+        btn.onclick=()=>check(o,q.e,btn);
+        area.appendChild(btn);
+    });
+}
+
+function check(sel,cor,btn){
+    document.querySelectorAll('.opt-btn').forEach(b=>b.disabled=true);
+    if(sel===cor){
+        btn.classList.add('correct'); ok(); speak(cor);
+        addGold(10,true); qIdx++; streak++;
+        if(streak>=5) updateQuestProgress('streak',1);
+        setTimeout(nextQ,1100);
+    } else {
+        btn.classList.add('wrong');
+        document.querySelectorAll('.opt-btn').forEach(b=>{if(b.innerText===cor)b.classList.add('correct');});
+        err(); speak("Oops!"); lives--; wrongCount++; streak=0; updateUI();
+        if(lives<=0){
+            setTimeout(()=>showModal('😢','Canın Bitti!',`Tekrar dene! 💪\n\n💡 ${10}🪙 ile 1 can satın alabilirsin!`,
+                `❤️ ${10}🪙 ile Can Al`,
+                '🔁 Tekrar Oyna','🏠 Ana Menü',
+                ()=>buyLife(),()=>startGame(curLvl),()=>goHome()),700);
+        } else {
+            setTimeout(()=>document.querySelectorAll('.opt-btn').forEach(b=>{b.disabled=false;b.classList.remove('wrong','correct');}),1000);
+        }
+    }
+    DB.set('lives',lives);
+}
+
+function updateUI(){
+    document.getElementById('goldAmt').innerText=gold;
+    document.getElementById('lives').innerText='❤️'.repeat(Math.max(0,lives));
+}
+
+// ===== MODAL =====
+let _a=[];
+function showModal(ico,ttl,sub,t1,t2,t3,a1,a2,a3,t4,a4){
+    document.getElementById('mIco').innerText=ico;
+    document.getElementById('mTtl').innerText=ttl;
+    document.getElementById('mSub').innerText=sub;
+    const bs=[document.getElementById('mB1'),document.getElementById('mB2'),document.getElementById('mB3'),document.getElementById('mB4')];
+    const ts=[t1,t2,t3,t4||null]; _a=[a1,a2,a3,a4||null];
+    ts.forEach((t,i)=>{if(t){bs[i].innerText=t;bs[i].style.display='block';}else{bs[i].style.display='none';}});
+    document.getElementById('modal').classList.add('show');
+}
+function mAct(n){document.getElementById('modal').classList.remove('show');_a[n-1]&&_a[n-1]();}
+
+// ===== NAV =====
+function showScreen(id){
+    document.querySelectorAll('.screen').forEach(s=>{s.classList.remove('active');s.style.display='';});
+    const el=document.getElementById(id);
+    el.classList.add('active','slide-in');
+    setTimeout(()=>el.classList.remove('slide-in'),350);
+    if(id==='quest-screen') renderQuests();
+    if(id==='avatar-screen') renderAvatarShop();
+    window.scrollTo(0,0);
+}
+function goBack(){
+    if(document.getElementById('game-screen').classList.contains('active')) showLevels(curCat);
+    else if(document.getElementById('level-screen').classList.contains('active')) goHome();
+    else goHome();
+}
+function goHome(){
+    showScreen('home-screen');
+    document.getElementById('backBtn').classList.add('hidden');
+    renderCatGrid();
+}
+
+init();
+</script>
+</body>
+</html>
