@@ -145,6 +145,8 @@
         .lvl-nm{font-weight:900;font-size:15px;}
         .lvl-st-txt{font-size:11px;opacity:.85;}
         .lvl-stars{font-size:17px;letter-spacing:1px;}
+        .lvl-locked{background:#bbb !important;box-shadow:0 8px 0 #999 !important;cursor:not-allowed !important;}
+        .lvl-locked:active{transform:none !important;box-shadow:0 8px 0 #999 !important;}
 
         /* GAME SCREEN */
         #game-screen{flex-direction:column;align-items:center;padding:14px 15px 26px;min-height:calc(100vh - 68px);}
@@ -799,6 +801,11 @@ function playRandom(){
 }
 
 // ===== LEVELS =====
+function isLevelUnlocked(key, lvl){
+    if(lvl===1) return true; // İlk level her zaman açık
+    return getStars(key, lvl-1) >= 2; // Önceki levelda en az 2 yıldız gerekli
+}
+
 function showLevels(key){
     curCat=key; const cat=gameData[key];
     showScreen('level-screen');
@@ -811,13 +818,23 @@ function showLevels(key){
     for(let i=1;i<=15;i++){
         const s=getStars(key,i);
         const sh='⭐'.repeat(s)+'☆'.repeat(Math.max(0,3-s));
+        const unlocked=isLevelUnlocked(key,i);
         list.innerHTML+=`
-        <div class="lvl-item" onclick="startGame(${i})">
-            <div class="lvl-badge">${cat.i}</div>
-            <div class="lvl-inf"><div class="lvl-nm">Level ${i}</div><div class="lvl-st-txt">10 benzersiz kelime</div></div>
-            <div class="lvl-stars">${sh}</div>
+        <div class="lvl-item ${!unlocked?'lvl-locked':''}" onclick="${unlocked?`startGame(${i})`:`lockedLevelTap(${i})`}">
+            <div class="lvl-badge">${unlocked?cat.i:'🔒'}</div>
+            <div class="lvl-inf">
+                <div class="lvl-nm">Level ${i}</div>
+                <div class="lvl-st-txt">${unlocked?'10 benzersiz kelime':'Önceki levelde 2⭐ kazan!'}</div>
+            </div>
+            <div class="lvl-stars">${unlocked?sh:'🔒'}</div>
         </div>`;
     }
+}
+function lockedLevelTap(lvl){
+    showModal('🔒','Kilitli Level!',
+        `Level ${lvl}'i açmak için\nLevel ${lvl-1}'de en az 2⭐ kazan!`,
+        null,'🎮 Hemen Oyna','🏠 Ana Menü',
+        null,()=>startGame(lvl-1),()=>goHome());
 }
 
 // ===== GAME =====
@@ -932,7 +949,7 @@ function nextQ(){
         updateQuestProgress('levels',1);
         if(wrongCount===0) updateQuestProgress('perfect',1);
         confetti({particleCount:150,spread:90,origin:{y:.55}});
-        speak("Amazing! Level completed!");
+        speak("Harika! Seviyeyi tamamladın!");
         const isLast=curLvl>=LEVELS;
         showModal('🎉','Tebrikler!',
             `Level ${curLvl} bitti! ${'⭐'.repeat(s)}\n+${goldEarned}🪙 kazandın!`,
