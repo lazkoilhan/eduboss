@@ -579,6 +579,16 @@ hr.dv{border:none;border-top:1px solid rgba(255,255,255,.055);margin:12px 0}
   .tb-arama,.tb-selam-alt{display:none}
   .two,.three{grid-template-columns:1fr}
   .qa-kart.one-cikan{grid-column:span 1}
+  /* Mobil: tablolar → kart görünümü */
+  .tbl-wrap{overflow-x:hidden}
+  .tbl-wrap table{display:block}
+  .tbl-wrap thead{display:none}
+  .tbl-wrap tbody{display:flex;flex-direction:column;gap:8px}
+  .tbl-wrap tr{display:flex;flex-direction:column;background:var(--s1);border-radius:10px;padding:10px 12px;border:1px solid rgba(255,255,255,.06)}
+  .tbl-wrap td{display:flex;align-items:center;justify-content:space-between;font-size:12px;padding:3px 0;border:none}
+  .tbl-wrap td:first-child{font-weight:700;color:var(--tx);font-size:13px;padding-bottom:6px;border-bottom:1px solid rgba(255,255,255,.06);margin-bottom:4px}
+  .tbl-wrap td:empty{display:none}
+  .opt-grid{grid-template-columns:1fr!important}
 }
 </style>
 </head>
@@ -750,6 +760,7 @@ hr.dv{border:none;border-top:1px solid rgba(255,255,255,.055);margin:12px 0}
       <div class="op-tab" onclick="opTab('notlar',this)">💬 Notlarım</div>
       <div class="op-tab" onclick="opTab('program',this)">🗓 Program</div>
       <div class="op-tab" onclick="opTab('gorevlerim',this)">🎬 Video Derslerim</div>
+      <div class="op-tab" onclick="opTab('odevlerim',this)">📚 Ödevlerim</div>
     </div>
     <!-- Sınav Sonuçları -->
     <div class="op-content show" id="op-sinav">
@@ -803,6 +814,11 @@ hr.dv{border:none;border-top:1px solid rgba(255,255,255,.055);margin:12px 0}
       <div id="op-gorevlerim-ic"></div>
     </div>
 
+    <!-- Ödevlerim -->
+    <div class="op-content" id="op-odevlerim">
+      <div id="op-odevlerim-ic"></div>
+    </div>
+
   </div><!-- op-main END -->
 </div><!-- ogrenci-panel END -->
 
@@ -835,6 +851,7 @@ hr.dv{border:none;border-top:1px solid rgba(255,255,255,.055);margin:12px 0}
     <div class="ni" onclick="goPg('ogrenciler')"><span class="ni-ic">👥</span><span>Öğrenciler</span></div>
     <div class="sb-sec">Yönetim</div>
     <div class="ni" onclick="goPg('gorev')"><span class="ni-ic">🎬</span><span>Video Ata</span></div>
+    <div class="ni" onclick="goPg('odev')"><span class="ni-ic">📚</span><span>Ödev Ata</span></div>
     <div class="ni" onclick="goPg('ai')"><span class="ni-ic">🤖</span><span>AI Koçluk</span></div>
     <div class="ni" onclick="goPg('ayarlar')"><span class="ni-ic">⚙️</span><span>Ayarlar</span></div>
     <div class="ni" onclick="goPg('hesaplar')"><span class="ni-ic">🔐</span><span>Hesap Yönetimi</span></div>
@@ -912,6 +929,7 @@ hr.dv{border:none;border-top:1px solid rgba(255,255,255,.055);margin:12px 0}
     <div>
       <div class="card"><div class="ct">💰 Son 6 Ay Gelir / Gider</div><div class="ch200"><canvas id="ch-ozet-gelir"></canvas></div></div>
       <div class="card"><div class="ct">📚 Bekleyen Borçlar</div><div id="ozet-borclar"></div></div>
+      <div class="card" style="margin-top:14px"><div class="ct" style="color:var(--Y)">📅 Bugün Ödemesi Olanlar</div><div id="ozet-bugun-odeme"></div></div>
     </div>
     <div>
       <div class="card"><div class="ct">🏠 Gider Dağılımı</div><div class="ch160"><canvas id="ch-ozet-gider"></canvas></div></div>
@@ -1203,6 +1221,15 @@ hr.dv{border:none;border-top:1px solid rgba(255,255,255,.055);margin:12px 0}
     <button class="btn btn-p" onclick="mAcGorev()">+ Yeni Video Ata</button>
   </div>
   <div id="gorev-liste"></div>
+</div>
+
+<!-- ÖDEV ATAMALARI -->
+<div class="pg" id="pg-odev">
+  <div class="ph">
+    <div><div class="pt">📚 Ödev Atamaları</div><div class="psub">Kitap ödevi tanımla, öğrencilere ata — tamamlanma durumunu takip et</div></div>
+    <button class="btn btn-p" onclick="mAcOdev()">+ Yeni Ödev Ata</button>
+  </div>
+  <div id="odev-liste"></div>
 </div>
 
 <!-- AYARLAR -->
@@ -1502,12 +1529,78 @@ hr.dv{border:none;border-top:1px solid rgba(255,255,255,.055);margin:12px 0}
   </div>
 </div>
 
+<!-- MODAL odev-ekle -->
+<div class="mo" id="modal-odev-ekle">
+  <div class="md" style="width:min(620px,100%)">
+    <div class="mtit">📚 Ödev Ata</div>
+    <input type="hidden" id="od2-id">
+    <div class="fg">
+      <div class="fr">
+        <div class="f"><label>Ders</label>
+          <select id="od2-ders">
+            <option>TYT - Türkçe</option><option>TYT - Matematik</option>
+            <option>TYT - Sosyal</option><option>TYT - Fen</option>
+            <option>AYT - Matematik</option><option>AYT - Fizik</option>
+            <option>AYT - Kimya</option><option>AYT - Biyoloji</option>
+            <option>AYT - Edebiyat</option><option>Diğer</option>
+          </select>
+        </div>
+        <div class="f"><label>Ödev Başlığı *</label><input id="od2-konu" placeholder="Örn: Üslü Sayılar Tekrarı"></div>
+      </div>
+      <div class="fr">
+        <div class="f"><label>Kitap Adı *</label><input id="od2-kitap" placeholder="Örn: Karaağaç TYT Matematik"></div>
+        <div class="f"><label>Son Tarih</label><input id="od2-tarih" type="date"></div>
+      </div>
+      <div class="fr">
+        <div class="f"><label>Başlangıç Sayfası *</label><input id="od2-basSayfa" type="number" min="1" placeholder="Örn: 45"></div>
+        <div class="f"><label>Bitiş Sayfası *</label><input id="od2-bitSayfa" type="number" min="1" placeholder="Örn: 72"></div>
+      </div>
+      <div class="f"><label>Açıklama (Opsiyonel)</label>
+        <textarea id="od2-aciklama" rows="2" placeholder="Öğrenciye ek yönerge..."></textarea></div>
+      <div class="f"><label>Kimler görsün?</label>
+        <div style="display:flex;gap:14px;margin-top:4px">
+          <label style="display:flex;align-items:center;gap:6px;font-size:12px;text-transform:none;letter-spacing:0;color:var(--tx);cursor:pointer;font-weight:500">
+            <input type="radio" name="od2-hedef-tip" value="hepsi" id="od2-hedef-hepsi" checked onchange="od2HedefDegis()"> Tüm öğrenciler
+          </label>
+          <label style="display:flex;align-items:center;gap:6px;font-size:12px;text-transform:none;letter-spacing:0;color:var(--tx);cursor:pointer;font-weight:500">
+            <input type="radio" name="od2-hedef-tip" value="secim" onchange="od2HedefDegis()"> Seçili öğrenciler
+          </label>
+        </div>
+      </div>
+      <div id="od2-ogr-sec-wrap" style="display:none">
+        <div class="f"><label>Öğrenci Seç</label>
+          <select id="od2-ogrenciler" multiple size="5" style="height:auto"></select></div>
+      </div>
+      <div class="f"><label>Not (Opsiyonel)</label>
+        <textarea id="od2-not" rows="2" placeholder="Ek mesaj..."></textarea></div>
+    </div>
+    <div class="mft">
+      <button class="btn btn-n" onclick="mKapat('odev-ekle')">İptal</button>
+      <button class="btn btn-p" onclick="odevKaydet()">✓ Kaydet & Ata</button>
+    </div>
+  </div>
+</div>
+
 <div class="mo" id="modal-od">
   <div class="md"><div class="mtit">💳 Ödeme</div>
     <input type="hidden" id="od-id">
     <div class="fg">
       <div class="fr"><div class="f"><label>Öğrenci *</label><select id="od-ok"></select></div><div class="f"><label>Tarih *</label><input id="od-tar" type="date"></div></div>
       <div class="fr"><div class="f"><label>Tutar (₺) *</label><input id="od-tut" type="number"></div><div class="f"><label>Yöntem</label><select id="od-yon"><option>Nakit</option><option>Havale/EFT</option><option>Kredi Kartı</option><option>Diğer</option></select></div></div>
+      <!-- TAKSİT -->
+      <div style="padding:10px;background:var(--s2);border-radius:8px;border:1px solid var(--b1)">
+        <label style="font-size:11px;color:var(--Y);font-weight:700;display:flex;align-items:center;gap:8px;cursor:pointer;text-transform:none;letter-spacing:0">
+          <input type="checkbox" id="od-taksit-mi" onchange="odTaksitDegis()" style="width:14px;height:14px">
+          📅 Taksit Planı Oluştur
+        </label>
+        <div id="od-taksit-wrap" style="display:none;margin-top:10px">
+          <div class="fr">
+            <div class="f"><label>Taksit Sayısı</label><input id="od-taksit-sayi" type="number" min="2" max="24" value="3" placeholder="3" oninput="odTaksitOnizle()"></div>
+            <div class="f"><label>İlk Taksit Tarihi</label><input id="od-taksit-bas" type="date" oninput="odTaksitOnizle()"></div>
+          </div>
+          <div id="od-taksit-onizle" style="margin-top:8px;font-size:11px;color:var(--mu2)"></div>
+        </div>
+      </div>
       <div class="f"><label>Not</label><textarea id="od-not"></textarea></div>
     </div>
     <div class="mft"><button class="btn btn-n" onclick="mKapat('od')">İptal</button><button class="btn btn-p" onclick="odKaydet()">💾 Kaydet</button></div>
@@ -1794,10 +1887,10 @@ function fbInit(){
 }
 
 // ── Koleksiyon adları ──
-const COL={aok:'v5_aok',fok:'v5_fok',ders:'v5_ders',odem:'v5_odem',gidr:'v5_gidr',prog:'v5_prog',devam:'v5_devam',musait:'v5_musait',talep:'v5_talep',takvim:'v5_takvim',notlar:'v5_notlar',cevap:'v5_cevap',optik:'v5_optik',gorev:'v5_gorev'};
+const COL={aok:'v5_aok',fok:'v5_fok',ders:'v5_ders',odem:'v5_odem',gidr:'v5_gidr',prog:'v5_prog',devam:'v5_devam',musait:'v5_musait',talep:'v5_talep',takvim:'v5_takvim',notlar:'v5_notlar',cevap:'v5_cevap',optik:'v5_optik',gorev:'v5_gorev',odev:'v5_odev'};
 
 // ── Yerel değişkenler (bellekte çalışır, Firebase ile senkronize) ──
-let AOK=[], FOK=[], DERS=[], ODEM=[], GIDR=[], PROG=[], DEVAM=[], MUSAIT=[], TALEP=[], TAKVIM=[], NOTLAR=[], GOREVLER=[];
+let AOK=[], FOK=[], DERS=[], ODEM=[], GIDR=[], PROG=[], DEVAM=[], MUSAIT=[], TALEP=[], TAKVIM=[], NOTLAR=[], GOREVLER=[], ODEVLER=[];
 let _GOREVLER_dummy=[], CEVAPLAR=[], OPTIKLER=[];
 
 // localStorage fallback (offline için)
@@ -1850,6 +1943,7 @@ const sv={
   takvim:()=>fbSet(COL.takvim,TAKVIM),
   notlar:()=>fbSet(COL.notlar,NOTLAR),
   gorev:()=>fbSet(COL.gorev,GOREVLER),
+  odev: ()=>fbSet(COL.odev,ODEVLER),
   cevap:()=>fbSet(COL.cevap,CEVAPLAR),
   optik:()=>fbSet(COL.optik,OPTIKLER)
 };
@@ -1869,13 +1963,14 @@ async function fbYukle(){
     ]);
     HEDEFLER=await fbGet('v5_hedef');
     GOREVLER=await fbGet(COL.gorev);
+    ODEVLER=await fbGet(COL.odev);
     [CEVAPLAR,OPTIKLER]=await Promise.all([fbGet(COL.cevap),fbGet(COL.optik)]);
     if(fbOk&&syncEl){syncEl.textContent='✓ Bulut bağlantısı aktif';syncEl.style.background='var(--Gd)';syncEl.style.color='var(--G)';}
     if(syncEl)setTimeout(()=>{syncEl.textContent='☁️ Firebase';syncEl.style.background='';syncEl.style.color='var(--G)';},4000);
   }catch(e){
     AOK=LS.g(COL.aok,[]);FOK=LS.g(COL.fok,[]);DERS=LS.g(COL.ders,[]);
     ODEM=LS.g(COL.odem,[]);GIDR=LS.g(COL.gidr,[]);PROG=LS.g(COL.prog,[]);DEVAM=LS.g(COL.devam,[]);
-    MUSAIT=LS.g(COL.musait,[]);TALEP=LS.g(COL.talep,[]);TAKVIM=LS.g(COL.takvim,[]);NOTLAR=LS.g(COL.notlar,[]);GOREVLER=LS.g(COL.gorev,[]);
+    MUSAIT=LS.g(COL.musait,[]);TALEP=LS.g(COL.talep,[]);TAKVIM=LS.g(COL.takvim,[]);NOTLAR=LS.g(COL.notlar,[]);GOREVLER=LS.g(COL.gorev,[]);ODEVLER=LS.g(COL.odev,[]);
     if(syncEl){syncEl.textContent='⚠️ Offline mod';syncEl.style.background='var(--Yd)';syncEl.style.color='var(--Y)';}
     toast('Offline çalışıyor — veriler localStorage\'da','inf');
   }
@@ -1902,7 +1997,17 @@ function toast(msg,t='ok'){
 function mAc(id,editId=null){
   const el=document.getElementById('modal-'+id);
   if(!el)return;el.classList.add('open');
-  if(id==='od'){selFill('od-ok',FOK);document.getElementById('od-tar').value=bugun();document.getElementById('od-id').value='';}
+  if(id==='od'){
+    selFill('od-ok',FOK);
+    document.getElementById('od-tar').value=bugun();
+    document.getElementById('od-id').value='';
+    document.getElementById('od-not').value='';
+    document.getElementById('od-tut').value='';
+    var taksitCb=document.getElementById('od-taksit-mi');
+    if(taksitCb){taksitCb.checked=false;}
+    var taksitWrap=document.getElementById('od-taksit-wrap');
+    if(taksitWrap){taksitWrap.style.display='none';}
+  }
   if(id==='ders'){selFill('dr-ok',FOK);document.getElementById('dr-tar').value=bugun();document.getElementById('dr-id').value='';document.getElementById('dr-sur').value=1;document.getElementById('dr-uct').value='';
     document.getElementById('dr-ok').onchange=autoUcret;document.getElementById('dr-sur').oninput=autoUcret;}
   if(id==='gd'){document.getElementById('gd-tar').value=bugun();document.getElementById('gd-id').value='';}
@@ -2010,6 +2115,7 @@ function render(id){
     ai:renderAI,ayarlar:renderAyarlar,
     optik:renderOptik,cevap:renderCevap,
     gorev:renderGorev,
+    odev:renderOdev,
     hesaplar:()=>{renderHesaplar();fbGet(COL.aok).then(taze=>{AOK=taze;const s=document.getElementById('nh-ogr-sec');if(s){s.innerHTML='<option value="">— Seçin —</option>'+AOK.map(o=>`<option value="${o.id}">${o.ad}</option>`).join('');}})}
   }[id]||function(){})();
 }
@@ -3544,9 +3650,7 @@ hr.dv{border:none;border-top:1px solid rgba(255,255,255,.055);margin:12px 0}
   .two,.three{grid-template-columns:1fr}
   .qa-kart.one-cikan{grid-column:span 1}
 }
-</style></head><body onload="introGiris()">
-  <button class="noprint" onclick="window.print()" style="margin-bottom:16px;padding:8px 18px;background:#111;color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:13px">🖨️ Yazdır / PDF Kaydet</button>
-  <h1>${o.ad}</h1>
+</style></'+'head><body onload="introGiris()">
   <h2>${o.sinif||''} ${o.sira?'· Sıra #'+o.sira:''} ${o.puan?'· EA '+o.puan.toFixed(3):''} · Oluşturma: ${new Date().toLocaleDateString('tr-TR')}</h2>
   <div class="grid4">
     <div class="stat"><div class="lbl">TYT Net</div><div class="val">${tytT.toFixed(2)}</div></div>
@@ -4027,13 +4131,76 @@ function fillOdF(id){
   document.getElementById('od-tar').value=o.tarih;document.getElementById('od-tut').value=o.tutar;
   document.getElementById('od-yon').value=o.yontem;document.getElementById('od-not').value=o.not||'';
 }
+function odTaksitDegis() {
+  var cb = document.getElementById('od-taksit-mi');
+  var wrap = document.getElementById('od-taksit-wrap');
+  if (!wrap) return;
+  wrap.style.display = cb.checked ? 'block' : 'none';
+  if (cb.checked) {
+    document.getElementById('od-taksit-bas').value = bugun();
+    odTaksitOnizle();
+  }
+}
+
+function odTaksitOnizle() {
+  var sayi = parseInt(document.getElementById('od-taksit-sayi').value) || 0;
+  var bas = document.getElementById('od-taksit-bas').value;
+  var tut = parseFloat(document.getElementById('od-tut').value) || 0;
+  var el = document.getElementById('od-taksit-onizle');
+  if (!el) return;
+  if (!sayi || !bas || !tut) { el.innerHTML = ''; return; }
+  var taksitTut = Math.round((tut / sayi) * 100) / 100;
+  var html = '<div style="display:flex;flex-wrap:wrap;gap:5px;margin-top:4px">';
+  for (var i = 0; i < Math.min(sayi, 12); i++) {
+    var d = new Date(bas + 'T00:00');
+    d.setMonth(d.getMonth() + i);
+    var tarStr = d.toLocaleDateString('tr-TR', {day:'2-digit', month:'short'});
+    html += '<span style="font-size:10px;background:var(--s3);padding:3px 7px;border-radius:6px;border:1px solid var(--b1)">'+tarStr+' · ₺'+taksitTut.toLocaleString('tr-TR')+'</span>';
+  }
+  if (sayi > 12) html += '<span style="font-size:10px;color:var(--mu)">+'+( sayi-12)+' taksit daha</span>';
+  html += '</div>';
+  el.innerHTML = '<div style="font-size:10px;color:var(--mu);margin-bottom:4px">📅 '+sayi+' taksit önizleme (toplam ₺'+tut.toLocaleString('tr-TR')+')</div>' + html;
+}
+
 function odKaydet(){
-  const id=document.getElementById('od-id').value;
-  const o={id:id||uid(),okId:document.getElementById('od-ok').value,tarih:document.getElementById('od-tar').value,
-    tutar:+document.getElementById('od-tut').value||0,yontem:document.getElementById('od-yon').value,not:document.getElementById('od-not').value};
-  if(!o.okId||!o.tutar){toast('Öğrenci ve tutar zorunlu','err');return;}
-  if(id){const i=ODEM.findIndex(x=>x.id===id);ODEM[i]=o;}else ODEM.push(o);
-  sv.odem();mKapat('od');toast('Ödeme kaydedildi');render(CUR);
+  var id = document.getElementById('od-id').value;
+  var okId = document.getElementById('od-ok').value;
+  var tarih = document.getElementById('od-tar').value;
+  var tutar = +document.getElementById('od-tut').value || 0;
+  var yontem = document.getElementById('od-yon').value;
+  var not = document.getElementById('od-not').value;
+  var taksitMi = document.getElementById('od-taksit-mi').checked;
+  if (!okId || !tutar) { toast('Öğrenci ve tutar zorunlu', 'err'); return; }
+
+  if (taksitMi) {
+    var sayi = parseInt(document.getElementById('od-taksit-sayi').value) || 0;
+    var bas = document.getElementById('od-taksit-bas').value;
+    if (!sayi || sayi < 2) { toast('Geçerli bir taksit sayısı girin (min 2)', 'err'); return; }
+    if (!bas) { toast('İlk taksit tarihi zorunlu', 'err'); return; }
+    var taksitTut = Math.round((tutar / sayi) * 100) / 100;
+    for (var i = 0; i < sayi; i++) {
+      var d = new Date(bas + 'T00:00');
+      d.setMonth(d.getMonth() + i);
+      var taksitTarih = d.toISOString().slice(0, 10);
+      ODEM.push({
+        id: uid(), okId: okId,
+        tarih: taksitTarih, tutar: taksitTut,
+        yontem: yontem,
+        not: (not ? not + ' · ' : '') + (i+1)+'/'+sayi+'. taksit',
+        taksit: true, taksitNo: i+1, taksitTopSayi: sayi, taksitGrup: id || uid()
+      });
+    }
+    sv.odem(); mKapat('od');
+    toast('✓ '+sayi+' taksit planı oluşturuldu', 'ok');
+    render(CUR); renderOzet();
+    return;
+  }
+
+  var o = {id:id||uid(), okId:okId, tarih:tarih||bugun(), tutar:tutar, yontem:yontem, not:not};
+  if (!o.okId || !o.tutar) { toast('Öğrenci ve tutar zorunlu', 'err'); return; }
+  if (id) { var i2 = ODEM.findIndex(function(x){ return x.id===id; }); ODEM[i2] = o; }
+  else ODEM.push(o);
+  sv.odem(); mKapat('od'); toast('Ödeme kaydedildi'); render(CUR); renderOzet();
 }
 function odSil(id){ODEM=ODEM.filter(o=>o.id!==id);sv.odem();toast('Ödeme silindi');render(CUR);}
 
@@ -4723,7 +4890,7 @@ hr.dv{border:none;border-top:1px solid rgba(255,255,255,.055);margin:12px 0}
   .two,.three{grid-template-columns:1fr}
   .qa-kart.one-cikan{grid-column:span 1}
 }
-</style></head><body onload="introGiris()">
+</style></'+'head><body onload="introGiris()">
   <button class="noprint" onclick="window.print()" style="margin-bottom:14px;padding:8px 18px;background:#111;color:#fff;border:none;border-radius:6px;cursor:pointer">🖨️ Yazdır / PDF Kaydet</button>
   <h1>${ayAd} — Aylık Rapor</h1>
   <h2>Hoca Paneli v4 · Oluşturma: ${new Date().toLocaleDateString('tr-TR')}</h2>
@@ -4795,6 +4962,27 @@ function renderOzet(){
     <div class="flex aic jb mb2"><div><div style="font-size:12px">${o.ad}</div><div style="font-size:10px;color:var(--mu)">${o.sinif||''}</div></div><span class="b bR">${para(o.borc)}</span></div>
     <div class="pb" style="margin-bottom:10px"><div class="pf" style="width:${o.al>0?Math.min(100,o.od/o.al*100):0}%;background:var(--G)"></div></div>`).join('')
     :'<div class="empty" style="padding:14px">🎉 Bekleyen borç yok</div>';
+
+  // Bugün ödemesi olanlar (taksit)
+  const bugunStr = bugun();
+  const bugunOdeme = ODEM.filter(o => o.taksit && o.tarih === bugunStr);
+  const bugunOdemeEl = document.getElementById('ozet-bugun-odeme');
+  if (bugunOdemeEl) {
+    if (bugunOdeme.length) {
+      bugunOdemeEl.innerHTML = bugunOdeme.map(o => {
+        const ogr = FOK.find(x => x.id === o.okId);
+        return `<div class="flex aic jb" style="padding:8px 0;border-bottom:1px solid rgba(255,255,255,.05)">
+          <div>
+            <div style="font-size:12px;font-weight:600">${ogr?.ad||'?'}</div>
+            <div style="font-size:10px;color:var(--mu)">${o.not||''}</div>
+          </div>
+          <span class="b bY">${para(o.tutar)}</span>
+        </div>`;
+      }).join('');
+    } else {
+      bugunOdemeEl.innerHTML = '<div class="empty" style="padding:14px">✓ Bugün taksit ödemesi yok</div>';
+    }
+  }
   const islemler=[
     ...ODEM.map(o=>({t:o.tarih,tip:'ödeme',ad:FOK.find(x=>x.id===o.okId)?.ad||'?',tutar:o.tutar,cls:'bG'})),
     ...GIDR.map(g=>({t:g.tarih,tip:'gider',ad:g.kategori,tutar:-g.tutar,cls:'bR'})),
@@ -5073,6 +5261,9 @@ function opTab(tab, el){
   const ad=mevcutKullanici.ad||'';
   if(tab==='gorevlerim'){
     opRenderGorevlerim(_opOgr, _opUserData||mevcutKullanici);
+  }
+  if(tab==='odevlerim'){
+    opRenderOdevlerim(_opOgr, _opUserData||mevcutKullanici);
   }
   if(tab==='program'){
     Promise.all([fbGet(COL.musait),fbGet(COL.talep)]).then(([m,t])=>{
@@ -5663,11 +5854,21 @@ function manuelKaydet(){
   const ogr=AOK.find(o=>o.id===ogrId);if(!ogr){toast('Öğrenci bulunamadı','err');return;}
 
   const tyt={};
-  ['TR','SOS','MAT','FEN'].forEach(d=>{tyt[d]=parseFloat(document.getElementById('mn-t'+d)?.value)||0;});
+  ['TR','SOS','MAT','FEN'].forEach(d=>{
+    var raw=parseFloat(document.getElementById('mn-t'+d)?.value)||0;
+    tyt[d]=Math.min(40,Math.max(-10,raw));
+  });
 
   const ayt={};
-  EA_AYT.forEach(d=>{ayt[d]=parseFloat(document.getElementById('mn-ea'+d.replace(/[^a-z]/gi,'_'))?.value)||0;});
-  SAY_AYT.forEach(d=>{const v=parseFloat(document.getElementById('mn-say'+d.replace(/[^a-z]/gi,'_'))?.value)||0; ayt[d]=Math.max(ayt[d]||0,v);});
+  EA_AYT.forEach(d=>{
+    var raw=parseFloat(document.getElementById('mn-ea'+d.replace(/[^a-z]/gi,'_'))?.value)||0;
+    ayt[d]=Math.min(40,Math.max(-10,raw));
+  });
+  SAY_AYT.forEach(d=>{
+    var raw=parseFloat(document.getElementById('mn-say'+d.replace(/[^a-z]/gi,'_'))?.value)||0;
+    var v=Math.min(40,Math.max(-10,raw));
+    ayt[d]=Math.max(ayt[d]||0,v);
+  });
 
   const puanEA=parseFloat(document.getElementById('mn-puan-ea')?.value)||null;
   const puanSAY=parseFloat(document.getElementById('mn-puan-say')?.value)||null;
@@ -6702,6 +6903,247 @@ function renderGorev() {
       ${g.aciklama ? `<div style="margin-top:8px;font-size:11px;color:var(--mu2);font-style:italic">${g.aciklama}</div>` : ""}
     </div>`;
   }).join('');
+}
+
+// ═══════════════════════════════════════════════════
+// ÖDEV MODÜLÜ — Öğretmen tarafı
+// ═══════════════════════════════════════════════════
+function mAcOdev(editId) {
+  var tumOgr = [...AOK, ...FOK.filter(function(f){ return !AOK.find(function(a){ return a.id===f.id; }); })];
+  tumOgr.sort(function(a,b){ return a.ad.localeCompare(b.ad,'tr'); });
+  var sel = document.getElementById('od2-ogrenciler');
+  if (sel) sel.innerHTML = tumOgr.map(function(o){ return '<option value="'+o.id+'">'+o.ad+'</option>'; }).join('');
+  document.getElementById('od2-id').value = '';
+  document.getElementById('od2-konu').value = '';
+  document.getElementById('od2-kitap').value = '';
+  document.getElementById('od2-basSayfa').value = '';
+  document.getElementById('od2-bitSayfa').value = '';
+  document.getElementById('od2-aciklama').value = '';
+  document.getElementById('od2-not').value = '';
+  document.getElementById('od2-tarih').value = '';
+  document.getElementById('od2-hedef-hepsi').checked = true;
+  od2HedefDegis();
+  if (editId) {
+    var o = ODEVLER.find(function(x){ return x.id===editId; });
+    if (o) {
+      document.getElementById('od2-id').value = o.id;
+      document.getElementById('od2-ders').value = o.ders || '';
+      document.getElementById('od2-konu').value = o.konu || '';
+      document.getElementById('od2-kitap').value = o.kitap || '';
+      document.getElementById('od2-basSayfa').value = o.basSayfa || '';
+      document.getElementById('od2-bitSayfa').value = o.bitSayfa || '';
+      document.getElementById('od2-aciklama').value = o.aciklama || '';
+      document.getElementById('od2-not').value = o.not || '';
+      document.getElementById('od2-tarih').value = o.tarih || '';
+      if (o.hedefTip === 'secim') {
+        document.querySelector('input[name="od2-hedef-tip"][value="secim"]').checked = true;
+        od2HedefDegis();
+        var selEl = document.getElementById('od2-ogrenciler');
+        if (selEl && o.hedefOgr) {
+          Array.from(selEl.options).forEach(function(opt){ opt.selected = o.hedefOgr.includes(opt.value); });
+        }
+      }
+    }
+  }
+  document.getElementById('modal-odev-ekle').classList.add('open');
+}
+
+function od2HedefDegis() {
+  var tip = document.querySelector('input[name="od2-hedef-tip"]:checked');
+  var wrap = document.getElementById('od2-ogr-sec-wrap');
+  if (wrap) wrap.style.display = (tip && tip.value==='secim') ? 'block' : 'none';
+}
+
+function odevKaydet() {
+  var id = document.getElementById('od2-id').value;
+  var konu = document.getElementById('od2-konu').value.trim();
+  var kitap = document.getElementById('od2-kitap').value.trim();
+  var basSayfa = parseInt(document.getElementById('od2-basSayfa').value) || 0;
+  var bitSayfa = parseInt(document.getElementById('od2-bitSayfa').value) || 0;
+  if (!konu) { toast('Ödev başlığı zorunlu', 'err'); return; }
+  if (!kitap) { toast('Kitap adı zorunlu', 'err'); return; }
+  if (!basSayfa || !bitSayfa) { toast('Başlangıç ve bitiş sayfası zorunlu', 'err'); return; }
+  if (bitSayfa < basSayfa) { toast('Bitiş sayfası başlangıçtan küçük olamaz', 'err'); return; }
+  var hedefTip = document.querySelector('input[name="od2-hedef-tip"]:checked').value || 'hepsi';
+  var hedefOgr = [];
+  if (hedefTip === 'secim') {
+    var sel = document.getElementById('od2-ogrenciler');
+    hedefOgr = Array.from(sel.selectedOptions).map(function(o){ return o.value; });
+    if (!hedefOgr.length) { toast('En az bir öğrenci seçin', 'err'); return; }
+  }
+  var yeni = {
+    id: id || uid(),
+    ders: document.getElementById('od2-ders').value,
+    konu: konu, kitap: kitap,
+    basSayfa: basSayfa, bitSayfa: bitSayfa,
+    sayfaSayisi: bitSayfa - basSayfa + 1,
+    tarih: document.getElementById('od2-tarih').value,
+    aciklama: document.getElementById('od2-aciklama').value.trim(),
+    not: document.getElementById('od2-not').value.trim(),
+    hedefTip: hedefTip, hedefOgr: hedefOgr,
+    olusturma: bugun(),
+    tamamlayan: id ? (ODEVLER.find(function(x){ return x.id===id; })?.tamamlayan||[]) : []
+  };
+  if (id) {
+    var idx = ODEVLER.findIndex(function(x){ return x.id===id; });
+    if (idx >= 0) ODEVLER[idx] = yeni;
+  } else {
+    ODEVLER.unshift(yeni);
+  }
+  sv.odev();
+  mKapat('odev-ekle');
+  toast(id ? '✓ Ödev güncellendi' : '✓ Ödev atandı!', 'ok');
+  renderOdev();
+}
+
+function odevSil(id) {
+  if (!confirm('Bu ödevi silmek istiyor musunuz?')) return;
+  ODEVLER = ODEVLER.filter(function(o){ return o.id !== id; });
+  sv.odev();
+  renderOdev();
+  toast('Ödev silindi', 'ok');
+}
+
+function renderOdev() {
+  var el = document.getElementById('odev-liste');
+  if (!el) return;
+  if (!ODEVLER.length) {
+    el.innerHTML = '<div class="empty"><div class="empty-ic">📚</div><div>Henüz ödev oluşturulmamış</div><div style="margin-top:8px;font-size:11px;color:var(--mu)">Öğrencilerinize kitap ödevi atayın</div></div>';
+    return;
+  }
+  el.innerHTML = ODEVLER.map(function(o) {
+    var tumOgr = [...AOK, ...FOK.filter(function(f){ return !AOK.find(function(a){ return a.id===f.id; }); })];
+    var hedefSayisi = o.hedefTip === 'hepsi' ? tumOgr.length : (o.hedefOgr||[]).length;
+    var tamamSayisi = (o.tamamlayan||[]).length;
+    var yuzde = hedefSayisi > 0 ? Math.round(tamamSayisi / hedefSayisi * 100) : 0;
+    var gecti = o.tarih && o.tarih < bugun();
+    var tamColor = yuzde===100?'var(--G)':yuzde>50?'var(--Y)':'var(--C)';
+    return '<div class="card" style="margin-bottom:14px">' +
+      '<div style="display:flex;gap:14px;flex-wrap:wrap">' +
+        '<div style="flex-shrink:0;width:56px;height:56px;border-radius:12px;background:rgba(0,212,255,.1);border:1px solid rgba(0,212,255,.2);display:flex;align-items:center;justify-content:center;font-size:26px">📚</div>' +
+        '<div style="flex:1;min-width:0">' +
+          '<div style="display:flex;align-items:flex-start;justify-content:space-between;gap:6px;margin-bottom:6px">' +
+            '<div>' +
+              '<div style="font-family:Syne,sans-serif;font-size:13px;font-weight:800;color:#fff;line-height:1.3">'+o.konu+'</div>' +
+              '<div style="font-size:10px;color:var(--mu2);margin-top:2px">'+o.ders+' · '+o.kitap+'</div>' +
+            '</div>' +
+            '<div style="display:flex;gap:4px;flex-shrink:0">' +
+              '<button class="btn btn-n btn-sm" onclick="mAcOdev(\''+o.id+'\')">✏️</button>' +
+              '<button class="btn btn-d btn-sm" onclick="odevSil(\''+o.id+'\')">🗑</button>' +
+            '</div>' +
+          '</div>' +
+          '<div style="display:flex;gap:4px;flex-wrap:wrap;margin-bottom:8px">' +
+            '<span class="b bC">Sayfa '+o.basSayfa+'–'+o.bitSayfa+' ('+o.sayfaSayisi+' sf.)</span>' +
+            (gecti ? '<span class="b bR">Süresi Doldu</span>' : o.tarih ? '<span class="b bY">⏰ '+tfmt(o.tarih)+'</span>' : '') +
+            '<span class="b bG">'+tamamSayisi+'/'+hedefSayisi+' tamamladı</span>' +
+          '</div>' +
+          '<div>' +
+            '<div style="display:flex;justify-content:space-between;margin-bottom:3px">' +
+              '<span style="font-size:10px;color:var(--mu2)">'+(o.hedefTip==='hepsi'?'Tüm öğrenciler':hedefSayisi+' öğrenci')+'</span>' +
+              '<span style="font-size:10px;font-weight:700;color:'+tamColor+'">'+yuzde+'%</span>' +
+            '</div>' +
+            '<div class="pb"><div class="pf" style="width:'+yuzde+'%;background:'+tamColor+'"></div></div>' +
+          '</div>' +
+        '</div>' +
+      '</div>' +
+      ((o.tamamlayan||[]).length ? '<div style="margin-top:10px;padding-top:10px;border-top:1px solid rgba(255,255,255,.05)"><div style="font-size:9px;color:var(--mu);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px">✓ Tamamlayanlar</div><div style="display:flex;flex-wrap:wrap;gap:4px">' +
+        (o.tamamlayan||[]).map(function(oId){var ogr=[...AOK,...FOK].find(function(x){return x.id===oId;});return ogr?'<span class="b bG" style="font-size:9px">✓ '+ogr.ad+'</span>':'';}).join('') +
+      '</div></div>' : '') +
+    '</div>';
+  }).join('');
+}
+
+// ═══════════════════════════════════════════════════
+// ÖDEV — Öğrenci paneli render
+// ═══════════════════════════════════════════════════
+var _opOdevOgr = null;
+
+function opRenderOdevlerim(ogr, userData) {
+  var el = document.getElementById('op-odevlerim-ic');
+  if (!el) return;
+  if (ogr) _opOdevOgr = ogr;
+  el.innerHTML = '<div style="text-align:center;padding:24px;color:var(--mu);font-size:12px">📚 Ödevler yükleniyor...</div>';
+
+  fbGet(COL.odev).then(function(tumOdevler) {
+    ODEVLER = tumOdevler || [];
+    var ogrId = getOgrId();
+    var benimOdevler = ODEVLER.filter(function(o) {
+      if (!o.hedefTip || o.hedefTip === 'hepsi') return true;
+      if (!ogrId) return false;
+      return (o.hedefOgr || []).indexOf(ogrId) >= 0;
+    });
+
+    if (!benimOdevler.length) {
+      el.innerHTML = '<div class="empty"><div class="empty-ic">📚</div><div>Size atanmış ödev yok</div><div style="margin-top:6px;font-size:11px;color:var(--mu)">Öğretmenin ödev atadığında burada görünecek</div></div>';
+      return;
+    }
+
+    var tamSayisi = benimOdevler.filter(function(o){ return ogrId && (o.tamamlayan||[]).indexOf(ogrId)>=0; }).length;
+    var topSayisi = benimOdevler.length;
+    var yuzde = topSayisi > 0 ? Math.round(tamSayisi/topSayisi*100) : 0;
+    var tamColor = yuzde===100?'var(--G)':yuzde>50?'var(--Y)':'var(--C)';
+
+    var html = '<div style="display:flex;align-items:center;gap:12px;padding:14px 16px;margin-bottom:16px;background:linear-gradient(135deg,rgba(0,212,255,.08),rgba(180,125,255,.05));border:1px solid rgba(0,212,255,.15);border-radius:14px">';
+    html += '<div style="width:48px;height:48px;border-radius:12px;background:rgba(0,212,255,.12);border:1px solid rgba(0,212,255,.2);display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0">📚</div>';
+    html += '<div style="flex:1"><div style="font-family:Syne,sans-serif;font-size:13px;font-weight:800;color:#fff">Ödevlerim</div>';
+    html += '<div style="font-size:11px;color:var(--mu2);margin-top:3px">'+tamSayisi+'/'+topSayisi+' ödev tamamlandı</div>';
+    html += '<div style="margin-top:6px;height:4px;background:rgba(255,255,255,.08);border-radius:4px;overflow:hidden"><div style="height:100%;width:'+yuzde+'%;background:'+tamColor+';border-radius:4px;transition:.3s"></div></div></div>';
+    html += '<div style="text-align:right;flex-shrink:0"><div style="font-size:26px;font-weight:800;color:'+tamColor+'">'+yuzde+'%</div><div style="font-size:9px;color:var(--mu);text-transform:uppercase;letter-spacing:1px">Tamamlama</div></div></div>';
+
+    html += '<div style="display:flex;flex-direction:column;gap:12px">';
+    benimOdevler.forEach(function(o) {
+      var tamamlandi = ogrId && (o.tamamlayan||[]).indexOf(ogrId) >= 0;
+      var gecti = o.tarih && o.tarih < bugun();
+      html += '<div style="border-radius:14px;overflow:hidden;background:var(--s1);border:1px solid '+(tamamlandi?'rgba(0,229,160,.25)':'rgba(255,255,255,.07)')+';">';
+      html += '<div style="padding:14px">';
+      // Başlık satırı
+      html += '<div style="display:flex;align-items:flex-start;gap:12px">';
+      html += '<div style="width:42px;height:42px;border-radius:10px;background:'+(tamamlandi?'rgba(0,229,160,.15)':'rgba(0,212,255,.1)')+';border:1px solid '+(tamamlandi?'rgba(0,229,160,.3)':'rgba(0,212,255,.2)')+';display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0">'+(tamamlandi?'✅':'📖')+'</div>';
+      html += '<div style="flex:1;min-width:0">';
+      html += '<div style="font-family:Syne,sans-serif;font-size:13px;font-weight:800;color:#fff;line-height:1.35;margin-bottom:4px">'+o.konu+'</div>';
+      html += '<div style="font-size:10px;color:var(--mu2)">'+o.ders+'</div>';
+      html += '</div>';
+      if (tamamlandi) html += '<span style="font-size:9px;font-weight:800;color:var(--G);background:rgba(0,229,160,.1);padding:3px 9px;border-radius:20px;flex-shrink:0">✓ TAMAMLANDI</span>';
+      else if (gecti) html += '<span style="font-size:9px;color:var(--R);flex-shrink:0">Süre doldu</span>';
+      html += '</div>';
+      // Kitap bilgisi kutusu
+      html += '<div style="margin-top:12px;padding:10px 12px;background:var(--s2);border-radius:10px;border:1px solid rgba(255,255,255,.06)">';
+      html += '<div style="display:flex;gap:16px;flex-wrap:wrap">';
+      html += '<div><div style="font-size:9px;color:var(--mu);text-transform:uppercase;letter-spacing:1px;margin-bottom:3px">Kitap</div><div style="font-size:12px;font-weight:600;color:var(--tx)">'+o.kitap+'</div></div>';
+      html += '<div><div style="font-size:9px;color:var(--mu);text-transform:uppercase;letter-spacing:1px;margin-bottom:3px">Sayfalar</div><div style="font-size:12px;font-weight:700;color:var(--C);font-family:DM Mono,monospace">'+o.basSayfa+' – '+o.bitSayfa+'</div></div>';
+      html += '<div><div style="font-size:9px;color:var(--mu);text-transform:uppercase;letter-spacing:1px;margin-bottom:3px">Sayfa Sayısı</div><div style="font-size:12px;font-weight:700;color:var(--Y);font-family:DM Mono,monospace">'+o.sayfaSayisi+' sayfa</div></div>';
+      if (o.tarih) html += '<div><div style="font-size:9px;color:var(--mu);text-transform:uppercase;letter-spacing:1px;margin-bottom:3px">Son Tarih</div><div style="font-size:12px;font-weight:600;color:'+(gecti?'var(--R)':'var(--O)')+'">'+tfmt(o.tarih)+'</div></div>';
+      html += '</div></div>';
+      if (o.aciklama) html += '<div style="margin-top:10px;font-size:11px;color:var(--mu2);line-height:1.5">'+o.aciklama+'</div>';
+      if (o.not) html += '<div style="margin-top:8px;font-size:10px;color:var(--C);background:rgba(0,212,255,.07);padding:6px 9px;border-radius:7px;border-left:2px solid var(--C)">📝 '+o.not+'</div>';
+      // Buton
+      html += '<div style="margin-top:12px">';
+      if (!tamamlandi) {
+        html += '<button onclick="opOdevTamamla(\''+o.id+'\')" style="width:100%;padding:10px;border-radius:10px;border:none;font-size:12px;font-weight:700;cursor:pointer;background:linear-gradient(135deg,var(--G),#00b87a);color:#000">✓ Tamamladım</button>';
+      } else {
+        html += '<div style="width:100%;padding:10px;border-radius:10px;text-align:center;font-size:12px;font-weight:700;background:rgba(0,229,160,.1);color:var(--G);border:1px solid rgba(0,229,160,.2)">✅ Tamamlandı</div>';
+      }
+      html += '</div>';
+      html += '</div></div>';
+    });
+    html += '</div>';
+    el.innerHTML = html;
+  }).catch(function(e) {
+    el.innerHTML = '<div class="empty"><div class="empty-ic">⚠️</div><div>Yüklenemedi: '+(e.message||'bilinmeyen hata')+'</div></div>';
+  });
+}
+
+async function opOdevTamamla(odevId) {
+  var ogrId = getOgrId();
+  if (!ogrId) { toast('Kimlik bulunamadı', 'err'); return; }
+  var o = ODEVLER.find(function(x){ return x.id === odevId; });
+  if (!o) { toast('Ödev bulunamadı', 'err'); return; }
+  if ((o.tamamlayan||[]).indexOf(ogrId) >= 0) { toast('Bu ödevi zaten tamamladınız!', 'inf'); return; }
+  if (!o.tamamlayan) o.tamamlayan = [];
+  o.tamamlayan.push(ogrId);
+  await sv.odev();
+  toast('Ödev tamamlandı! Öğretmeninize bildirildi. ✓', 'ok');
+  opRenderOdevlerim(_opOdevOgr, _opUserData);
 }
 
 // ── Öğrenci: görevi tamamla ──
