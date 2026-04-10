@@ -1,0 +1,826 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Edebiyat Hazırlık — YKS EA</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=IBM+Plex+Sans:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #1a1208;
+    --parchment: #f5f0e8;
+    --cream: #faf7f2;
+    --gold: #c9892a;
+    --gold-light: #e8b96a;
+    --rust: #8b3a1e;
+    --sage: #4a6741;
+    --muted: #7a6e5f;
+    --border: #d4c8b0;
+    --card: #ffffff;
+    --shadow: rgba(26,18,8,0.12);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'IBM Plex Sans', sans-serif;
+    background: var(--parchment);
+    color: var(--ink);
+    min-height: 100vh;
+    background-image:
+      radial-gradient(ellipse at 20% 0%, rgba(201,137,42,0.08) 0%, transparent 60%),
+      radial-gradient(ellipse at 80% 100%, rgba(139,58,30,0.06) 0%, transparent 60%);
+  }
+  header {
+    background: var(--ink);
+    position: relative;
+    overflow: hidden;
+  }
+  header::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: repeating-linear-gradient(45deg, transparent, transparent 40px, rgba(201,137,42,0.04) 40px, rgba(201,137,42,0.04) 41px);
+  }
+  .header-inner {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 28px 24px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    position: relative;
+  }
+  .header-icon { font-size: 42px; line-height: 1; }
+  .header-text h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(22px, 4vw, 32px);
+    font-weight: 900;
+    color: var(--parchment);
+    line-height: 1.1;
+  }
+  .header-text h1 span { color: var(--gold-light); }
+  .header-text p {
+    font-size: 12px;
+    color: rgba(245,240,232,0.5);
+    margin-top: 3px;
+    font-weight: 300;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+  }
+  .badge {
+    margin-left: auto;
+    background: var(--gold);
+    color: var(--ink);
+    font-size: 11px;
+    font-weight: 700;
+    padding: 6px 14px;
+    border-radius: 20px;
+    white-space: nowrap;
+  }
+  .container {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 28px 24px;
+    display: grid;
+    grid-template-columns: 270px 1fr;
+    gap: 24px;
+    align-items: start;
+  }
+  .sidebar { position: sticky; top: 20px; }
+  .sidebar-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 2px 12px var(--shadow);
+  }
+  .sidebar-title {
+    background: var(--ink);
+    color: var(--parchment);
+    padding: 13px 16px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    font-family: 'IBM Plex Mono', monospace;
+  }
+  .topic-list { list-style: none; }
+  .topic-item { border-bottom: 1px solid var(--border); }
+  .topic-item:last-child { border-bottom: none; }
+  .topic-btn {
+    width: 100%;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 11px 14px;
+    text-align: left;
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    font-family: 'IBM Plex Sans', sans-serif;
+    font-size: 13px;
+    color: var(--ink);
+    transition: all 0.15s;
+  }
+  .topic-btn:hover { background: var(--parchment); }
+  .topic-btn.active { background: var(--ink); color: var(--parchment); }
+  .topic-emoji { font-size: 15px; flex-shrink: 0; }
+  .topic-name { font-weight: 500; flex: 1; line-height: 1.3; }
+  .topic-count {
+    font-size: 10px;
+    background: rgba(201,137,42,0.18);
+    color: var(--gold);
+    padding: 2px 6px;
+    border-radius: 8px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-weight: 600;
+    flex-shrink: 0;
+  }
+  .topic-btn.active .topic-count { background: rgba(255,255,255,0.15); color: var(--gold-light); }
+
+  /* MODE */
+  .mode-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 2px 12px var(--shadow);
+    margin-top: 14px;
+  }
+  .mode-title {
+    background: var(--rust);
+    color: white;
+    padding: 13px 16px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    font-family: 'IBM Plex Mono', monospace;
+  }
+  .mode-btns { padding: 10px; display: flex; flex-direction: column; gap: 7px; }
+  .mode-btn {
+    width: 100%;
+    border: 1.5px solid var(--border);
+    background: none;
+    border-radius: 8px;
+    padding: 9px 12px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-family: 'IBM Plex Sans', sans-serif;
+    font-size: 13px;
+    color: var(--ink);
+    transition: all 0.15s;
+    text-align: left;
+  }
+  .mode-btn:hover { border-color: var(--gold); background: rgba(201,137,42,0.04); }
+  .mode-btn.active { border-color: var(--gold); background: rgba(201,137,42,0.08); font-weight: 600; }
+  .mode-btn span:first-child { font-size: 18px; }
+
+  /* STATS */
+  .stats-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 14px 16px;
+    box-shadow: 0 2px 12px var(--shadow);
+    margin-top: 14px;
+    display: none;
+  }
+  .stats-card.visible { display: block; }
+  .stats-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+  .stats-label { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; font-family: 'IBM Plex Mono', monospace; }
+  .stats-val { font-size: 15px; font-weight: 700; color: var(--ink); font-family: 'IBM Plex Mono', monospace; }
+  .stats-bar { height: 5px; background: var(--border); border-radius: 4px; overflow: hidden; }
+  .stats-fill { height: 100%; background: var(--gold); border-radius: 4px; transition: width 0.4s ease; }
+
+  /* MAIN */
+  .main { min-height: 400px; }
+  .welcome {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 48px 36px;
+    text-align: center;
+    box-shadow: 0 2px 20px var(--shadow);
+  }
+  .welcome-big { font-size: 60px; margin-bottom: 14px; }
+  .welcome h2 { font-family: 'Playfair Display', serif; font-size: 24px; font-weight: 700; margin-bottom: 10px; }
+  .welcome p { color: var(--muted); font-size: 14px; max-width: 440px; margin: 0 auto 24px; line-height: 1.7; }
+  .welcome-steps { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; }
+  .step {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    background: var(--parchment);
+    border: 1px solid var(--border);
+    border-radius: 9px;
+    padding: 11px 16px;
+    font-size: 13px;
+  }
+  .step-num {
+    width: 22px; height: 22px;
+    background: var(--gold); color: var(--ink);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 700; font-size: 11px; flex-shrink: 0;
+  }
+
+  /* Q AREA */
+  .q-header {
+    display: flex; align-items: center; gap: 10px;
+    margin-bottom: 18px; flex-wrap: wrap;
+  }
+  .q-topic-badge {
+    background: var(--ink); color: var(--gold-light);
+    font-size: 11px; font-weight: 600;
+    padding: 4px 11px; border-radius: 6px;
+    letter-spacing: 0.5px; text-transform: uppercase;
+    font-family: 'IBM Plex Mono', monospace;
+  }
+  .q-mode-badge {
+    background: var(--rust); color: white;
+    font-size: 11px; font-weight: 600;
+    padding: 4px 11px; border-radius: 6px;
+  }
+  .q-num { margin-left: auto; font-size: 12px; color: var(--muted); font-family: 'IBM Plex Mono', monospace; }
+
+  .q-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 28px;
+    box-shadow: 0 2px 20px var(--shadow);
+    animation: fadeUp 0.25s ease;
+  }
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(10px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  .q-text {
+    font-family: 'Playfair Display', serif;
+    font-size: 18px; line-height: 1.65;
+    color: var(--ink);
+    margin-bottom: 24px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  /* OPTIONS */
+  .options { display: flex; flex-direction: column; gap: 9px; }
+  .option-btn {
+    width: 100%;
+    background: var(--parchment);
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    padding: 12px 16px;
+    cursor: pointer;
+    display: flex; align-items: flex-start; gap: 11px;
+    font-family: 'IBM Plex Sans', sans-serif;
+    font-size: 14px; color: var(--ink);
+    text-align: left; line-height: 1.5;
+    transition: all 0.15s;
+  }
+  .option-btn:hover:not(:disabled) { border-color: var(--gold); background: rgba(201,137,42,0.05); }
+  .option-btn.correct { border-color: var(--sage); background: rgba(74,103,65,0.08); color: var(--sage); }
+  .option-btn.wrong { border-color: var(--rust); background: rgba(139,58,30,0.07); color: var(--rust); }
+  .option-btn:disabled { cursor: default; }
+  .opt-letter {
+    width: 25px; height: 25px;
+    border-radius: 6px; background: var(--border);
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 700; font-size: 12px; flex-shrink: 0;
+    font-family: 'IBM Plex Mono', monospace;
+  }
+  .option-btn.correct .opt-letter { background: var(--sage); color: white; }
+  .option-btn.wrong .opt-letter { background: var(--rust); color: white; }
+
+  /* OPEN ENDED */
+  .open-answer { display: flex; flex-direction: column; gap: 11px; }
+  textarea {
+    width: 100%; min-height: 110px;
+    border: 1.5px solid var(--border);
+    border-radius: 10px; padding: 12px 14px;
+    font-family: 'IBM Plex Sans', sans-serif;
+    font-size: 14px; color: var(--ink);
+    background: var(--parchment); resize: vertical;
+    outline: none; transition: border-color 0.15s;
+  }
+  textarea:focus { border-color: var(--gold); }
+  .submit-btn {
+    align-self: flex-start;
+    background: var(--ink); color: var(--parchment);
+    border: none; border-radius: 10px;
+    padding: 11px 22px;
+    font-family: 'IBM Plex Sans', sans-serif;
+    font-size: 14px; font-weight: 600;
+    cursor: pointer; transition: all 0.15s;
+    display: flex; align-items: center; gap: 7px;
+  }
+  .submit-btn:hover { background: var(--gold); color: var(--ink); }
+
+  /* FEEDBACK */
+  .feedback {
+    margin-top: 18px; border-radius: 10px;
+    padding: 16px 18px; animation: fadeUp 0.2s ease;
+  }
+  .feedback.correct-fb { background: rgba(74,103,65,0.08); border: 1px solid rgba(74,103,65,0.28); }
+  .feedback.wrong-fb { background: rgba(139,58,30,0.07); border: 1px solid rgba(139,58,30,0.22); }
+  .feedback.model-fb { background: rgba(201,137,42,0.07); border: 1px solid rgba(201,137,42,0.28); }
+  .feedback-title {
+    font-weight: 700; font-size: 12px;
+    text-transform: uppercase; letter-spacing: 0.5px;
+    margin-bottom: 7px; display: flex; align-items: center; gap: 6px;
+    font-family: 'IBM Plex Mono', monospace;
+  }
+  .feedback.correct-fb .feedback-title { color: var(--sage); }
+  .feedback.wrong-fb .feedback-title { color: var(--rust); }
+  .feedback.model-fb .feedback-title { color: var(--gold); }
+  .feedback-text { font-size: 14px; line-height: 1.7; color: var(--ink); }
+
+  /* NEXT */
+  .next-area {
+    margin-top: 18px; display: flex;
+    align-items: center; gap: 10px; justify-content: flex-end;
+  }
+  .next-btn {
+    background: var(--gold); color: var(--ink);
+    border: none; border-radius: 10px;
+    padding: 11px 22px;
+    font-family: 'IBM Plex Sans', sans-serif;
+    font-size: 14px; font-weight: 700;
+    cursor: pointer; transition: all 0.15s;
+    display: flex; align-items: center; gap: 7px;
+  }
+  .next-btn:hover { background: var(--ink); color: var(--parchment); }
+
+  /* RESPONSIVE */
+  @media (max-width: 760px) {
+    .container { grid-template-columns: 1fr; }
+    .sidebar { position: static; }
+    .welcome { padding: 30px 18px; }
+    .q-card { padding: 20px 16px; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <div class="header-icon">📚</div>
+    <div class="header-text">
+      <h1>Türk <span>Edebiyatı</span> Hazırlık</h1>
+      <p>YKS Eşit Ağırlık · MEB Müfredatı · Son 7 Yıl</p>
+    </div>
+    <div class="badge">🎓 YKS EA</div>
+  </div>
+</header>
+
+<div class="container">
+  <aside class="sidebar">
+    <div class="sidebar-card">
+      <div class="sidebar-title">📖 Konu Başlıkları</div>
+      <ul class="topic-list" id="topicList"></ul>
+    </div>
+
+    <div class="mode-card">
+      <div class="mode-title">⚡ Soru Modu</div>
+      <div class="mode-btns">
+        <button class="mode-btn active" id="modeMC" onclick="selectMode('mc')">
+          <span>🔵</span>
+          <div>
+            <div style="font-weight:600">Çoktan Seçmeli</div>
+            <div style="font-size:11px;color:var(--muted);font-weight:400">A-B-C-D-E formatı</div>
+          </div>
+        </button>
+        <button class="mode-btn" id="modeOE" onclick="selectMode('oe')">
+          <span>✏️</span>
+          <div>
+            <div style="font-weight:600">Açık Uçlu</div>
+            <div style="font-size:11px;color:var(--muted);font-weight:400">Yazılı cevap + model yanıt</div>
+          </div>
+        </button>
+      </div>
+    </div>
+
+    <div class="stats-card" id="statsCard">
+      <div class="stats-row">
+        <span class="stats-label">✅ Doğru</span>
+        <span class="stats-val" id="statDoğru">0</span>
+      </div>
+      <div class="stats-row">
+        <span class="stats-label">❌ Yanlış</span>
+        <span class="stats-val" id="statYanlış">0</span>
+      </div>
+      <div class="stats-row" style="margin-bottom:6px">
+        <span class="stats-label">📊 Başarı</span>
+        <span class="stats-val" id="statPct">—</span>
+      </div>
+      <div class="stats-bar"><div class="stats-fill" id="statBar" style="width:0%"></div></div>
+    </div>
+  </aside>
+
+  <main class="main" id="mainArea">
+    <div class="welcome">
+      <div class="welcome-big">📖</div>
+      <h2>Türk Edebiyatı Soru Bankası</h2>
+      <p>MEB müfredatına uygun, YKS Eşit Ağırlık öğrencileri için hazırlanmış soru bankası. Her konu için çoktan seçmeli ve açık uçlu sorular mevcut.</p>
+      <div class="welcome-steps">
+        <div class="step"><div class="step-num">1</div> Soldan konu seç</div>
+        <div class="step"><div class="step-num">2</div> Soru modunu belirle</div>
+        <div class="step"><div class="step-num">3</div> Soruyu çöz & öğren</div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- SORU BANKASI -->
+<script>
+const SORU_BANKASI = {
+  "Tanzimat Edebiyatı": [
+    { tip: "mc", soru: "Tanzimat Fermanı'nın ilan edildiği yıl hangisidir?", secenekler: { A: "1839", B: "1856", C: "1876", D: "1908", E: "1923" }, dogru: "A", aciklama: "Tanzimat Fermanı (Gülhane Hatt-ı Hümayunu) 3 Kasım 1839'da ilan edilmiştir." },
+    { tip: "mc", soru: "Tanzimat edebiyatının birinci döneminde 'toplum için sanat' anlayışını benimseyen yazar hangisidir?", secenekler: { A: "Recaizade Mahmut Ekrem", B: "Namık Kemal", C: "Abdülhak Hamit Tarhan", D: "Samipaşazade Sezai", E: "Muallim Naci" }, dogru: "B", aciklama: "Namık Kemal 'toplum için sanat' anlayışını benimseyerek vatanseverlik ve özgürlük temalarını işlemiştir." },
+    { tip: "mc", soru: "İlk Türk romanı olarak kabul edilen eser aşağıdakilerden hangisidir?", secenekler: { A: "Araba Sevdası", B: "Karabibik", C: "İntibah", D: "Taaşşuk-ı Talat ve Fitnat", E: "Zehra" }, dogru: "D", aciklama: "Şemsettin Sami'nin yazdığı Taaşşuk-ı Talat ve Fitnat (1872) ilk Türk romanı kabul edilmektedir." },
+    { tip: "mc", soru: "'Vatan yahut Silistre' adlı tiyatro eseri hangi yazara aittir?", secenekler: { A: "Ziya Paşa", B: "Abdülhak Hamit Tarhan", C: "Şinasi", D: "Namık Kemal", E: "Ahmet Vefik Paşa" }, dogru: "D", aciklama: "Namık Kemal'in 1873'te yazdığı Vatan yahut Silistre, vatanseverlik duygularını işleyen ilk önemli Türk tiyatrosudur." },
+    { tip: "mc", soru: "Türk basın tarihinin ilk özel gazetesi olan 'Tercüman-ı Ahval'i kuran kişi kimdir?", secenekler: { A: "Namık Kemal", B: "Ziya Paşa", C: "Şinasi", D: "Ahmet Mithat Efendi", E: "Agâh Efendi" }, dogru: "C", aciklama: "Şinasi, 1860'ta Agâh Efendi ile birlikte Tercüman-ı Ahval gazetesini çıkarmıştır." },
+    { tip: "mc", soru: "Recaizade Mahmut Ekrem'in 'sanat için sanat' anlayışını yansıtan romanı hangisidir?", secenekler: { A: "İntibah", B: "Zemzeme", C: "Araba Sevdası", D: "Cezmi", E: "Karabibik" }, dogru: "C", aciklama: "Araba Sevdası, alafrangalılık modasını hicveden ve sanat için sanat anlayışını yansıtan romandır." },
+    { tip: "mc", soru: "Tanzimat döneminde yazılan ilk köy ve natüralist roman hangisidir?", secenekler: { A: "İntibah", B: "Zehra", C: "Karabibik", D: "Sergüzeşt", E: "Turfanda mı Turfa mı" }, dogru: "C", aciklama: "Nabizade Nazım'ın Karabibik (1890) adlı eseri Türk edebiyatının ilk köy ve natüralist romanıdır." },
+    { tip: "mc", soru: "'Esir ticareti' konusunu işleyen Tanzimat dönemi romanı hangisidir?", secenekler: { A: "İntibah", B: "Sergüzeşt", C: "Araba Sevdası", D: "Zehra", E: "Karabibik" }, dogru: "B", aciklama: "Samipaşazade Sezai'nin Sergüzeşt (1889) adlı eseri esir ticaretini ele alan önemli bir romandır." },
+    { tip: "mc", soru: "Abdülhak Hamit Tarhan'ın 'şair-i azam' unvanını kazanmasının nedeni nedir?", secenekler: { A: "Divan şiirini mükemmel sürdürmesi", B: "Şiirde Batılı tema ve biçimlerle köklü yenilikler yapması", C: "Yalnızca halk şiiri geleneğini devam ettirmesi", D: "Fransız şiirini birebir çevirmesi", E: "Siyasi şiirler yazması" }, dogru: "B", aciklama: "Abdülhak Hamit Tarhan, Batılı tema ve biçimleri kullanarak şiirde köklü yenilikler yaptığı için 'şair-i azam' unvanını almıştır." },
+    { tip: "mc", soru: "Namık Kemal'in romanlarında öne çıkan temel tema hangisidir?", secenekler: { A: "Aşk ve bireysel özgürlük", B: "Vatan, hürriyet ve toplumsal kurtuluş", C: "Doğa ve köy yaşamı", D: "Sanat için sanat anlayışı", E: "Mistik ve dinî temalar" }, dogru: "B", aciklama: "Namık Kemal, vatan sevgisi, hürriyet ve toplumsal kurtuluş temalarını işlemiştir." },
+    { tip: "mc", soru: "Ahmet Mithat Efendi romanlarındaki en belirgin anlatı özelliği nedir?", secenekler: { A: "Psikolojik çözümleme derinliği", B: "Realizmi tam uygulaması", C: "Okuyucuya doğrudan seslenen anlatı tekniği", D: "Empresyonist dil", E: "Yalnızca aşk temalarını işlemesi" }, dogru: "C", aciklama: "Ahmet Mithat Efendi romanlarında okuyucuya doğrudan seslenme ve araya girme tekniklerini kullanmıştır." },
+    { tip: "mc", soru: "Tanzimat dönemi tiyatrosu için hangisi söylenemez?", secenekler: { A: "Batı tiyatro anlayışından etkilenilmiştir", B: "Toplumsal sorunlar ele alınmıştır", C: "Sahne tekniğine önem verilmiştir", D: "Klasik Divan edebiyatı etkisi hâkimdir", E: "Hüseyin Fellah gibi sosyal oyunlar yazılmıştır" }, dogru: "D", aciklama: "Tanzimat tiyatrosu Batı etkisinde gelişmiştir; Divan edebiyatı etkisi tiyatroda hâkim değildir." },
+    { tip: "mc", soru: "Şinasi'nin Türk edebiyatına kazandırdığı ilk eser nedir?", secenekler: { A: "İntibah", B: "Şair Evlenmesi", C: "Vatan yahut Silistre", D: "Araba Sevdası", E: "Sergüzeşt" }, dogru: "B", aciklama: "Şinasi, 1859'da yazdığı Şair Evlenmesi ile Türk tiyatrosunun ilk yerli eserini kaleme almıştır." },
+    { tip: "mc", soru: "Ziya Paşa'nın Doğu-Batı çelişkisini dile getirdiği, halk şiirini yücelttiği makale hangisidir?", secenekler: { A: "Harabat", B: "Terkib-i Bent", C: "Zafername", D: "Şiir ve İnşa", E: "Rüya" }, dogru: "D", aciklama: "Ziya Paşa 'Şiir ve İnşa' makalesinde halk edebiyatını yüceltmiş, ancak sonradan çelişkiye düşmüştür." },
+    { tip: "mc", soru: "Tanzimat döneminde 'dönemin sesi' sayılan, Avrupa'ya firar edip muhalefet eden önemli isim kimdir?", secenekler: { A: "Şinasi", B: "Ahmet Mithat", C: "Namık Kemal", D: "Abdülhak Hamit", E: "Recaizade" }, dogru: "C", aciklama: "Namık Kemal, eserleri ve fikirleri nedeniyle sürgüne gönderilmiş, dönemin en etkili muhalif kalemi olmuştur." },
+    { tip: "oe", soru: "Tanzimat edebiyatının birinci ve ikinci dönemi arasındaki temel farkları açıklayınız.", model_cevap: "Birinci dönem: Namık Kemal, Ziya Paşa, Şinasi — 'toplum için sanat' anlayışı; vatan, hürriyet, eşitlik temaları. İkinci dönem: Recaizade, Abdülhak Hamit, Samipaşazade — 'sanat için sanat' anlayışı; aşk, ölüm, doğa gibi bireysel temalar. Birinci dönem dili sadeleştirmeye çalışırken ikinci dönem daha ağır bir dil kullanmıştır." },
+    { tip: "oe", soru: "Namık Kemal'in Türk edebiyatına katkılarını açıklayınız.", model_cevap: "Namık Kemal, Türk edebiyatına roman, tiyatro ve eleştiri türlerini kazandırmış; vatan, hürriyet ve halk kavramlarını edebiyata taşımıştır. İntibah ile modern romanın, Vatan yahut Silistre ile vatanseverlik tiyatrosunun öncüsüdür. Dili sadeleştirme yolunda çalışmalar yapmıştır." },
+    { tip: "oe", soru: "Şinasi'nin Türk edebiyatı ve basın tarihindeki önemini açıklayınız.", model_cevap: "Şinasi, Tercüman-ı Ahval ile modern Türk gazeteciliğinin kurucularından biridir. Şair Evlenmesi ile ilk yerli tiyatro eserini yazmıştır. Türkçede noktalama işaretlerini kullanan ilk yazardır. Batılı anlayışta ilk makale ve fıkra örneklerini vermiştir." },
+  ],
+
+  "Servet-i Fünun Edebiyatı": [
+    { tip: "mc", soru: "Servet-i Fünun dergisi hangi yıl kurulmuştur?", secenekler: { A: "1879", B: "1891", C: "1896", D: "1901", E: "1909" }, dogru: "B", aciklama: "Servet-i Fünun dergisi 1891'de kurulmuş, 1896'dan itibaren Tevfik Fikret önderliğinde edebi kimlik kazanmıştır." },
+    { tip: "mc", soru: "Servet-i Fünun şiirinin özelliklerinden hangisi yanlıştır?", secenekler: { A: "Aruz vezninin kullanılması", B: "Fransız sembolizm ve parnasizmden etkilenme", C: "Halk dilinin kullanılması", D: "Enjambement tekniğinin kullanılması", E: "Karamsar ve bireysel temaların işlenmesi" }, dogru: "C", aciklama: "Servet-i Fünun şiirinde halk dili değil ağır Arapça-Farsça sözcüklerle yüklü bir dil kullanılmıştır." },
+    { tip: "mc", soru: "'Aşk-ı Memnu' adlı roman kime aittir?", secenekler: { A: "Tevfik Fikret", B: "Cenap Şahabettin", C: "Hüseyin Cahit Yalçın", D: "Halit Ziya Uşaklıgil", E: "Mehmet Rauf" }, dogru: "D", aciklama: "Aşk-ı Memnu (1900), Halit Ziya Uşaklıgil'in Türk edebiyatının teknik açıdan en başarılı romanlarından biri kabul edilen eseridir." },
+    { tip: "mc", soru: "Servet-i Fünun dergisinin kapatılmasına neden olan makaleyi yazan kimdir?", secenekler: { A: "Tevfik Fikret", B: "Halit Ziya", C: "Hüseyin Cahit Yalçın", D: "Cenap Şahabettin", E: "Süleyman Nazif" }, dogru: "C", aciklama: "Hüseyin Cahit Yalçın'ın çevirdiği 'Edebiyat ve Hukuk' makalesi nedeniyle dergi 1901'de kapatılmıştır." },
+    { tip: "mc", soru: "Türk edebiyatının ilk psikolojik romanı kabul edilen eser hangisidir?", secenekler: { A: "Aşk-ı Memnu", B: "Eylül", C: "Mai ve Siyah", D: "Kırık Hayatlar", E: "Nemide" }, dogru: "B", aciklama: "Mehmet Rauf'un Eylül (1901) adlı eseri Türk edebiyatının ilk psikolojik romanı kabul edilmektedir." },
+    { tip: "mc", soru: "Tevfik Fikret'in 'Sis' şiirinde işlenen temel tema nedir?", secenekler: { A: "Doğa güzelliklerinin yüceltilmesi", B: "İstanbul'a duyulan nostaljik sevgi", C: "Toplumsal baskı ve kötü yönetime eleştiri", D: "Aşk acısının anlatılması", E: "Dini duyguların dile getirilmesi" }, dogru: "C", aciklama: "Sis, Tevfik Fikret'in İstanbul'u zulüm ve yozlaşmanın sembolü olarak gördüğü toplumsal eleştiri şiiridir." },
+    { tip: "mc", soru: "Cenap Şahabettin'in şiir anlayışı için hangisi doğrudur?", secenekler: { A: "Toplumcu ve siyasi içerikli şiirler yazmıştır", B: "Sembolist ve empresyonist dil kullanmıştır", C: "Hece vezniyle halk şiiri yazmıştır", D: "Dini ve tasavvufi temalar işlemiştir", E: "Natüralist bakış açısı benimsemiştir" }, dogru: "B", aciklama: "Cenap Şahabettin, sembolizm ve empresyonizmden etkilenerek müzikal ve imgesel bir şiir dili geliştirmiştir." },
+    { tip: "mc", soru: "Servet-i Fünun sanatçılarının genel sanat anlayışı hangisidir?", secenekler: { A: "l'art pour l'art (sanat için sanat)", B: "Toplumcu gerçekçilik", C: "Milliyetçi edebiyat", D: "Dinî muhafazakârlık", E: "Halkçılık" }, dogru: "A", aciklama: "Servet-i Fünun sanatçıları 'sanat için sanat' anlayışını benimsemiş, bireysel duyarlılıklarını ön plana çıkarmıştır." },
+    { tip: "mc", soru: "Şiirde enjambement tekniği neyi ifade eder?", secenekler: { A: "Şiirde kafiye düzeninin bozulmasını", B: "Anlam bütünlüğünün bir sonraki dizede tamamlanmasını", C: "Hece ölçüsünün kullanılmasını", D: "Şiire yabancı sözcükler katılmasını", E: "Beyit yerine kıta kullanılmasını" }, dogru: "B", aciklama: "Enjambement, anlam bütünlüğünün bir sonraki dize ya da bende tamamlanması tekniğidir; Servet-i Fünun bunu Türk şiirine kazandırmıştır." },
+    { tip: "mc", soru: "Halit Ziya'nın ilk dönem romanları hangi şehirde geçmektedir?", secenekler: { A: "İstanbul", B: "Ankara", C: "İzmir", D: "Selanik", E: "Bursa" }, dogru: "C", aciklama: "Halit Ziya Uşaklıgil'in Sefile, Nemide gibi ilk dönem romanları İzmir'de geçmektedir." },
+    { tip: "mc", soru: "Tevfik Fikret'in 'Haluk'un Defteri'nde işlenen ana tema nedir?", secenekler: { A: "Siyasi özgürlük ve devrim", B: "Gelecek kuşaklara umut ve aydın sorumluluğu", C: "Doğa sevgisi ve hüzün", D: "Dini inancın sorgulanması", E: "Aşk ve özlem" }, dogru: "B", aciklama: "Fikret, Haluk'un Defteri'nde oğlu Haluk üzerinden gelecek kuşaklara duyduğu umudu ve aydın sorumluluğunu dile getirmiştir." },
+    { tip: "mc", soru: "Aşağıdaki eserlerden hangisi Servet-i Fünun dönemine ait değildir?", secenekler: { A: "Aşk-ı Memnu", B: "Eylül", C: "Mai ve Siyah", D: "Araba Sevdası", E: "Kırık Hayatlar" }, dogru: "D", aciklama: "Araba Sevdası, Tanzimat döneminde Recaizade tarafından yazılmıştır; Servet-i Fünun eseri değildir." },
+    { tip: "mc", soru: "Servet-i Fünun romanının Tanzimat romanından temel farkı nedir?", secenekler: { A: "Romantizm akımını benimsemesi", B: "Realizm ve natüralizmi tam olarak uygulaması", C: "Toplumcu bir bakış açısı taşıması", D: "Sözlü gelenek unsurlarını içermesi", E: "Köy ve halk yaşamını işlemesi" }, dogru: "B", aciklama: "Servet-i Fünun romanı, Fransız realist ve natüralist yazarlardan beslenerek teknik açıdan çok daha olgun bir roman anlayışı geliştirmiştir." },
+    { tip: "oe", soru: "Servet-i Fünun edebiyatının Tanzimat edebiyatından farkları nelerdir?", model_cevap: "Tanzimat toplumsal kaygıları ön plana çıkarırken Servet-i Fünun sanat için sanat ilkesini benimsemiştir. Tanzimat şiiri hem aruz hem heceyi kullanırken Servet-i Fünun yalnızca aruzu kullanmıştır. Servet-i Fünun dili çok daha ağır Arapça-Farsça sözcüklerle doluyken Tanzimat I. dönem dili sadeleştirmeye çalışmıştır. Servet-i Fünun romanı teknik açıdan çok daha gelişmiş olup realizm ve natüralizmi tam olarak uygulamıştır." },
+    { tip: "oe", soru: "Halit Ziya Uşaklıgil'in Türk roman tarihindeki önemini açıklayınız.", model_cevap: "Halit Ziya, Türk edebiyatında modern romanın kurucusu sayılmaktadır. Mai ve Siyah ile Aşk-ı Memnu adlı eserleriyle roman tekniğini doruk noktasına ulaştırmıştır. Psikolojik çözümleme, gözleme dayalı betimlemeler ve sağlam yapı açısından çağdaşlarının ötesine geçmiştir." },
+  ],
+
+  "Fecr-i Âti Edebiyatı": [
+    { tip: "mc", soru: "Fecr-i Âti topluluğu kaç yılında kurulmuştur?", secenekler: { A: "1896", B: "1901", C: "1909", D: "1911", E: "1917" }, dogru: "C", aciklama: "Fecr-i Âti topluluğu 1909 yılında kurulmuş ve Türk edebiyatında ilk edebi bildirgeyi yayımlamıştır." },
+    { tip: "mc", soru: "Fecr-i Âti beyannamesindeki temel ilke hangisidir?", secenekler: { A: "Sanat milletin malıdır", B: "Sanat şahsi ve muhteremdir", C: "Edebiyat toplum içindir", D: "Dil sadeleştirilmelidir", E: "Halk edebiyatı esas alınmalıdır" }, dogru: "B", aciklama: "Fecr-i Âti beyannamesi 'Edebiyat şahsi ve muhteremdir' ilkesini benimseyerek bireysel sanat anlayışını savunmuştur." },
+    { tip: "mc", soru: "Fecr-i Âti'den ayrılarak özgün bir şiir anlayışı geliştiren şair kimdir?", secenekler: { A: "Ahmet Haşim", B: "Yahya Kemal Beyatlı", C: "Mehmet Akif Ersoy", D: "Ziya Gökalp", E: "Ömer Seyfettin" }, dogru: "A", aciklama: "Ahmet Haşim başlangıçta Fecr-i Âti'ye katılmış, ancak ayrılarak kendi sembolist-empresyonist şiir anlayışını geliştirmiştir." },
+    { tip: "mc", soru: "Ahmet Haşim'in 'Şiir Hakkında Bazı Mülahazalar' adlı makalesinde savunduğu görüş nedir?", secenekler: { A: "Şiir toplumu aydınlatmalıdır", B: "Şiir musiki ile resim arasında, sözden ziyade musikiye yakın bir dildir", C: "Şiirde anlam ve içerik ön plandadır", D: "Şiirde halk dilinin kullanılması zorunludur", E: "Şiir dini duyguları dile getirmelidir" }, dogru: "B", aciklama: "Ahmet Haşim bu makalesinde şiirde anlamın değil müzikal sesin ve imgenin ön planda olması gerektiğini savunmuştur." },
+    { tip: "mc", soru: "Aşağıdakilerden hangisi Fecr-i Âti üyesi değildir?", secenekler: { A: "Ahmet Haşim", B: "Refik Halit Karay", C: "Yakup Kadri Karaosmanoğlu", D: "Mehmet Akif Ersoy", E: "Celal Sahir Erozan" }, dogru: "D", aciklama: "Mehmet Akif Ersoy Fecr-i Âti üyesi değildir; İslamcı-milliyetçi çizgide kendi yolunu izlemiştir." },
+    { tip: "mc", soru: "Fecr-i Âti'nin Servet-i Fünun'dan temel farkı nedir?", secenekler: { A: "Hece veznini benimsemesi", B: "Ortak sanat anlayışı ve dayanışma oluşturamaması", C: "Toplumcu edebiyat geliştirmesi", D: "Aruz yerine serbest nazım kullanması", E: "Divan edebiyatını yeniden canlandırması" }, dogru: "B", aciklama: "Fecr-i Âti, Servet-i Fünun gibi güçlü bir ortak sanat anlayışı oluşturamamış ve kısa sürede dağılmıştır." },
+    { tip: "mc", soru: "Ahmet Haşim'in hangi şiiri 'akşam, alacakaranlık ve yalnızlık' temalarıyla öne çıkar?", secenekler: { A: "Sanat", B: "Merdiven", C: "Karanfil", D: "O Belde", E: "Çifte Kumrular" }, dogru: "B", aciklama: "'Merdiven', Ahmet Haşim'in alacakaranlık ve zamanın geçişini sembolik imgelerle işlediği en tanınan şiirlerindendir." },
+    { tip: "oe", soru: "Fecr-i Âti topluluğunun Türk edebiyatındaki yeri ve önemi nedir?", model_cevap: "Fecr-i Âti, Türk edebiyatında ilk edebi bildirgeyi yayımlayan topluluktur. 'Edebiyat şahsi ve muhteremdir' ilkesiyle bireysel sanat anlayışını savunmuşlardır. Ancak ortak bir estetik anlayış oluşturamamış ve kısa sürede dağılmışlardır. Ahmet Haşim gibi önemli bir şairi yetiştirmiş olması en büyük katkısıdır." },
+    { tip: "oe", soru: "Ahmet Haşim'in şiir anlayışını örneklerle açıklayınız.", model_cevap: "Ahmet Haşim, şiirde anlamı değil müzikal etkiyi ve imgeyi ön planda tutmuştur. 'Şiir Hakkında Bazı Mülahazalar' makalesinde şiirin musiki ile resim arasında durduğunu savunmuştur. O Belde, Merdiven, Karanfil gibi şiirlerinde sembolist imgeler, alacakaranlık, yalnızlık ve özlem işlenmiştir. Bilinçli bir belirsizlik ve kapalılık şiirinin temel özelliğidir." },
+  ],
+
+  "Millî Edebiyat Dönemi": [
+    { tip: "mc", soru: "Millî Edebiyat akımının başlangıcı olarak kabul edilen dergi hangisidir?", secenekler: { A: "Servet-i Fünun", B: "Genç Kalemler", C: "Türk Yurdu", D: "Mehmet Akif", E: "İkdam" }, dogru: "B", aciklama: "1911'de Selanik'te çıkan Genç Kalemler dergisi Millî Edebiyat akımının başlangıcı olarak kabul edilmektedir." },
+    { tip: "mc", soru: "Millî Edebiyat akımının temel dil ilkesi hangisidir?", secenekler: { A: "Osmanlıca ve Arapça kelimeler kullanılmalıdır", B: "İstanbul Türkçesi esas alınarak sade dil kullanılmalıdır", C: "Her bölgenin ağzı yazı diline yansıtılmalıdır", D: "Orta Asya Türkçesi benimsenmelidir", E: "Fransızca kelimeler tercih edilmelidir" }, dogru: "B", aciklama: "Millî Edebiyat akımı İstanbul Türkçesini esas alan, sade ve anlaşılır bir dili benimsemiştir." },
+    { tip: "mc", soru: "Ömer Seyfettin'in Türk hikâyeciliğine en önemli katkısı nedir?", secenekler: { A: "Psikolojik çözümleme tekniği", B: "Sade dil ve modern hikâye yapısı", C: "Doğa betimlemelerine ağırlık vermesi", D: "Uzun ve karmaşık olay örgüsü", E: "Divan edebiyatı unsurlarını hikâyeye katması" }, dogru: "B", aciklama: "Ömer Seyfettin, sade ve akıcı dil kullanarak modern Türk hikâyeciliğinin temellerini atmıştır." },
+    { tip: "mc", soru: "Ziya Gökalp'in Türkçülük ideolojisini sistematik biçimde anlattığı eseri hangisidir?", secenekler: { A: "Altın Işık", B: "Kızıl Elma", C: "Türkleşmek İslamlaşmak Muasırlaşmak", D: "Türkçülüğün Esasları", E: "Yeni Hayat" }, dogru: "D", aciklama: "Türkçülüğün Esasları, Ziya Gökalp'in milliyetçilik düşüncesini sistemli biçimde ortaya koyduğu temel eseridir." },
+    { tip: "mc", soru: "Mehmet Akif Ersoy'un İstiklal Marşı Safahat'ın hangi kitabında yer alır?", secenekler: { A: "Safahat (I. Kitap)", B: "Süleymaniye Kürsüsünde", C: "Hakkın Sesleri", D: "Fatih Kürsüsünde", E: "Hiçbirinde yer almaz" }, dogru: "E", aciklama: "Mehmet Akif, İstiklal Marşı'nın Safahat'a alınmasını istemediği için marş Safahat'ın hiçbir bölümünde yer almaz." },
+    { tip: "mc", soru: "Halide Edib Adıvar'ın Millî Mücadele dönemini anlatan romanı hangisidir?", secenekler: { A: "Vurun Kahpeye", B: "Sinekli Bakkal", C: "Handan", D: "Kalp Ağrısı", E: "Tatarcık" }, dogru: "A", aciklama: "Vurun Kahpeye (1923), Anadolu'daki işgali ve Millî Mücadele'yi anlatan romandır." },
+    { tip: "mc", soru: "'Beş Hececiler' olarak bilinen şairlerin ortak özelliği nedir?", secenekler: { A: "Aruz ölçüsünü kullanmaları", B: "Hece ölçüsü ve millî temalar kullanmaları", C: "Serbest şiiri benimsemeleri", D: "Divan şiiri nazım biçimlerini devam ettirmeleri", E: "Sembolist anlayış taşımaları" }, dogru: "B", aciklama: "Beş Hececiler (Faruk Nafiz, Orhan Seyfi, Enis Behiç, Halit Fahri, Yusuf Ziya) hece ölçüsü ve Anadolu-millî temalı şiirler yazmıştır." },
+    { tip: "mc", soru: "Reşat Nuri Güntekin'in 'Çalıkuşu' romanının teması nedir?", secenekler: { A: "Savaş ve milliyetçilik", B: "Bir öğretmenin Anadolu'daki macera ve fedakârlıkları", C: "İstanbul burjuvazisinin yozlaşması", D: "Köy yaşamının gerçekçi betimlemesi", E: "Osmanlı saray hayatı" }, dogru: "B", aciklama: "Çalıkuşu (1922), genç öğretmen Feride'nin Anadolu'daki yolculuklarını ve fedakârlıklarını anlatan romandır." },
+    { tip: "mc", soru: "Millî Edebiyat akımının özelliklerinden hangisi yanlıştır?", secenekler: { A: "Sade ve anlaşılır dil kullanımı", B: "Millî ve yerli konuların işlenmesi", C: "Hece ölçüsünün yaygınlaştırılması", D: "Anadolu coğrafyasına yönelme", E: "Sanat için sanat ilkesinin benimsenmesi" }, dogru: "E", aciklama: "Millî Edebiyat 'toplum için sanat' anlayışını benimsemiştir; sanat için sanat bu akımın özelliği değildir." },
+    { tip: "mc", soru: "Faruk Nafiz Çamlıbel'in 'Han Duvarları' şiirinin temel teması nedir?", secenekler: { A: "Osmanlı nostaljisi", B: "Anadolu sevgisi ve yolculuk", C: "İstanbul'a özlem", D: "Savaş acıları", E: "Dini duygular" }, dogru: "B", aciklama: "Han Duvarları, Anadolu coğrafyasına sevgi ve yolculuk temalarını yalın hece ölçüsüyle işleyen önemli bir şiirdir." },
+    { tip: "oe", soru: "Ömer Seyfettin'in hikâyeciliğinin özelliklerini açıklayınız.", model_cevap: "Ömer Seyfettin modern Türk hikâyeciliğinin kurucusu sayılır. Hikâyelerinde sade ve akıcı dil kullanmış, olay hikâyeciliği anlayışını benimsemiştir. Tarihî konular (Yüksek Ökçeler, Forsa), sosyal eleştiri (Kaşağı, Bomba), milliyetçi temalar (Başını Vermeyen Şehit) işlemiştir. Maupassant tarzı hikâye anlayışını Türk edebiyatına yerleştirmiştir." },
+    { tip: "oe", soru: "Millî Edebiyat döneminde Türkçülük akımının edebiyata yansımaları nasıl olmuştur?", model_cevap: "Türkçülük akımı Ziya Gökalp'in ideolojik çerçevesini çizdiği milliyetçilik hareketidir. Edebiyata; sade Türkçe kullanımı, Anadolu coğrafyasına yöneliş, halk kültürü ve folklordan yararlanma, millî tarihten konu seçme biçiminde yansımıştır. Ömer Seyfettin tarihî hikâyelerinde, Halide Edib romanlarında, Mehmet Akif şiirlerinde bu yansımalar görülmektedir." },
+  ],
+
+  "Cumhuriyet Dönemi Edebiyatı": [
+    { tip: "mc", soru: "Garip hareketinin öncüleri kimlerdir?", secenekler: { A: "Necip Fazıl – Ahmet Hamdi Tanpınar", B: "Orhan Veli – Melih Cevdet – Oktay Rıfat", C: "Cahit Sıtkı – Ahmet Muhip Dıranas", D: "Fazıl Hüsnü Dağlarca – Behçet Necatigil", E: "Attilâ İlhan – Can Yücel" }, dogru: "B", aciklama: "Garip hareketi, 1941'de Orhan Veli Kanık, Melih Cevdet Anday ve Oktay Rıfat Horozcu tarafından kurulmuştur." },
+    { tip: "mc", soru: "Garip akımının şiir anlayışı için hangisi söylenemez?", secenekler: { A: "Ölçü ve kafiyeyi reddetmesi", B: "Sıradan insanın yaşamını konu alması", C: "Süslü ve ağır dil kullanması", D: "İroni ve mizah kullanması", E: "Alışılmış imgelerden kaçınması" }, dogru: "C", aciklama: "Garip şiiri sade, günlük konuşma diline yakın bir dil kullanmıştır; süslü dil bu akımın özelliği değildir." },
+    { tip: "mc", soru: "Ahmet Hamdi Tanpınar'ın 'Huzur' romanının temel çatışması nedir?", secenekler: { A: "Zengin-yoksul sınıf çatışması", B: "Doğu-Batı kültür sentezi ve bireyin ikilemde kalması", C: "Milliyetçi ve kozmopolit aydın çatışması", D: "Köy-şehir çatışması", E: "Kadın-erkek eşitliği meselesi" }, dogru: "B", aciklama: "Huzur, Doğu ve Batı kültürleri arasında kalan Türk aydınının kimlik krizini ele almaktadır." },
+    { tip: "mc", soru: "Nazım Hikmet'in şiirini öne çıkaran en önemli özellik nedir?", secenekler: { A: "Aruz ölçüsünü ustalıkla kullanması", B: "Serbest nazım ve toplumcu gerçekçi anlayış", C: "Saf şiir anlayışını benimsemesi", D: "Hece ölçüsüyle millî temalar işlemesi", E: "Divan şiiri biçimlerini modernleştirmesi" }, dogru: "B", aciklama: "Nazım Hikmet, serbest nazım ve toplumcu gerçekçi anlayışı Türk şiirine kazandırmış; biçim ve içerik açısından devrimci tutum benimsemiştir." },
+    { tip: "mc", soru: "İkinci Yeni şiir anlayışının belirgin özelliği hangisidir?", secenekler: { A: "Sade, günlük dil kullanımı", B: "Kapalı imgeler ve anlam güçlüğü", C: "Toplumcu gerçekçi tutum", D: "Hece ölçüsünü esas alma", E: "Doğa betimlemelerine ağırlık verme" }, dogru: "B", aciklama: "İkinci Yeni şiiri kapalı imgeler, anlam güçlüğü ve dil oyunlarıyla tanınır; anlam ikinci planda kalır." },
+    { tip: "mc", soru: "'Mavi Anadoluculuk' akımının öncüsü kimdir?", secenekler: { A: "Yaşar Kemal", B: "Cevat Şakir Kabaağaçlı (Halikarnas Balıkçısı)", C: "Orhan Kemal", D: "Kemal Tahir", E: "Fakir Baykurt" }, dogru: "B", aciklama: "Halikarnas Balıkçısı, Mavi Anadoluculuk akımını geliştirerek Anadolu'nun antik kültürünü ve Ege denizini eserlerinde yüceltmiştir." },
+    { tip: "mc", soru: "Yaşar Kemal'in 'İnce Memed' romanında öne çıkan tema hangisidir?", secenekler: { A: "Aşk ve bireysel özgürlük", B: "Eşkıyalık, Anadolu insanı ve sosyal adalet", C: "Osmanlı tarihinin yeniden yorumlanması", D: "Kent yaşamı ve modernleşme sorunları", E: "Din ve gelenek çatışması" }, dogru: "B", aciklama: "İnce Memed, Çukurova'daki eşkıyalık geleneği üzerinden Anadolu insanının baskıya karşı direnişini ve sosyal adaleti anlatan bir romandır." },
+    { tip: "mc", soru: "Epik tiyatroyu Türk edebiyatına tanıtan yazar kimdir?", secenekler: { A: "Haldun Taner", B: "Ahmet Kutsi Tecer", C: "Necip Fazıl Kısakürek", D: "Recep Bilginer", E: "Güngör Dilmen" }, dogru: "A", aciklama: "Haldun Taner, Brecht'in epik tiyatro anlayışını Türk tiyatrosuna kazandırmış; Keşanlı Ali Destanı bu anlayışın en önemli örneğidir." },
+    { tip: "mc", soru: "Orhan Pamuk'un Nobel Edebiyat Ödülü'nü aldığı yıl hangisidir?", secenekler: { A: "2000", B: "2003", C: "2006", D: "2010", E: "2015" }, dogru: "C", aciklama: "Orhan Pamuk, 2006 yılında Nobel Edebiyat Ödülü'nü kazanmıştır; bu ödülü alan ilk Türk yazardır." },
+    { tip: "mc", soru: "Sabahattin Ali'nin 'İçimizdeki Şeytan' romanının teması nedir?", secenekler: { A: "Milliyetçilik ve vatan sevgisi", B: "Aydın-halk çatışması ve bireyin içsel bunalımı", C: "Köy yaşamının güzellikleri", D: "Dinî ve mistik temalar", E: "Savaş ve siyasi mücadele" }, dogru: "B", aciklama: "İçimizdeki Şeytan, aydın-halk çatışması ve bireyin kendi iç dünyasındaki çelişkileri üzerine kurulu bir romandır." },
+    { tip: "oe", soru: "Garip hareketi ile İkinci Yeni hareketini karşılaştırınız.", model_cevap: "Garip (1941): Sade konuşma dili, ölçü ve kafiye yok, sıradan insanın hayatı, ironi ve mizah. Anlam açıktır. İkinci Yeni (1950'ler): Kapalı imgeler, anlam güçlüğü, dil oyunları, soyut ve bireysel temalar. Anlam okuyucuya bırakılmıştır. Ortak nokta: İkisi de geleneksel şiire karşı çıkmış, aruz ve heceyi reddetmiştir. Fark: Garip anlaşılırlığı ön planda tutarken İkinci Yeni kapalılığı tercih etmiştir." },
+    { tip: "oe", soru: "Türk edebiyatında toplumcu gerçekçilik akımını açıklayınız.", model_cevap: "Toplumcu gerçekçilik, toplumun sorunlarını, sınıf çatışmalarını ve emekçi kesimin yaşamını gerçekçi biçimde ele alan bir akımdır. Marksist düşünceden beslenir. Türk edebiyatında Nazım Hikmet şiiriyle, Sabahattin Ali ve Orhan Kemal romanlarıyla temsil edilir." },
+  ],
+
+  "Divan Edebiyatı": [
+    { tip: "mc", soru: "Divan şiirinde temel ve en küçük nazım birimi hangisidir?", secenekler: { A: "Kıta", B: "Bent", C: "Beyit", D: "Mısra", E: "Şılık" }, dogru: "C", aciklama: "Divan şiirinde temel nazım birimi beyittir; her beyit kendi içinde anlam bütünlüğü taşır." },
+    { tip: "mc", soru: "Divan şiirinin en uzun nazım biçimi hangisidir?", secenekler: { A: "Gazel", B: "Kaside", C: "Mesnevi", D: "Terkib-i Bent", E: "Rubai" }, dogru: "C", aciklama: "Mesnevi, kendi içinde birbiriyle kafiyeli beyitlerden oluşan ve binlerce beyite ulaşabilen en uzun Divan şiiri nazım biçimidir." },
+    { tip: "mc", soru: "Fuzuli'nin Leylâ ve Mecnun'unda Leylâ figürü sembolik olarak neyi temsil eder?", secenekler: { A: "Dünyevi güzelliği", B: "İlahi aşkı ve Tanrı'ya ulaşma yolunu", C: "Vatanı ve toprağı", D: "Aklı ve bilgeliği", E: "Ölümü" }, dogru: "B", aciklama: "Tasavvufi yorumda Leylâ ilahi güzeli (Tanrı'yı), Mecnun ise ona kavuşmak isteyen âşık (insan ruhunu) simgeler." },
+    { tip: "mc", soru: "Divan şiirinde 'mazmun' kavramı neyi ifade eder?", secenekler: { A: "Şiirin konusunu", B: "Kalıplaşmış ve şifreli anlam taşıyan sembolik imgeler", C: "Şiirin kafiye düzenini", D: "Şiirin son beytini", E: "Şiirde kullanılan vezni" }, dogru: "B", aciklama: "Mazmun, Divan şiirinde kalıplaşmış, okuyucunun bilmesini gerektiren şifreli imgelerdir (gül=sevgili, bülbül=âşık gibi)." },
+    { tip: "mc", soru: "Baki hangi unvanı almıştır ve bu unvanı kazandıran eseri nedir?", secenekler: { A: "Şair-i Azam – Leylâ ve Mecnun", B: "Sultanü'ş-şuara – Kanuni Mersiyesi", C: "Şeyhülislam – Divan", D: "Veli – Hüsn ü Aşk", E: "Hünkâr – Terkib-i Bent" }, dogru: "B", aciklama: "Baki, Kanuni'nin ölümüne yazdığı Kanuni Mersiyesi ile 'Sultanü'ş-şuara' (şairler sultanı) unvanını almıştır." },
+    { tip: "mc", soru: "Gazel nazım biçimi için hangisi yanlıştır?", secenekler: { A: "5-15 beyitten oluşur", B: "İlk beyti matla, son beyti makta olarak adlandırılır", C: "Aşk, şarap ve güzellik temaları işlenir", D: "Her beyit kendi içinde anlam bütünlüğü taşır", E: "Her beytin kafiye düzeni farklıdır" }, dogru: "E", aciklama: "Gazelde aa/ba/ca/da biçiminde sabit kafiye düzeni vardır; her beytin kafiyesi farklı değildir." },
+    { tip: "mc", soru: "Nedim'in Divan şiirindeki yenilikçi tutumu için hangisi söylenebilir?", secenekler: { A: "Tasavvuf temalarını ön plana çıkarmıştır", B: "Şiire İstanbul yaşamını ve mahallî rengi katmıştır", C: "Hece ölçüsünü Divan şiirine eklemiştir", D: "Kaside yerine rubai formunu benimsemiştir", E: "Tamamen soyut imgeler kullanmıştır" }, dogru: "B", aciklama: "Nedim, Lale Devri şairi olarak Divan şiirine İstanbul'un eğlence hayatını ve mahallî unsurları katmıştır." },
+    { tip: "mc", soru: "Şeyh Galip'in tasavvufi aşkı sembollerle anlattığı mesnevisi hangisidir?", secenekler: { A: "Hüsn ü Aşk", B: "Leylâ ve Mecnun", C: "Mantıku't-Tayr", D: "Mesnevi", E: "Vesiletü'n-Necat" }, dogru: "A", aciklama: "Hüsn ü Aşk (1783), Şeyh Galip'in tasavvufi aşkı sembolik karakterlerle anlattığı ve Divan edebiyatının son büyük mesnevisi kabul edilen eseridir." },
+    { tip: "mc", soru: "Divan nesrinin en belirgin özelliği nedir?", secenekler: { A: "Sade ve anlaşılır dil kullanması", B: "Secili ve süslü dil kullanması", C: "Halk diline yakın olması", D: "Doğal ve akıcı olması", E: "Yabancı sözcüklerden arınmış olması" }, dogru: "B", aciklama: "Divan nesri, seci (nesirde kafiye), sanatlı ve Arapça-Farsça sözcüklerle yüklü süslü bir anlatım biçimini benimser." },
+    { tip: "mc", soru: "Kasidelerde şairin kendi şairliğini övdüğü bölümün adı nedir?", secenekler: { A: "Nesib/Teşbib", B: "Girizgâh", C: "Methiye", D: "Tegazzül", E: "Fahriye" }, dogru: "E", aciklama: "Fahriye, şairin kasidede kendi şairlik gücünü övdüğü bölümdür." },
+    { tip: "oe", soru: "Divan edebiyatında gazel ve kasideyi karşılaştırınız.", model_cevap: "Gazel: 5-15 beyit, aa/ba/ca kafiye düzeni, aşk-şarap-güzellik temaları, lirik bir tür. Kaside: 33-99 beyit, aa/ba/ca kafiye düzeni, bir kişiyi ya da konuyu övme amacı taşır, nesib-girizgâh-methiye-fahriye-dua bölümlerinden oluşur. İkisi de aruz vezniyle yazılır." },
+    { tip: "oe", soru: "Tasavvuf edebiyatı ile Divan edebiyatı arasındaki ilişkiyi açıklayınız.", model_cevap: "Tasavvuf, Divan edebiyatını derinden etkilemiştir. Fuzuli ve Şeyh Galip gibi büyük Divan şairleri tasavvufi temalar ve imgeler kullanmıştır. Sevgili=Tanrı, şarap=ilahi aşk, meyhane=tekke gibi semboller her iki edebiyatta ortaktır. Tekke edebiyatı halka açık bir dil kullanırken Divan şiiri ağır Arapça-Farsça bir dil benimsemiştir." },
+  ],
+
+  "Halk Edebiyatı": [
+    { tip: "mc", soru: "Halk edebiyatında kullanılan temel ölçü hangisidir?", secenekler: { A: "Aruz ölçüsü", B: "Serbest ölçü", C: "Hece ölçüsü", D: "Karma ölçü", E: "Kuantitif ölçü" }, dogru: "C", aciklama: "Halk edebiyatında temel ölçü hece ölçüsüdür; en yaygın kalıplar 7'li, 8'li ve 11'li hece düzenleridir." },
+    { tip: "mc", soru: "Koşma nazım biçimi için hangisi yanlıştır?", secenekler: { A: "4+4+3 veya 6+5 hece kalıbıyla yazılır", B: "Dörtlüklerden oluşur", C: "Bireysel duygular işlenir", D: "Beyitlerden oluşur", E: "Uyak düzeni abcb/dddb şeklindedir" }, dogru: "D", aciklama: "Koşma dörtlüklerden oluşur, beyitlerden değil. Beyit Divan edebiyatının nazım birimidir." },
+    { tip: "mc", soru: "17. yüzyıl halk şiirinin en büyük temsilcisi kimdir?", secenekler: { A: "Pir Sultan Abdal", B: "Karacaoğlan", C: "Köroğlu", D: "Erzurumlu Emrah", E: "Dadaloğlu" }, dogru: "B", aciklama: "Karacaoğlan, 17. yüzyılda aşk ve doğa temalarını yalın halk diliyle işleyen en büyük halk şairi kabul edilmektedir." },
+    { tip: "mc", soru: "Pir Sultan Abdal'ın şiirlerinin ortak özelliği nedir?", secenekler: { A: "Aşk ve doğa temalarını işlemesi", B: "Tasavvufi ve toplumsal başkaldırı temalarını işlemesi", C: "Osmanlı saray kültürünü yansıtması", D: "Yalnızca dinî konulara yer vermesi", E: "Divan şiiri etkisi taşıması" }, dogru: "B", aciklama: "Pir Sultan Abdal şiirlerinde Alevi-Bektaşi tasavvuf anlayışını ve otoriteye karşı başkaldırıyı işlemiştir." },
+    { tip: "mc", soru: "Maninin yapısı için hangisi doğrudur?", secenekler: { A: "5 dizeden oluşur", B: "4 dizeden oluşur; ilk iki dize doldurmaca, son iki dize asıl anlamdır", C: "3 dizeden oluşur", D: "8 dizeden oluşur", E: "Bölümler hâlinde yazılır" }, dogru: "B", aciklama: "Mani 4 dizeden oluşur. İlk iki dize doldurmaca niteliğinde, son iki dize ise asıl anlamı taşır." },
+    { tip: "mc", soru: "Karagöz ile Hacivat arasındaki temel fark nedir?", secenekler: { A: "Karagöz eğitimlidir, Hacivat cahildir", B: "Karagöz kültürsüz ama özgün halk adamı; Hacivat yarı aydın ve züppedir", C: "İkisi de benzer özelliklere sahiptir", D: "Karagöz esnaf, Hacivat köylüdür", E: "Hacivat iyi niyetlidir, Karagöz kötüdür" }, dogru: "B", aciklama: "Karagöz kültürsüz ama akıllı halk adamını; Hacivat ise yarı aydın, züppe tipini temsil eder." },
+    { tip: "mc", soru: "Destansı-kahramanlık temasıyla yazılan halk şiiri nazım biçimi hangisidir?", secenekler: { A: "Koşma", B: "Semai", C: "Türkü", D: "Destan", E: "Mani" }, dogru: "D", aciklama: "Destan, kahramanlık, savaş, afet gibi toplumsal olayları anlatan halk şiiri türüdür; Köroğlu Destanı en tanınan örnektir." },
+    { tip: "mc", soru: "Halk hikâyelerinin en belirgin özelliği nedir?", secenekler: { A: "Yalnızca yazılı metinlerdir", B: "Sözlü gelenek içinde oluşmuş, nesir-nazım karışık biçimdedirler", C: "Aruz ölçüsü kullanılır", D: "Yabancı kaynaklardan alınan konular işlenir", E: "Resmi bir dil kullanılır" }, dogru: "B", aciklama: "Halk hikâyeleri sözlü geleneğe dayanır, nesir ve nazımı birlikte kullanır, halk diliyle anlatılır." },
+    { tip: "oe", soru: "Âşık edebiyatı ile tekke edebiyatını karşılaştırınız.", model_cevap: "Âşık edebiyatı: Saz eşliğinde icra edilir, usta-çırak geleneğiyle öğrenilir, aşk-doğa-ayrılık-yiğitlik gibi dünyevi temalar işlenir. Karacaoğlan, Köroğlu, Dadaloğlu temsilcilerdir. Tekke edebiyatı: Tarikat çevrelerinde gelişmiş, tasavvufi temalar (Allah sevgisi, vahdet, nefis terbiyesi) ön plandadır. Yunus Emre, Hacı Bektaş Veli, Pir Sultan Abdal temsilcilerdir. Her iki kolda da hece ölçüsü ve dörtlük nazım birimi kullanılmıştır." },
+  ],
+
+  "Söz Sanatları ve Edebi Sanatlar": [
+    { tip: "mc", soru: "'Kalemim kılıçtan keskindir' cümlesinde kullanılan edebi sanat hangisidir?", secenekler: { A: "Teşhis", B: "İstiare", C: "Teşbih", D: "Kinaye", E: "Mecaz-ı mürsel" }, dogru: "C", aciklama: "Teşbih (benzetme): İki şey arasında benzetme kurulur. Burada 'kalem' kılıca benzetilmektedir." },
+    { tip: "mc", soru: "'Denizler konuştu, rüzgâr güldü' dizesinde kullanılan edebi sanat hangisidir?", secenekler: { A: "Telmih", B: "Teşbih", C: "Teşhis (kişileştirme)", D: "İstiare", E: "Kinaye" }, dogru: "C", aciklama: "Teşhis (kişileştirme): İnsan dışındaki varlıklara insan özellikleri kazandırmaktır." },
+    { tip: "mc", soru: "Açık istiare (isti'are-i musarraha) için hangisi doğrudur?", secenekler: { A: "Benzeyen ve kendisine benzetilen birlikte kullanılır", B: "Yalnızca kendisine benzetilen kullanılır, benzeyen söylenmez", C: "Yalnızca benzeyen kullanılır", D: "Benzetme edatı her zaman belirtilir", E: "Her iki unsur da gizlidir" }, dogru: "B", aciklama: "Açık istiare: Sadece kendisine benzetilen söylenir, benzeyen gizlenir. Örnek: 'Aslan okula gitti' (aslan=öğrenci)." },
+    { tip: "mc", soru: "Telmih sanatının doğru tanımı hangisidir?", secenekler: { A: "Bir şeyi olduğundan büyük göstermek", B: "Bilinen bir olaya, kişiye ya da esere dolaylı yoldan gönderme yapmak", C: "İnsan özelliklerini cansız varlıklara vermek", D: "Söz sonunda ses benzerliği oluşturmak", E: "Bir sözü zıt anlamda kullanmak" }, dogru: "B", aciklama: "Telmih, tarihî ya da efsanevi olayları, dini hikayeleri, tanınmış kişileri anımsatacak biçimde dolaylı olarak şiire katmaktır." },
+    { tip: "mc", soru: "Hüsn-i ta'lil sanatı için hangisi doğrudur?", secenekler: { A: "Bir olayı gerçek nedenine bağlamak", B: "Bir olayı güzel ve hayali bir nedene bağlamak", C: "Bir sözü abartarak kullanmak", D: "İki zıt kavramı yan yana getirmek", E: "Bir sözcüğü kinaye yoluyla kullanmak" }, dogru: "B", aciklama: "Hüsn-i ta'lil: Bir olayın gerçek nedenini gizleyerek güzel ve hayali bir neden bulmaktır. Örnek: 'Gül utancından kızardı'." },
+    { tip: "mc", soru: "'Bıçak kemiğe dayandı' ifadesinde kullanılan edebi sanat hangisidir?", secenekler: { A: "Teşbih", B: "Telmih", C: "Kinaye", D: "İroni", E: "Mübalağa" }, dogru: "C", aciklama: "Kinaye: Bir sözü hem gerçek hem mecaz anlamda kullanmaktır. 'Bıçak kemiğe dayandı' hem somut hem de 'son noktaya gelindi' anlamında kullanılabilir." },
+    { tip: "mc", soru: "Mecaz-ı mürsel ile istiare arasındaki temel fark nedir?", secenekler: { A: "Mecaz-ı mürselde benzetme ilgisi, istiaredeyse yakınlık ilgisi kullanılır", B: "Mecaz-ı mürselde benzetme dışı bir ilgi kullanılırken istiare benzetme ilgisine dayanır", C: "İkisi arasında hiçbir fark yoktur", D: "Mecaz-ı mürsel yalnızca şiirde kullanılır", E: "İstiare nesirde kullanılmaz" }, dogru: "B", aciklama: "İstiare benzetme ilgisine dayanır. Mecaz-ı mürsel ise parça-bütün, neden-sonuç gibi benzetme dışı bir ilgiye dayanır." },
+    { tip: "mc", soru: "Aşağıdaki dizelerden hangisinde mübalağa (abartma) vardır?", secenekler: { A: "Gözlerin yıldız gibi parlıyor", B: "Kalemim kılıçtan keskindir", C: "Fırat aktı, Dicle aktı gözümden", D: "Bahar geldi, çiçekler açtı", E: "Seni seviyorum, bil bunu" }, dogru: "C", aciklama: "Mübalağa (abartma): 'Fırat ve Dicle'nin gözden akması' olduğundan çok büyük gösterilen abartılı bir imgedir." },
+    { tip: "mc", soru: "'Cömertlikte deniz ol' dizesinde hangi edebi sanat vardır?", secenekler: { A: "Teşbih", B: "Kapalı istiare", C: "Açık istiare", D: "Teşhis", E: "Mecaz-ı mürsel" }, dogru: "C", aciklama: "Açık istiare: Benzeyen gizlenmiş, yalnızca kendisine benzetilen (deniz) söylenmiştir." },
+    { tip: "oe", soru: "Teşbih ve istiare arasındaki farkı örneklerle açıklayınız.", model_cevap: "Teşbih (benzetme): Benzeyen, kendisine benzetilen, benzetme edatı ve benzetme yönünden en az ikisi kullanılır. Örnek: 'Ali aslan gibi cesurdur'. İstiare: Benzetmenin daha kısaltılmış ve güçlü biçimidir. Açık istairedede sadece kendisine benzetilen kullanılır: 'Aslan okula gitti' (aslan=öğrenci). Kapalı istairedede sadece benzeyen kullanılır, kendisine benzetilene ait özellikler ona yüklenir." },
+  ],
+
+  "Roman, Hikâye ve Tiyatro Türleri": [
+    { tip: "mc", soru: "Türk edebiyatında ilk yerli tiyatro eseri hangisidir?", secenekler: { A: "Vatan yahut Silistre", B: "Şair Evlenmesi", C: "Eşber", D: "Hüseyin Fellah", E: "Macera-yı Aşk" }, dogru: "B", aciklama: "Şinasi'nin 1859'da yazdığı Şair Evlenmesi, Türk edebiyatının ilk yerli tiyatro eseri kabul edilmektedir." },
+    { tip: "mc", soru: "Maupassant tarzı ile Çehov tarzı hikâye arasındaki temel fark nedir?", secenekler: { A: "Maupassant tarzında dram olmaz", B: "Maupassant tarzı olay ağırlıklı ve sürpriz sonlu; Çehov tarzı durum ve ruh hâli ağırlıklıdır", C: "Çehov tarzında uzun betimlemeler vardır", D: "Maupassant tarzında kişi sayısı azdır", E: "İkisi arasında fark yoktur" }, dogru: "B", aciklama: "Maupassant tarzı olay ağırlıklı ve sürpriz sonlu; Çehov tarzı bireyin ruh hâli ve durumu ön plandadır." },
+    { tip: "mc", soru: "Türk edebiyatında Çehov tarzı (durum hikâyesi) öncüsü kimdir?", secenekler: { A: "Ömer Seyfettin", B: "Sait Faik Abasıyanık", C: "Memduh Şevket Esendal", D: "Refik Halit Karay", E: "Sabahattin Ali" }, dogru: "C", aciklama: "Memduh Şevket Esendal, Türk edebiyatında Çehov tarzı durum hikâyeciliğinin öncüsüdür." },
+    { tip: "mc", soru: "Epik tiyatronun kurucusu ve temel özelliği nedir?", secenekler: { A: "Shakespeare – büyük insan dramları", B: "Brecht – yabancılaştırma efekti ve eleştirel bilinç", C: "Ibsen – gerçekçi psikolojik çözümleme", D: "Çehov – günlük yaşamın dramatize edilmesi", E: "Moliere – komedi ve hiciv" }, dogru: "B", aciklama: "Brecht'in epik tiyatrosunda seyirci eleştirel bakış kazanır; yabancılaştırma efekti (Verfremdungseffekt) bu anlayışın temelidir." },
+    { tip: "mc", soru: "Sait Faik Abasıyanık'ın hikâyeciliğinin en belirgin özelliği nedir?", secenekler: { A: "Tarihî olayları didaktik anlatması", B: "İstanbul'un kenar semtlerindeki küçük insanları sevgiyle anlatması", C: "Milliyetçi temaları işlemesi", D: "Olay hikâyeciliğini benimsemesi", E: "Siyasi eleştiri içeren hikâyeler yazması" }, dogru: "B", aciklama: "Sait Faik, İstanbul'un kenar mahallelerinde yaşayan sıradan insanları sevgi dolu bakışla anlatmıştır." },
+    { tip: "mc", soru: "Geleneksel Türk tiyatrosu biçimleri için hangisi yanlıştır?", secenekler: { A: "Karagöz gölge oyunudur", B: "Ortaoyunu perde olmaksızın sahnelenirdi", C: "Meddah tek kişilik bir gösteri türüdür", D: "Kukla oyunları Karagöz ile aynı türdür", E: "Orta oyununda Pişekâr ve Kavuklu başlıca tipleri oluşturur" }, dogru: "D", aciklama: "Karagöz gölge oyunu, kukla ise üç boyutlu figürlerle oynanan birbirinden farklı türlerdir." },
+    { tip: "oe", soru: "Roman ile hikâyeyi yapısal açıdan karşılaştırınız.", model_cevap: "Roman: Uzun soluklu, geniş zaman dilimi, çok sayıda kişi ve olay, mekân çeşitliliği, ayrıntılı işleniş. Hikâye: Kısa ve yoğun, az sayıda kişi ve olay, tek zaman dilimine odaklanma, sınırlı mekân. Her ikisi de nesir biçiminde yazılır ve anlatıcı kullanan kurmaca türlerdir." },
+  ],
+
+  "Türk Edebiyatında Şiir Türleri ve Nazım Biçimleri": [
+    { tip: "mc", soru: "11'li hece kalıbıyla yazılan ve dörtlüklerden oluşan halk şiiri türü hangisidir?", secenekler: { A: "Mani", B: "Türkü", C: "Koşma", D: "Semai", E: "Varsağı" }, dogru: "C", aciklama: "Koşma genellikle 11'li hece kalıbıyla yazılan, dörtlüklerden oluşan halk şiiri nazım biçimidir." },
+    { tip: "mc", soru: "Rubai nazım biçiminin özelliği hangisidir?", secenekler: { A: "4 beyitten oluşur", B: "4 dizeden oluşur, aaxa kafiye düzeni, felsefi temalar işlenir", C: "5-15 beyitten oluşur", D: "Hece ölçüsüyle yazılır", E: "Toplumsal konuları işler" }, dogru: "B", aciklama: "Rubai: 4 dize, aaxa kafiye düzeni, aruzla yazılır, felsefi düşünceler ve hayatın anlamı gibi temalar işlenir." },
+    { tip: "mc", soru: "Aşağıdaki nazım biçimlerinden hangisi Divan edebiyatına özgüdür?", secenekler: { A: "Koşma", B: "Türkü", C: "Mesnevi", D: "Destan", E: "Mani" }, dogru: "C", aciklama: "Mesnevi, kendi içinde kafiyeli beyitlerden oluşan Divan edebiyatına özgü bir nazım biçimidir." },
+    { tip: "mc", soru: "Sone nazım biçimi için hangisi doğrudur?", secenekler: { A: "8+6 = 14 dizeden oluşur, iki dörtlük ve iki üçlüktür", B: "4 kıtadan oluşur", C: "Hece ölçüsüyle yazılır", D: "Yalnızca aşk konularını işler", E: "Türk edebiyatına özgü bir biçimdir" }, dogru: "A", aciklama: "Sone, 14 dizeden (2 dörtlük + 2 üçlük) oluşan Batı edebiyatından alınan bir nazım biçimidir." },
+    { tip: "mc", soru: "Aşağıdaki şiir türlerinden hangisi 'epik şiir' kapsamındadır?", secenekler: { A: "Gazel", B: "Koşma", C: "Elegi", D: "Destan", E: "Sone" }, dogru: "D", aciklama: "Destan, kahramanlık ve savaş konularını anlatan epik şiir türüdür." },
+    { tip: "oe", soru: "Hece ölçüsü ile aruz ölçüsünü karşılaştırınız.", model_cevap: "Hece ölçüsü: Hecelerin sayısını esas alır, Türkçenin doğal yapısına uygundur, halk ve Millî Edebiyat'ta kullanılmıştır. Aruz ölçüsü: Hecelerin uzunluğunu (açık-kapalı hece) esas alır, Arap ve Fars kökenlidir, Divan ve Servet-i Fünun edebiyatında kullanılmıştır. Türkçe aruz ölçüsüne tam uymadığı için imale ve zihaf gibi değişiklikler yapılmıştır." },
+  ],
+
+  "Eski Türk Edebiyatı (Destan-Efsane)": [
+    { tip: "mc", soru: "Göktürk dönemine ait Türk destanı hangisidir?", secenekler: { A: "Ergenekon ve Bozkurt Destanı", B: "Oğuz Kağan Destanı", C: "Manas Destanı", D: "Alp Er Tunga Destanı", E: "Köroğlu Destanı" }, dogru: "A", aciklama: "Ergenekon ve Bozkurt Destanları Göktürk dönemine ait Türk destanlarıdır." },
+    { tip: "mc", soru: "Dede Korkut Hikâyeleri hangi Türkçeyle yazılmıştır?", secenekler: { A: "Çağatay Türkçesi", B: "Oğuz Türkçesi", C: "Uygur Türkçesi", D: "Osmanlı Türkçesi", E: "Kıpçak Türkçesi" }, dogru: "B", aciklama: "Dede Korkut Hikâyeleri, Oğuz Türkçesiyle kaleme alınmış Türk edebiyatının en önemli nesir-nazım karışık anlatı geleneğini yansıtan eseridir." },
+    { tip: "mc", soru: "Ergenekon Destanı neyi simgeler?", secenekler: { A: "İslamiyetin kabulünü", B: "Türklerin Orta Asya'dan göçünü", C: "Düşman kuşatmasından kurtuluşu ve yeniden doğuşu", D: "Osmanlı İmparatorluğu'nun kuruluşunu", E: "Çin ile yapılan barış anlaşmasını" }, dogru: "C", aciklama: "Ergenekon Destanı, Türklerin düşman kuşatması sonucu sıkışıp kaldıktan sonra demiri eritip çıkarak yeniden güçlenmesini simgeler." },
+    { tip: "mc", soru: "Manas Destanı hangi Türk boyuna aittir?", secenekler: { A: "Oğuz", B: "Kırgız", C: "Uygur", D: "Kazak", E: "Özbek" }, dogru: "B", aciklama: "Manas Destanı, Kırgız Türklerine ait olup dünya edebiyatının en uzun destanlarından biridir." },
+    { tip: "mc", soru: "Orhun Abideleri'nin Türk edebiyatı açısından önemi nedir?", secenekler: { A: "İlk Türkçe şiir örneklerini içermesi", B: "Türkçenin bilinen en eski yazılı belgelerinden biri olması", C: "İlk Türk romanının yazıldığı kaynak olması", D: "Türklerin İslamiyeti kabul ettiğini belgeleyen metin olması", E: "Divan edebiyatının temelini oluşturması" }, dogru: "B", aciklama: "Orhun Abideleri (8. yüzyıl), Türkçenin bilinen en eski yazılı belgelerinden biri ve Türk edebiyatı tarihinin başlangıç noktasıdır." },
+    { tip: "oe", soru: "Türk destanlarının genel özelliklerini açıklayınız.", model_cevap: "Türk destanları sözlü gelenekle kuşaktan kuşağa aktarılmıştır. Olağanüstü olaylar ve kahramanlar içerir. Milletin ortak belleğini, değerlerini ve tarihini yansıtır. Manzum ya da nesir-nazım karışık biçimde aktarılmıştır. Bozkurt, kartal, demir gibi semboller önemli yer tutar. Oğuz Kağan, Ergenekon, Bozkurt, Manas başlıca örneklerdir." },
+  ],
+
+  "Yeni Türk Edebiyatı Genel Tekrar": [
+    { tip: "mc", soru: "Aşağıdaki eşleşmelerden hangisi yanlıştır?", secenekler: { A: "Namık Kemal – İntibah", B: "Halit Ziya – Aşk-ı Memnu", C: "Mehmet Rauf – Eylül", D: "Recaizade Mahmut Ekrem – Karabibik", E: "Reşat Nuri – Çalıkuşu" }, dogru: "D", aciklama: "Karabibik, Recaizade'nin değil Nabizade Nazım'ın eseridir. Recaizade'nin romanı Araba Sevdası'dır." },
+    { tip: "mc", soru: "Türk edebiyatında 'sanat için sanat' anlayışını hangi dönemler benimsemiştir?", secenekler: { A: "Tanzimat I. Dönem ve Millî Edebiyat", B: "Servet-i Fünun ve Fecr-i Âti", C: "Cumhuriyet Dönemi ve Toplumcu Gerçekçilik", D: "Millî Edebiyat ve Cumhuriyet Dönemi", E: "Halk Edebiyatı ve Tekke Edebiyatı" }, dogru: "B", aciklama: "Servet-i Fünun ve Fecr-i Âti edebiyatları 'sanat için sanat' (l'art pour l'art) anlayışını benimsemiştir." },
+    { tip: "mc", soru: "Kronolojik açıdan Türk edebiyatının doğru sırası hangisidir?", secenekler: { A: "Divan – Halk – Tanzimat – Servet-i Fünun – Fecr-i Âti – Millî – Cumhuriyet", B: "Halk – Divan – Servet-i Fünun – Tanzimat – Fecr-i Âti", C: "Tanzimat – Divan – Halk – Cumhuriyet", D: "Fecr-i Âti – Servet-i Fünun – Tanzimat", E: "Millî – Servet-i Fünun – Tanzimat – Cumhuriyet" }, dogru: "A", aciklama: "Doğru sıra: Destan/Eski Türk → Divan ve Halk (paralel) → Tanzimat → Servet-i Fünun → Fecr-i Âti → Millî Edebiyat → Cumhuriyet Dönemi." },
+    { tip: "mc", soru: "Realizmi tam anlamıyla uygulayan ilk Türk roman yazarı kimdir?", secenekler: { A: "Namık Kemal", B: "Ahmet Mithat Efendi", C: "Halit Ziya Uşaklıgil", D: "Recaizade Mahmut Ekrem", E: "Nabizade Nazım" }, dogru: "C", aciklama: "Halit Ziya Uşaklıgil, Mai ve Siyah ve Aşk-ı Memnu ile realizmi en iyi uygulayan Türk romancısı kabul edilmektedir." },
+    { tip: "mc", soru: "Hem Fecr-i Âti üyesi olmuş hem de özgün şiir anlayışı geliştiren şair kimdir?", secenekler: { A: "Mehmet Akif Ersoy", B: "Ahmet Haşim", C: "Ziya Gökalp", D: "Yahya Kemal Beyatlı", E: "Faruk Nafiz Çamlıbel" }, dogru: "B", aciklama: "Ahmet Haşim başlangıçta Fecr-i Âti üyesi olmuş, sonradan ayrılarak sembolist-empresyonist özgün anlayışını geliştirmiştir." },
+    { tip: "mc", soru: "Cumhuriyet döneminde Anadolu romanının en güçlü temsilcisi kimdir?", secenekler: { A: "Ahmet Hamdi Tanpınar", B: "Peyami Safa", C: "Yaşar Kemal", D: "Orhan Pamuk", E: "Adalet Ağaoğlu" }, dogru: "C", aciklama: "Yaşar Kemal, İnce Memed başta olmak üzere Çukurova ve Anadolu insanını anlattığı romanlarıyla bu alanın en güçlü temsilcisidir." },
+    { tip: "mc", soru: "'Sinekli Bakkal' romanının yazarı kimdir?", secenekler: { A: "Reşat Nuri Güntekin", B: "Peyami Safa", C: "Halide Edib Adıvar", D: "Yakup Kadri Karaosmanoğlu", E: "Kemal Tahir" }, dogru: "C", aciklama: "Sinekli Bakkal, Halide Edib Adıvar'ın İstanbul mahalle kültürünü anlattığı ve uluslararası tanınırlık kazandığı romanıdır." },
+    { tip: "mc", soru: "Orhan Pamuk Nobel Edebiyat Ödülü'nü hangi yıl aldı?", secenekler: { A: "2000", B: "2003", C: "2006", D: "2010", E: "2015" }, dogru: "C", aciklama: "Orhan Pamuk 2006 yılında Nobel Edebiyat Ödülü'nü kazanmıştır; bu ödülü alan ilk Türk yazardır." },
+    { tip: "oe", soru: "Türk edebiyatındaki Batılılaşma sürecini dönemler hâlinde açıklayınız.", model_cevap: "1839 sonrası Tanzimat reformlarıyla roman, tiyatro, gazete gibi yeni türler edebiyata girmiştir. Servet-i Fünun realizm ve natüralizmi en yoğun biçimde benimsemiştir. Fecr-i Âti sembolizmi denemiştir. Millî Edebiyat döneminde Batı taklitçiliğine tepki olarak yerli kaynaklara dönülmüştür. Cumhuriyet dönemi hem Batı tekniklerini hem yerli unsurları sentezlemiştir." },
+    { tip: "oe", soru: "Türk edebiyatında önemli kadın yazarları ve eserlerini belirtiniz.", model_cevap: "Halide Edib Adıvar: Vurun Kahpeye, Sinekli Bakkal, Handan — Millî Mücadele ve Batı-Doğu çatışması. Adalet Ağaoğlu: Ölmeye Yatmak — Cumhuriyet ideolojisi ve birey. Latife Tekin: Sevgili Arsız Ölüm — büyülü gerçekçilik ve gecekondu yaşamı. Elif Şafak: Aşk, Baba ve Piç — postmodern roman anlayışı." },
+  ]
+};
+</script>
+
+<script>
+// ─── DURUM ───────────────────────────────────────────────────────────────────
+let secilenKonu = null;
+let secilenMod  = 'mc';
+let soruSayisi  = 0;
+let dogruSayisi = 0;
+let yanlisSayisi = 0;
+let cevaplandi  = false;
+
+// Konu bazlı kullanılmış indeksler
+const kullanilmis = {};
+
+// ─── TOPIC LIST ───────────────────────────────────────────────────────────────
+const KONULAR = [
+  { key: "Tanzimat Edebiyatı",                           emoji: "🌙" },
+  { key: "Servet-i Fünun Edebiyatı",                    emoji: "🌹" },
+  { key: "Fecr-i Âti Edebiyatı",                        emoji: "🌅" },
+  { key: "Millî Edebiyat Dönemi",                        emoji: "🦅" },
+  { key: "Cumhuriyet Dönemi Edebiyatı",                  emoji: "⭐" },
+  { key: "Divan Edebiyatı",                              emoji: "📜" },
+  { key: "Halk Edebiyatı",                               emoji: "🎶" },
+  { key: "Söz Sanatları ve Edebi Sanatlar",              emoji: "🎨" },
+  { key: "Roman, Hikâye ve Tiyatro Türleri",             emoji: "📕" },
+  { key: "Türk Edebiyatında Şiir Türleri ve Nazım Biçimleri", emoji: "🖊️" },
+  { key: "Eski Türk Edebiyatı (Destan-Efsane)",          emoji: "🏹" },
+  { key: "Yeni Türk Edebiyatı Genel Tekrar",             emoji: "🔁" },
+];
+
+function konuListesiOlustur() {
+  const ul = document.getElementById('topicList');
+  ul.innerHTML = '';
+  KONULAR.forEach(k => {
+    const bank = SORU_BANKASI[k.key] || [];
+    const li = document.createElement('li');
+    li.className = 'topic-item';
+    li.innerHTML = `
+      <button class="topic-btn" data-key="${k.key}" onclick="konuSec(this)">
+        <span class="topic-emoji">${k.emoji}</span>
+        <span class="topic-name">${k.key}</span>
+        <span class="topic-count">${bank.length}</span>
+      </button>`;
+    ul.appendChild(li);
+  });
+}
+
+function konuSec(btn) {
+  document.querySelectorAll('.topic-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  secilenKonu = btn.dataset.key;
+  soruSayisi  = 0;
+  dogruSayisi = 0;
+  yanlisSayisi = 0;
+  guncelleStat();
+  document.getElementById('statsCard').classList.add('visible');
+  soruYukle();
+}
+
+function modSec(mod) {
+  secilenMod = mod;
+  document.getElementById('modeMC').classList.toggle('active', mod === 'mc');
+  document.getElementById('modeOE').classList.toggle('active', mod === 'oe');
+  if (secilenKonu) soruYukle();
+}
+
+// ─── SORU SEÇİCİ (TEKRARSIZ) ─────────────────────────────────────────────────
+function rastgeleSoruSec(konu, mod) {
+  const bank = (SORU_BANKASI[konu] || []).filter(s => s.tip === mod);
+  if (!bank.length) return null;
+
+  const key = konu + '|' + mod;
+  if (!kullanilmis[key]) kullanilmis[key] = new Set();
+
+  // Tüm sorular kullanıldıysa sıfırla
+  if (kullanilmis[key].size >= bank.length) kullanilmis[key].clear();
+
+  let idx;
+  do { idx = Math.floor(Math.random() * bank.length); }
+  while (kullanilmis[key].has(idx));
+
+  kullanilmis[key].add(idx);
+  return bank[idx];
+}
+
+// ─── SORU YÜKLEME ─────────────────────────────────────────────────────────────
+function soruYukle() {
+  if (!secilenKonu) return;
+  cevaplandi = false;
+  const soru = rastgeleSoruSec(secilenKonu, secilenMod);
+  if (!soru) {
+    document.getElementById('mainArea').innerHTML = `
+      <div style="background:var(--card);border:1px solid var(--border);border-radius:16px;padding:40px;text-align:center;box-shadow:0 2px 20px var(--shadow);">
+        <p style="font-size:16px;color:var(--muted)">Bu modda soru bulunamadı. Lütfen diğer modu deneyin.</p>
+      </div>`;
+    return;
+  }
+  soruSayisi++;
+  soruGoster(soru);
+}
+
+// ─── SORU GÖSTER ─────────────────────────────────────────────────────────────
+function soruGoster(s) {
+  const modBadge = secilenMod === 'mc' ? '🔵 Çoktan Seçmeli' : '✏️ Açık Uçlu';
+  let govde = '';
+
+  if (s.tip === 'mc') {
+    const harfler = ['A','B','C','D','E'];
+    const opts = harfler.filter(h => s.secenekler[h]).map(h => `
+      <button class="option-btn" id="opt${h}" data-harf="${h}" onclick="mcKontrol(this,'${h}','${s.dogru}','${escJS(s.aciklama)}')">
+        <span class="opt-letter">${h}</span>
+        <span>${s.secenekler[h]}</span>
+      </button>`).join('');
+    govde = `<div class="options">${opts}</div><div id="feedback"></div>`;
+  } else {
+    govde = `
+      <div class="open-answer">
+        <textarea id="kullaniciCevap" placeholder="Cevabınızı buraya yazın…"></textarea>
+        <button class="submit-btn" id="submitBtn" onclick="oeGoster('${escJS(s.model_cevap)}')">✓ Model Yanıtı Göster</button>
+      </div>
+      <div id="feedback"></div>`;
+  }
+
+  document.getElementById('mainArea').innerHTML = `
+    <div class="q-header">
+      <span class="q-topic-badge">${secilenKonu}</span>
+      <span class="q-mode-badge">${modBadge}</span>
+      <span class="q-num">Soru #${soruSayisi}</span>
+    </div>
+    <div class="q-card">
+      <div class="q-text">${s.soru}</div>
+      ${govde}
+      <div id="nextArea"></div>
+    </div>`;
+}
+
+// ─── ÇOKTAN SEÇMELİ KONTROL ──────────────────────────────────────────────────
+function mcKontrol(btn, secilen, dogru, aciklama) {
+  if (cevaplandi) return;
+  cevaplandi = true;
+
+  document.querySelectorAll('.option-btn').forEach(b => {
+    b.disabled = true;
+    if (b.dataset.harf === dogru) b.classList.add('correct');
+  });
+
+  const dogruMu = secilen === dogru;
+  if (dogruMu) dogruSayisi++; else yanlisSayisi++;
+  if (!dogruMu) btn.classList.add('wrong');
+
+  guncelleStat();
+
+  document.getElementById('feedback').innerHTML = dogruMu
+    ? `<div class="feedback correct-fb"><div class="feedback-title">✅ Doğru!</div><div class="feedback-text">${aciklama}</div></div>`
+    : `<div class="feedback wrong-fb"><div class="feedback-title">❌ Yanlış — Doğru Cevap: ${dogru}</div><div class="feedback-text">${aciklama}</div></div>`;
+
+  sonrakiButonu();
+}
+
+// ─── AÇIK UÇLU GÖSTER ────────────────────────────────────────────────────────
+function oeGoster(modelCevap) {
+  if (cevaplandi) return;
+  cevaplandi = true;
+
+  document.getElementById('feedback').innerHTML = `
+    <div class="feedback model-fb">
+      <div class="feedback-title">📝 Model Cevap</div>
+      <div class="feedback-text">${modelCevap}</div>
+    </div>`;
+
+  document.getElementById('submitBtn').disabled = true;
+
+  // Öz değerlendirme butonları
+  const nextArea = document.getElementById('nextArea');
+  nextArea.innerHTML = `
+    <div class="next-area" style="justify-content:space-between;flex-wrap:wrap;gap:8px">
+      <div style="display:flex;gap:8px">
+        <button style="background:var(--sage);color:white;border:none;border-radius:8px;padding:9px 16px;cursor:pointer;font-family:'IBM Plex Sans',sans-serif;font-size:13px;font-weight:600" onclick="oePuan(true)">✓ Bildim</button>
+        <button style="background:var(--rust);color:white;border:none;border-radius:8px;padding:9px 16px;cursor:pointer;font-family:'IBM Plex Sans',sans-serif;font-size:13px;font-weight:600" onclick="oePuan(false)">✗ Bilmedim</button>
+      </div>
+      <button class="next-btn" onclick="soruYukle()">Yeni Soru ➜</button>
+    </div>`;
+}
+
+function oePuan(bildi) {
+  if (bildi) dogruSayisi++; else yanlisSayisi++;
+  guncelleStat();
+  // Puanlama butonlarını gizle, sadece "Yeni Soru" kalsın
+  document.getElementById('nextArea').innerHTML = `
+    <div class="next-area"><button class="next-btn" onclick="soruYukle()">Yeni Soru ➜</button></div>`;
+}
+
+// ─── SONRAKI BUTONU ──────────────────────────────────────────────────────────
+function sonrakiButonu() {
+  document.getElementById('nextArea').innerHTML = `
+    <div class="next-area">
+      <button class="next-btn" onclick="soruYukle()">Yeni Soru ➜</button>
+    </div>`;
+}
+
+// ─── İSTATİSTİK GÜNCELLE ─────────────────────────────────────────────────────
+function guncelleStat() {
+  const toplam = dogruSayisi + yanlisSayisi;
+  const pct = toplam > 0 ? Math.round((dogruSayisi / toplam) * 100) : 0;
+  document.getElementById('statDoğru').textContent  = dogruSayisi;
+  document.getElementById('statYanlış').textContent = yanlisSayisi;
+  document.getElementById('statPct').textContent    = toplam > 0 ? `%${pct}` : '—';
+  document.getElementById('statBar').style.width    = pct + '%';
+}
+
+// ─── YARDIMCILAR ─────────────────────────────────────────────────────────────
+function escJS(str) {
+  if (!str) return '';
+  return str.replace(/\\/g, '\\\\').replace(/'/g, "\\'").replace(/"/g, '&quot;').replace(/\n/g, ' ');
+}
+
+// Global erişim için
+window.selectMode = modSec;
+
+// Başlat
+konuListesiOlustur();
+</script>
+
+</body>
+</html>
