@@ -8310,7 +8310,15 @@ function shCozumFotoSec(ev) {
 async function shGetir() {
   if (!db) { return SH_SORULAR; }
   try {
+    // Migration: tenant path boşsa eski flat path'e bak (sadece kendi UID'i)
     var snap = await db.collection(tenantCol('v5_soruhavuzu')).orderBy('ts','desc').get();
+    if(snap.empty){
+      const isMine=_tenantUid&&mevcutKullanici&&_tenantUid===mevcutKullanici.uid;
+      const isSA=mevcutKullanici&&mevcutKullanici.rol==='superadmin';
+      if(isMine&&isSA){
+        snap = await db.collection('v5_soruhavuzu').orderBy('ts','desc').get();
+      }
+    }
     SH_SORULAR = [];
     snap.forEach(function(d) { SH_SORULAR.push(Object.assign({ _id: d.id }, d.data())); });
     return SH_SORULAR;
@@ -8642,6 +8650,13 @@ async function shBadgeGuncelle() {
   if (!db) return;
   try {
     var snap = await db.collection(tenantCol('v5_soruhavuzu')).where('durum','==','beklemede').get();
+    if(snap.empty){
+      const isMine=_tenantUid&&mevcutKullanici&&_tenantUid===mevcutKullanici.uid;
+      const isSA=mevcutKullanici&&mevcutKullanici.rol==='superadmin';
+      if(isMine&&isSA){
+        snap = await db.collection('v5_soruhavuzu').where('durum','==','beklemede').get();
+      }
+    }
     var sayi = snap.size;
     var badge = document.getElementById('sb-soru-badge');
     if (badge) {
