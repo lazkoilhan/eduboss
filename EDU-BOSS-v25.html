@@ -2131,16 +2131,16 @@ async function fbGet(col){
         LS.s(lsKey,data);
         return data;
       }
-      // Tenant path'de veri yok — eski flat path'e bak (migration fallback)
-      // Örn: teachers/UID/v5_aok → v5_aok
+      // Tenant path'de veri yok — SADECE superadmin kendi eski flat verisini görsün
       const colParts=col.split('/');
-      const flatCol=colParts[colParts.length-1]; // son segment
-      if(col!==flatCol && db){
+      const flatCol=colParts[colParts.length-1];
+      const isMine = _tenantUid && mevcutKullanici && _tenantUid===mevcutKullanici.uid;
+      const isSA = mevcutKullanici && mevcutKullanici.rol==='superadmin';
+      if(col!==flatCol && isMine && isSA && db){
         const oldDoc=await db.collection(flatCol).doc('data').get();
         if(oldDoc.exists){
           const oldData=oldDoc.data().items||[];
-          console.info('[Migration] Eski yoldan okundu:',flatCol,'→',col);
-          // Eski veriyi yeni yola otomatik taşı
+          console.info('[Migration] Superadmin eski verisi taşınıyor:',flatCol,'→',col);
           db.collection(col).doc('data').set({
             items:oldData,
             ts:firebase.firestore.FieldValue.serverTimestamp(),
