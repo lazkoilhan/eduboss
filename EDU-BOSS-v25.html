@@ -2131,6 +2131,25 @@ async function fbGet(col){
         LS.s(lsKey,data);
         return data;
       }
+      // Tenant path'de veri yok — eski flat path'e bak (migration fallback)
+      // Örn: teachers/UID/v5_aok → v5_aok
+      const colParts=col.split('/');
+      const flatCol=colParts[colParts.length-1]; // son segment
+      if(col!==flatCol && db){
+        const oldDoc=await db.collection(flatCol).doc('data').get();
+        if(oldDoc.exists){
+          const oldData=oldDoc.data().items||[];
+          console.info('[Migration] Eski yoldan okundu:',flatCol,'→',col);
+          // Eski veriyi yeni yola otomatik taşı
+          db.collection(col).doc('data').set({
+            items:oldData,
+            ts:firebase.firestore.FieldValue.serverTimestamp(),
+            migratedFrom:flatCol
+          }).catch(e=>console.warn('Migration yazma hatası:',e.message));
+          LS.s(lsKey,oldData);
+          return oldData;
+        }
+      }
     }
   }catch(e){
     console.warn('Firebase okuma hatası ['+col+']:',e.message);
