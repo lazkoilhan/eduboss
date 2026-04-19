@@ -8866,58 +8866,181 @@ let KONU_VERI = [];
   };
 })();
 
-// ── PDF metin çıkarma (mevcut pdfjs'i kullanır) ──
-async function konuPdfMetin(file){
+// ── AKBİM Karne: PDF'ten ham satırları x/y koordinatlarıyla çıkar ──
+// Her sayfa ayrı ayrı işlenir, her satır {y, items:[{x,str}]} olarak döner
+async function konuPdfSatirlar(file){
   const arr = await file.arrayBuffer();
   const pdf = await pdfjsLib.getDocument({data: arr}).promise;
-  let txt = '';
+  const sayfalar = [];
   for(let i = 1; i <= pdf.numPages; i++){
     const pg = await pdf.getPage(i);
     const ct = await pg.getTextContent();
     const items = ct.items.filter(it => it.str && it.str.trim());
     const yG = [];
     for(const it of items){
-      const y = it.transform[5], x = it.transform[4];
+      const y = Math.round(it.transform[5]), x = it.transform[4];
       let f = false;
-      for(const g of yG){ if(Math.abs(g.y - y) < 4){ g.items.push({x, str: it.str}); f = true; break; } }
+      for(const g of yG){ if(Math.abs(g.y - y) < 5){ g.items.push({x, str: it.str}); f = true; break; } }
       if(!f) yG.push({y, items:[{x, str: it.str}]});
     }
     yG.sort((a,b) => b.y - a.y);
-    for(const g of yG){ g.items.sort((a,b) => a.x - b.x); txt += g.items.map(i => i.str).join(' ') + '\n'; }
+    const satirlar = yG.map(g => {
+      g.items.sort((a,b) => a.x - b.x);
+      return g.items.map(i => i.str).join(' ').trim();
+    }).filter(Boolean);
+    sayfalar.push(satirlar);
   }
-  return txt;
+  return sayfalar;
 }
 
-// ── AKBİM Karne formatı parser ──
-// Her sayfa bir öğrenci; "KONU ADI SS D Y %" başlığı altında
-// satırlar: konu_metni ... sayı sayı sayı sayı
-function parseAkbimKarne(txt){
-  const satirlar = txt.split('\n').map(l => l.trim()).filter(Boolean);
-  const sonuc = []; // [{ogrAdi, sinavAdi, tarih, dersler}]
+// ── AKBİM Karne Parser v2 ──
+// Gerçek PDF yapısına göre optimize edildi:
+//   - "SOYADI - ADI  SINAV ADI" tek satırda veya ayrı satırlarda
+//   - Konu satırı: "9.x.x.x. Konu Adı ... SS D Y %"  (sonda 4 sayı)
+//   - Ders etiketi: "TÜRKÇE" "TAR-1" "T. MAT" vb. tek/kısa satır
+async function parseAkbimKarne(file){
+  const sayfalar = await konuPdfSatirlar(file);
+  const sonuc = [];
 
-  let ogrAdi = null, sinavAdi = null, tarih = null;
-  let aktifDers = null;
-  let aktifKonular = {};
-
-  // Öğrenci adı: "SOYADI - ADI" satırından sonra gelen büyük harf isim
-  // Tarih: dd.mm.yyyy formatı
-  // Sınav adı: "TÜRKİYE GENELİ DENEME..." veya parantez içi
-  const DERS_ETIKETLER = [
-    'TÜRKÇE','TAR-1','COĞ-1','FEL-1','DİN-1','T. MAT','GEO-1',
-    'KİM-1','BİY-1','FİZ-1','MAT-2','GEO-2','FİZ-2','KİM-2',
-    'BİY-2','EDEB','TAR-2','COĞ-2','SOS','T.MAT','FEN','TDE'
+  // Bilinen ders etiketleri (kısa, tek satır olarak gelir)
+  const DERSLER = [
+    'TÜRKÇE','TAR-1','COĞ-1','FEL-1','DİN-1','T. MAT','T.MAT',
+    'GEO-1','KİM-1','BİY-1','FİZ-1','MAT-2','GEO-2','FİZ-2',
+    'KİM-2','BİY-2','EDEB','TAR-2','COĞ-2','SOS','FEN','TDE'
   ];
+  // Normalize: T. MAT ve T.MAT -> T. MAT
+  function normDers(s){ return s.trim().replace('T.MAT','T. MAT'); }
+  function isDers(line){
+    const l = line.trim().toUpperCase().replace(/\s+/g,' ');
+    return DERSLER.some(d => l === d || l === normDers(d).toUpperCase());
+  }
 
-  function kaydetOgrenci(){
-    if(!ogrAdi) return;
-    // Derslerde veri var mı?
-    const herhangi = Object.values(aktifKonular).some(k => k.length > 0);
-    if(!herhangi) return;
-    // Önceki aynı öğrenciyi bul veya yeni ekle
+  // Sayı dizisi çek (sondaki 4 sayı)
+  function sonDortSayi(line){
+    const sayilar = [...line.matchAll(/\b(\d{1,3})\b/g)].map(m => parseInt(m[1]));
+    if(sayilar.length >= 4){
+      const son4 = sayilar.slice(-4);
+      // SS D Y PCT formatı: SS>=1, D<=SS, Y<=SS, PCT 0-100
+      const [ss, d, y, pct] = son4;
+      if(ss >= 1 && ss <= 30 && d <= ss && y <= ss && pct <= 100){
+        return {ss, d, y, pct};
+      }
+    }
+    if(sayilar.length >= 3){
+      const son3 = sayilar.slice(-3);
+      const [a,b,c] = son3;
+      // D Y PCT veya SS D PCT
+      if(c <= 100 && a <= 20 && b <= a){
+        return {ss: a, d: b, y: 0, pct: c};
+      }
+      if(c <= 100 && a <= 20){
+        return {ss: a, d: b, y: 0, pct: a > 0 ? Math.round(b/a*100) : 0};
+      }
+    }
+    return null;
+  }
+
+  // Konu metnini temizle (sondaki sayıları ve gereksizlikleri at)
+  function temizleKonu(line){
+    // Sondaki sayı bloklarını çıkar
+    let k = line.replace(/[\s\d]+$/, '').trim();
+    // Başta sayı+nokta kodu varsa koru (9.3.1.1. gibi)
+    k = k.replace(/\s{2,}/g,' ');
+    return k;
+  }
+
+  // Öğrenci adını bul: AKBİM'de "SOYADI - ADI  TÜRKİYE GENELİ DENEME..." satırında
+  // veya ayrı satırda sadece büyük harfli isim
+  function ogrAdiBul(satirlar){
+    for(const line of satirlar.slice(0, 15)){
+      // Kalıp: büyük harf isim, ardından sınav adı
+      // Örn: "ÇÖRTÜK ERDEM TÜRKİYE GENELİ DENEME-5 (Y2526)"
+      // veya sadece "ÇÖRTÜK ERDEM"
+      const m = line.match(/^([A-ZÇĞİÖŞÜ][A-ZÇĞİÖŞÜ]{1,}(?:\s+[A-ZÇĞİÖŞÜ][A-ZÇĞİÖŞÜ]{1,}){1,4})/);
+      if(m){
+        const aday = m[1].trim();
+        // Sınav/kurum ismi değil
+        const kara = ['SAMSUN','İLKADIM','MATEMATİK','SINAV','KONU','TÜRKÇE',
+                      'SOSYAL','TÜRKİYE','AKBIM','AKBİM','SONUÇ','BELGE','MEB'];
+        if(!kara.some(k => aday.toUpperCase().startsWith(k)) && aday.split(' ').length >= 2){
+          return aday;
+        }
+      }
+    }
+    return null;
+  }
+
+  function sinavAdiBul(satirlar){
+    for(const line of satirlar.slice(0, 15)){
+      // "TÜRKİYE GENELİ DENEME-5 (Y2526)" veya "DENEME 5" gibi
+      const m = line.match(/(?:TÜRKİYE\s+GENELİ\s+)?(DENEME[\s\-]*\d+(?:\s*\([^)]+\))?)/i);
+      if(m) return m[0].replace(/\s+/g,' ').trim();
+      const m2 = line.match(/(YKS\s*\d+|TYT\s*\d+)/i);
+      if(m2) return m2[0].trim();
+    }
+    return 'Sınav';
+  }
+
+  function tarihBul(satirlar){
+    for(const line of satirlar){
+      const m = line.match(/(\d{1,2}[./]\d{1,2}[./]\d{4})/);
+      if(m) return m[1];
+    }
+    return '';
+  }
+
+  for(const satirlar of sayfalar){
+    const ogrAdi = ogrAdiBul(satirlar);
+    if(!ogrAdi) continue;
+
+    const sinavAdi = sinavAdiBul(satirlar);
+    const tarih = tarihBul(satirlar);
+    const dersler = {};
+    let aktifDers = null;
+
+    for(const line of satirlar){
+      const temiz = line.trim();
+      if(!temiz) continue;
+
+      // Ders başlığı mı?
+      if(isDers(temiz)){
+        const dk = normDers(temiz.toUpperCase().replace(/\s+/g,' '));
+        // normalize etiketi bul
+        aktifDers = DERSLER.find(d => normDers(d).toUpperCase() === dk) || temiz;
+        if(!dersler[aktifDers]) dersler[aktifDers] = [];
+        continue;
+      }
+
+      // KONU ADI başlık satırını atla
+      if(/KONU\s*ADI/i.test(temiz) && /SS/i.test(temiz)) continue;
+
+      // Konu satırı: konu kodu veya metin ile başlıyor + sonda sayılar
+      if(aktifDers && /\d/.test(temiz)){
+        const sayilar = sonDortSayi(temiz);
+        if(sayilar && sayilar.ss >= 1){
+          let konu = temizleKonu(temiz);
+          // Çok kısa veya sadece sayı/nokta ise atla
+          if(konu.replace(/[\d.\s\-]/g,'').length < 5) continue;
+          // Çok uzunsa kırp
+          if(konu.length > 120) konu = konu.slice(0, 120) + '…';
+          dersler[aktifDers].push({
+            konu,
+            ss: sayilar.ss,
+            d: sayilar.d,
+            y: sayilar.y,
+            pct: sayilar.pct
+          });
+        }
+      }
+    }
+
+    // En az 1 ders verisi olan öğrencileri kaydet
+    const dolu = Object.values(dersler).some(k => k.length > 0);
+    if(!dolu) continue;
+
     const idx = sonuc.findIndex(o => o.ogrAdi === ogrAdi && o.sinavAdi === sinavAdi);
     if(idx >= 0){
-      // Birleştir
-      for(const [d, ks] of Object.entries(aktifKonular)){
+      for(const [d, ks] of Object.entries(dersler)){
         if(!sonuc[idx].dersler[d]) sonuc[idx].dersler[d] = [];
         for(const k of ks){
           if(!sonuc[idx].dersler[d].find(x => x.konu === k.konu))
@@ -8925,104 +9048,9 @@ function parseAkbimKarne(txt){
         }
       }
     } else {
-      sonuc.push({ ogrAdi, sinavAdi: sinavAdi||'Sınav', tarih: tarih||'', dersler: {...aktifKonular} });
+      sonuc.push({ ogrAdi, sinavAdi, tarih, dersler });
     }
   }
-
-  function yeniOgrenci(){
-    kaydetOgrenci();
-    aktifDers = null;
-    aktifKonular = {};
-  }
-
-  for(let li = 0; li < satirlar.length; li++){
-    const line = satirlar[li];
-
-    // Tarih tespiti
-    const mTarih = line.match(/(\d{1,2}[./]\d{1,2}[./]\d{4})/);
-    if(mTarih && !tarih) tarih = mTarih[1];
-
-    // Sınav adı
-    if(!sinavAdi && (line.includes('DENEME') || line.includes('YKS') || line.includes('TYT') || line.includes('AYT'))){
-      const m = line.match(/(?:TÜRKİYE GENELİ\s+)?(DENEME[\s\-\d]+(?:\([\w\d]+\))?|YKS\s*[\d]+|TYT[\s\-\d]*[\d]*)/i);
-      if(m) sinavAdi = m[0].replace(/\s+/g,' ').trim();
-    }
-
-    // Öğrenci adı: büyük harfli, MEB kodu/şube satırlarından sonra gelen isim
-    // PDF'te "ÇÖRTÜK ERDEM" veya "SUDE UZUN" gibi geliyor
-    if(!ogrAdi || line.match(/MEB KODU\s*\d+/)){
-      // Yeni öğrenci bloğu başlıyor
-      const mMeb = line.match(/MEB KODU\s*(\d+)/);
-      if(mMeb){
-        // Sonraki satırlarda ismi ara
-        for(let k = li+1; k < Math.min(li+6, satirlar.length); k++){
-          const ln = satirlar[k].trim();
-          // Sadece büyük harflerden oluşan 2+ kelime ve sınav adı değil
-          if(/^[A-ZÇĞİÖŞÜ][A-ZÇĞİÖŞÜ\s]{3,}$/.test(ln) && 
-             !ln.includes('SINAV') && !ln.includes('SAMSUN') &&
-             !ln.includes('MEB') && !ln.includes('TYT') && !ln.includes('AYT') &&
-             !ln.includes('KONU') && ln.split(' ').length >= 2 && ln.split(' ').length <= 5){
-            if(ogrAdi && ogrAdi !== ln){
-              yeniOgrenci();
-              tarih = null; sinavAdi = null;
-            }
-            ogrAdi = ln;
-            break;
-          }
-        }
-      }
-    }
-
-    // Ders başlığı tespiti
-    const dersEslesen = DERS_ETIKETLER.find(d => {
-      const pat = new RegExp(`^${d.replace('.','\\.')}\\s*$|^${d.replace('.','\\.')}\\s+\\d`,'i');
-      return pat.test(line) || line === d;
-    });
-    if(dersEslesen){
-      aktifDers = dersEslesen;
-      if(!aktifKonular[aktifDers]) aktifKonular[aktifDers] = [];
-      continue;
-    }
-
-    // KONU ADI başlık satırını atla
-    if(/^KONU ADI\s+SS\s+D\s+Y\s+%/.test(line)) continue;
-
-    // Konu satırı: sonda 2-4 sayı var (SS D Y %) veya (D Y %)
-    // Örnek: "13.1.1. Sözcükte Anlam... 4 4 0 100"
-    if(aktifDers && ogrAdi){
-      // Satırın sonundaki sayıları çek
-      const sayiMatch = line.match(/^(.*?)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s*$/);
-      const sayiMatch3 = line.match(/^(.*?)\s+(\d+)\s+(\d+)\s+(\d+)\s*$/);
-      
-      let konuMetni = null, ss = 0, d = 0, y = 0, pct = 0;
-      
-      if(sayiMatch){
-        konuMetni = sayiMatch[1].trim();
-        ss = parseInt(sayiMatch[2]);
-        d = parseInt(sayiMatch[3]);
-        y = parseInt(sayiMatch[4]);
-        pct = parseInt(sayiMatch[5]);
-      } else if(sayiMatch3){
-        konuMetni = sayiMatch3[1].trim();
-        // 3 sayı: ss d y (% hesapla) veya d y %
-        const a = parseInt(sayiMatch3[2]);
-        const b = parseInt(sayiMatch3[3]);
-        const c = parseInt(sayiMatch3[4]);
-        if(c <= 100){ ss = a; d = b; y = 0; pct = c; }
-        else { ss = a; d = b; y = c; pct = ss > 0 ? Math.round(d/ss*100) : 0; }
-      }
-
-      if(konuMetni && konuMetni.length > 5 && ss > 0){
-        // Temizle: konu kodu içeriyorsa düzelt
-        konuMetni = konuMetni.replace(/\s+/g,' ').trim();
-        // Çok kısa veya sayıdan oluşuyorsa atla
-        if(konuMetni.replace(/[\d.\s]/g,'').length > 4){
-          aktifKonular[aktifDers].push({ konu: konuMetni, ss, d, y, pct });
-        }
-      }
-    }
-  }
-  kaydetOgrenci();
   return sonuc;
 }
 
@@ -9036,10 +9064,11 @@ async function konuPdfYukle(ev){
   msg.style.display = 'none';
 
   let toplamYeni = 0;
+  let toplamHata = 0;
   for(const file of files){
     try{
-      const txt = await konuPdfMetin(file);
-      const parsed = parseAkbimKarne(txt);
+      const parsed = await parseAkbimKarne(file);
+      if(!parsed.length) toplamHata++;
       for(const p of parsed){
         const idx = KONU_VERI.findIndex(o => o.ogrAdi === p.ogrAdi && o.sinavAdi === p.sinavAdi);
         if(idx >= 0){
@@ -9065,7 +9094,7 @@ async function konuPdfYukle(ev){
   if(!KONU_VERI.length){
     msg.style.display = 'block';
     msg.style.background = 'var(--Rd)'; msg.style.color = 'var(--R)';
-    msg.textContent = '✗ PDF okunamadı. AKBİM karne formatında olduğundan emin olun.';
+    msg.textContent = `✗ Öğrenci verisi çıkarılamadı (${toplamHata} dosya). PDF AKBİM/Akbim-Koç formatında olmalı.`;
   } else {
     msg.style.display = 'block';
     msg.style.background = 'var(--Gd)'; msg.style.color = 'var(--G)';
