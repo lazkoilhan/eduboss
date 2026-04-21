@@ -577,6 +577,92 @@ hr.dv{border:none;border-top:1px solid rgba(255,255,255,.055);margin:12px 0}
 .op-tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px}
 .op-content{display:none}.op-content.show{display:block;min-height:10px}
 
+/* ══════════════════════════════════════════════════════
+   BOSS PUAN / GAMİFİKASYON STİLLERİ (v27)
+══════════════════════════════════════════════════════ */
+.xp-bar-wrap{background:rgba(255,255,255,.07);border-radius:20px;height:8px;overflow:hidden;margin:4px 0}
+.xp-bar-fill{height:100%;border-radius:20px;background:linear-gradient(90deg,#ffca28,#ff8c42);transition:width .6s cubic-bezier(.4,0,.2,1)}
+.rozet-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(90px,1fr));gap:10px;padding:4px 0}
+.rozet-kart{display:flex;flex-direction:column;align-items:center;gap:5px;padding:12px 8px;border-radius:12px;border:1px solid rgba(255,255,255,.07);background:var(--s1);transition:transform .14s,box-shadow .14s;text-align:center}
+.rozet-kart.kazanildi{border-color:rgba(255,202,40,.35);background:linear-gradient(135deg,rgba(255,202,40,.08),rgba(255,140,66,.06));box-shadow:0 0 16px rgba(255,202,40,.15)}
+.rozet-kart.kazanildi:hover{transform:translateY(-2px);box-shadow:0 4px 20px rgba(255,202,40,.25)}
+.rozet-icon{font-size:28px;line-height:1}
+.rozet-ad{font-size:9px;font-weight:700;color:var(--mu2);letter-spacing:.3px}
+.rozet-kart.kazanildi .rozet-ad{color:var(--Y)}
+.rozet-kart.kilitli{opacity:.38;filter:grayscale(.9)}
+.lig-tablo{display:flex;flex-direction:column;gap:6px}
+.lig-satir{display:flex;align-items:center;gap:10px;padding:10px 14px;border-radius:12px;background:var(--s1);border:1px solid rgba(255,255,255,.06);transition:.14s}
+.lig-satir.benim{background:linear-gradient(135deg,rgba(255,202,40,.1),rgba(255,140,66,.06));border-color:rgba(255,202,40,.3)}
+.lig-sira{font-family:'DM Mono',monospace;font-size:13px;font-weight:700;width:24px;color:var(--mu2)}
+.lig-satir:nth-child(1) .lig-sira{color:#ffd700;font-size:16px}
+.lig-satir:nth-child(2) .lig-sira{color:#c0c0c0}
+.lig-satir:nth-child(3) .lig-sira{color:#cd7f32}
+.lig-avatar{width:30px;height:30px;border-radius:50%;background:linear-gradient(135deg,var(--B),var(--C));display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;flex-shrink:0}
+.lig-ad{flex:1;font-size:12px;font-weight:600}
+.lig-puan{font-family:'DM Mono',monospace;font-size:12px;color:var(--Y);font-weight:700}
+.boss-stat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px}
+.boss-stat{padding:12px;border-radius:12px;background:var(--s1);border:1px solid rgba(255,255,255,.07);text-align:center}
+.boss-stat-val{font-family:'DM Mono',monospace;font-size:20px;font-weight:700;line-height:1.2}
+.boss-stat-lbl{font-size:9px;color:var(--mu2);text-transform:uppercase;letter-spacing:.8px;margin-top:2px}
+.xp-mini{display:inline-flex;align-items:center;gap:5px;padding:3px 8px;border-radius:20px;background:rgba(255,202,40,.1);border:1px solid rgba(255,202,40,.2);font-size:10px;font-weight:700;color:var(--Y)}
+/* ══════════════════════════════════════════════════════
+   POMODORO / ETÜT ODASI STİLLERİ (v27)
+══════════════════════════════════════════════════════ */
+.pomo-overlay{display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.75);backdrop-filter:blur(8px);align-items:center;justify-content:center}
+.pomo-overlay.show{display:flex}
+.pomo-modal{width:min(380px,94vw);border-radius:22px;padding:28px 24px;background:linear-gradient(160deg,#0d1830,#0a1224);border:1px solid rgba(255,255,255,.1);box-shadow:0 24px 80px rgba(0,0,0,.7);position:relative;max-height:90vh;overflow-y:auto}
+.pomo-close{position:absolute;top:14px;right:16px;background:none;border:none;color:var(--mu2);font-size:20px;cursor:pointer;line-height:1;padding:4px}
+.pomo-ring-wrap{position:relative;width:180px;height:180px;margin:0 auto 20px}
+.pomo-ring-svg{transform:rotate(-90deg);width:180px;height:180px}
+.pomo-ring-bg{fill:none;stroke:rgba(255,255,255,.06);stroke-width:10}
+.pomo-ring-fg{fill:none;stroke-width:10;stroke-linecap:round;transition:stroke-dashoffset .9s linear,stroke .4s}
+.pomo-ring-text{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.pomo-time-display{font-family:'DM Mono',monospace;font-size:36px;font-weight:700;line-height:1;color:#fff}
+.pomo-phase-lbl{font-size:10px;color:var(--mu2);letter-spacing:1px;text-transform:uppercase;margin-top:4px}
+.pomo-btns{display:flex;gap:10px;justify-content:center;margin-bottom:18px}
+.pomo-btn{padding:10px 20px;border-radius:12px;border:none;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;font-size:13px;font-weight:700;transition:.14s}
+.pomo-btn-bas{background:linear-gradient(135deg,#00e5a0,#00b07a);color:#07090f}
+.pomo-btn-dur{background:linear-gradient(135deg,#ff5a7e,#cc3060);color:#fff}
+.pomo-btn-atla{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);color:var(--mu2)}
+.pomo-btn:hover{filter:brightness(1.1);transform:translateY(-1px)}
+.pomo-ders-sec{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin-bottom:16px}
+.pomo-ders-chip{padding:5px 12px;border-radius:20px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.05);color:var(--mu2);font-size:11px;font-weight:600;cursor:pointer;transition:.14s}
+.pomo-ders-chip.aktif{background:rgba(0,212,255,.12);border-color:rgba(0,212,255,.35);color:var(--C)}
+.pomo-tomatolar{display:flex;gap:5px;justify-content:center;margin-bottom:14px}
+.pomo-domates{width:18px;height:18px;border-radius:50%;background:rgba(255,90,126,.15);border:1.5px solid rgba(255,90,126,.3);display:flex;align-items:center;justify-content:center;font-size:10px}
+.pomo-domates.tamam{background:rgba(255,90,126,.85);border-color:var(--R)}
+.pomo-stats-row{display:flex;gap:8px;margin-top:12px}
+.pomo-stat-item{flex:1;text-align:center;padding:8px;border-radius:10px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.06)}
+.pomo-stat-num{font-family:'DM Mono',monospace;font-size:16px;font-weight:700;color:var(--G)}
+.pomo-stat-txt{font-size:9px;color:var(--mu);text-transform:uppercase;letter-spacing:.8px}
+.pomo-mod-tabs{display:flex;gap:6px;margin-bottom:16px}
+.pomo-mod-tab{flex:1;padding:7px 4px;border-radius:10px;border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.04);color:var(--mu2);font-size:10px;font-weight:700;cursor:pointer;text-align:center;transition:.14s;letter-spacing:.3px}
+.pomo-mod-tab.aktif{background:rgba(0,212,255,.1);border-color:rgba(0,212,255,.3);color:var(--C)}
+.pomo-ayar-row{display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.05);font-size:12px}
+.pomo-ayar-row:last-child{border-bottom:none}
+.pomo-num-inp{width:55px;background:var(--s2);border:1px solid rgba(255,255,255,.1);border-radius:8px;padding:4px 8px;color:var(--tx);font-family:'DM Mono',monospace;font-size:12px;text-align:center;outline:none}
+.etut-online-list{display:flex;flex-direction:column;gap:8px}
+.etut-satir{display:flex;align-items:center;gap:10px;padding:10px 14px;border-radius:12px;background:var(--s1);border:1px solid rgba(255,255,255,.06)}
+.etut-dot{width:8px;height:8px;border-radius:50%;background:var(--G);flex-shrink:0;box-shadow:0 0 8px var(--G);animation:etutNabiz 2s ease-in-out infinite}
+@keyframes etutNabiz{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.6;transform:scale(.85)}}
+.etut-satir-ad{flex:1;font-size:12px;font-weight:600}
+.etut-satir-ders{font-size:10px;color:var(--mu2);background:rgba(255,255,255,.06);padding:2px 8px;border-radius:10px}
+.etut-baslat-btn{width:100%;padding:13px;border-radius:14px;border:none;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;font-size:14px;font-weight:800;background:linear-gradient(135deg,#00e5a0,#00b07a);color:#07090f;box-shadow:0 4px 16px rgba(0,229,160,.35);transition:all .14s;margin-bottom:12px}
+.etut-baslat-btn:hover{filter:brightness(1.08);transform:translateY(-2px)}
+.etut-baslat-btn.aktif-calis{background:linear-gradient(135deg,#ff5a7e,#cc3060);color:#fff;box-shadow:0 4px 16px rgba(255,90,126,.35)}
+.ogr-xp-tablo{display:flex;flex-direction:column;gap:6px}
+.ogr-xp-satir{display:flex;align-items:center;gap:10px;padding:10px 14px;border-radius:12px;background:var(--s1);border:1px solid rgba(255,255,255,.06)}
+.ogr-xp-ad{flex:1;font-size:12px;font-weight:600}
+.ogr-xp-puan{font-family:'DM Mono',monospace;font-size:12px;color:var(--Y)}
+.ogr-xp-bar{flex:2;height:5px;background:rgba(255,255,255,.07);border-radius:10px;overflow:hidden}
+.ogr-xp-bar-fill{height:100%;border-radius:10px;background:linear-gradient(90deg,#ffca28,#ff8c42)}
+.pomo-float-btn{position:fixed;bottom:22px;right:22px;z-index:9000;width:54px;height:54px;border-radius:50%;border:none;cursor:pointer;background:linear-gradient(135deg,#ff5a7e,#ff8c42);color:#fff;font-size:22px;box-shadow:0 6px 24px rgba(255,90,126,.5);transition:all .2s;display:flex;align-items:center;justify-content:center}
+.pomo-float-btn:hover{transform:scale(1.1) translateY(-2px);box-shadow:0 10px 32px rgba(255,90,126,.65)}
+.pomo-float-time-badge{position:absolute;top:-8px;left:50%;transform:translateX(-50%);background:#070d1a;border:1px solid rgba(255,90,126,.4);border-radius:10px;font-family:'DM Mono',monospace;font-size:9px;font-weight:700;color:var(--R);padding:1px 5px;white-space:nowrap;display:none}
+.pomo-float-btn.calisirken .pomo-float-time-badge{display:block}
+.xp-toast{position:fixed;top:80px;left:50%;transform:translateX(-50%);z-index:10000;background:linear-gradient(135deg,rgba(255,202,40,.95),rgba(255,140,66,.95));color:#07090f;padding:10px 20px;border-radius:30px;font-size:13px;font-weight:800;box-shadow:0 8px 24px rgba(255,202,40,.5);animation:xpToastAnim .4s ease;pointer-events:none;display:none}
+@keyframes xpToastAnim{from{opacity:0;transform:translateX(-50%) translateY(-12px) scale(.9)}to{opacity:1;transform:translateX(-50%) translateY(0) scale(1)}}
+
 /* ── SCROLLBAR ── */
 ::-webkit-scrollbar{width:4px;height:4px}
 ::-webkit-scrollbar-track{background:transparent}
@@ -820,7 +906,8 @@ hr.dv{border:none;border-top:1px solid rgba(255,255,255,.055);margin:12px 0}
       <div class="op-tab" onclick="opTab('gorevlerim',this)">🎬 Video Derslerim</div>
       <div class="op-tab" onclick="opTab('odevlerim',this)">📚 Ödevlerim</div>
       <div class="op-tab" onclick="opTab('soruhavuzu',this);opShRender()">🙋 Soru Havuzu</div>
-      <div class="op-tab" onclick="opTab('konularim',this)">📚 Konu Analizi</div>
+      <div class="op-tab" onclick="opTab('bossPuan',this);bossPuanRender()">🏆 BOSS Puan</div>
+      <div class="op-tab" onclick="opTab('etutOdasi',this);etutOdasiRender()">📚 Etüt Odası</div>
     </div>
     <!-- Sınav Sonuçları -->
     <div class="op-content show" id="op-sinav">
@@ -884,13 +971,135 @@ hr.dv{border:none;border-top:1px solid rgba(255,255,255,.055);margin:12px 0}
       <div id="op-soruhavuzu-ic"></div>
     </div>
 
-    <!-- Konu Analizi (Öğrenci) -->
-    <div class="op-content" id="op-konularim">
-      <div id="op-konularim-ic"><div style="text-align:center;padding:30px;color:var(--mu2);font-size:12px">📚 Öğretmeniniz henüz konu analizi yüklememiş</div></div>
+    <!-- 🏆 BOSS PUAN -->
+    <div class="op-content" id="op-bossPuan">
+      <div class="card" style="margin-bottom:12px">
+        <div class="ct" style="display:flex;justify-content:space-between;align-items:center">
+          <span>⚡ BOSS Puan &amp; Seviye</span>
+          <span class="xp-mini" id="op-seviye-badge">Sv. 1</span>
+        </div>
+        <div class="boss-stat-grid">
+          <div class="boss-stat"><div class="boss-stat-val" style="color:var(--Y)" id="op-toplam-xp">0</div><div class="boss-stat-lbl">Toplam XP</div></div>
+          <div class="boss-stat"><div class="boss-stat-val" style="color:var(--G)" id="op-pomo-count">0</div><div class="boss-stat-lbl">Pomodoro</div></div>
+          <div class="boss-stat"><div class="boss-stat-val" style="color:var(--B)" id="op-odev-count">0</div><div class="boss-stat-lbl">Ödev Tamam</div></div>
+        </div>
+        <div style="padding:0 2px">
+          <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--mu2);margin-bottom:4px">
+            <span id="op-xp-mevcut-lbl">0 XP</span>
+            <span id="op-xp-hedef-lbl">Sonraki: 100 XP</span>
+          </div>
+          <div class="xp-bar-wrap"><div class="xp-bar-fill" id="op-xp-fill" style="width:0%"></div></div>
+        </div>
+      </div>
+      <div class="card" style="margin-bottom:12px">
+        <div class="ct">🎖️ Rozetlerim</div>
+        <div class="rozet-grid" id="op-rozet-grid"></div>
+      </div>
+      <div class="card">
+        <div class="ct" style="display:flex;justify-content:space-between;align-items:center">
+          <span>🏅 Haftalık Lig</span>
+          <span style="font-size:10px;color:var(--mu2)">Takma adla</span>
+        </div>
+        <div class="lig-tablo" id="op-lig-tablo"></div>
+      </div>
+    </div>
+
+    <!-- 📚 ETÜT ODASI -->
+    <div class="op-content" id="op-etutOdasi">
+      <div class="card" style="margin-bottom:12px">
+        <div class="ct">🏫 Sanal Etüt Odası</div>
+        <div style="margin-bottom:10px">
+          <label style="font-size:11px;color:var(--mu2);display:block;margin-bottom:6px">Hangi dersi çalışıyorsun?</label>
+          <select id="etut-ders-sec" style="width:100%;background:var(--s2);border:1px solid var(--b2);border-radius:10px;padding:9px 12px;color:var(--tx);font-size:13px;font-weight:600;outline:none">
+            <option value="Matematik">📐 Matematik</option>
+            <option value="Türkçe">📖 Türkçe</option>
+            <option value="Fizik">⚛️ Fizik</option>
+            <option value="Kimya">🧪 Kimya</option>
+            <option value="Biyoloji">🧬 Biyoloji</option>
+            <option value="Tarih">🏛️ Tarih</option>
+            <option value="Coğrafya">🌍 Coğrafya</option>
+            <option value="İngilizce">🇬🇧 İngilizce</option>
+            <option value="Geometri">📐 Geometri</option>
+            <option value="Felsefe">💭 Felsefe</option>
+          </select>
+        </div>
+        <button class="etut-baslat-btn" id="etut-baslat-btn" onclick="etutToggle()">🚀 Çalışmaya Başla</button>
+        <div id="etut-benim-durum" style="font-size:11px;color:var(--mu2);text-align:center;display:none"></div>
+      </div>
+      <div class="card">
+        <div class="ct" style="display:flex;justify-content:space-between;align-items:center">
+          <span>👥 Şu An Çalışanlar</span>
+          <span class="xp-mini" id="etut-online-sayi">0 kişi</span>
+        </div>
+        <div class="etut-online-list" id="etut-online-list">
+          <div class="empty" style="padding:20px 0;text-align:center;color:var(--mu)">Henüz kimse çalışmıyor 🌙</div>
+        </div>
+      </div>
+      <div class="card" style="margin-top:12px">
+        <div class="ct">🤖 Odak Analizi</div>
+        <div id="etut-analiz-ic" style="font-size:12px;color:var(--mu2);padding:8px 0">
+          Pomodoro oturumları tamamladıkça AI analizin burada görünecek.
+        </div>
+      </div>
     </div>
 
   </div><!-- op-main END -->
 </div><!-- ogrenci-panel END -->
+
+<!-- ═══ POMODORO MODAL ═══ -->
+<div class="pomo-overlay" id="pomo-overlay">
+  <div class="pomo-modal">
+    <button class="pomo-close" onclick="pomoKapat()">&#10005;</button>
+    <div style="text-align:center;margin-bottom:16px">
+      <div style="font-family:'Black Ops One',cursive;font-size:18px;letter-spacing:1px;background:linear-gradient(135deg,#ff5a7e,#ff8c42);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">🍅 POMODORO</div>
+    </div>
+    <div class="pomo-mod-tabs">
+      <div class="pomo-mod-tab aktif" onclick="pomoModSec('pomo',this)">Pomodoro</div>
+      <div class="pomo-mod-tab" onclick="pomoModSec('kisa',this)">Kisa Mola</div>
+      <div class="pomo-mod-tab" onclick="pomoModSec('uzun',this)">Uzun Mola</div>
+      <div class="pomo-mod-tab" onclick="pomoModSec('ayar',this)">Ayar</div>
+    </div>
+    <div class="pomo-ring-wrap">
+      <svg class="pomo-ring-svg" viewBox="0 0 180 180">
+        <circle class="pomo-ring-bg" cx="90" cy="90" r="80"/>
+        <circle class="pomo-ring-fg" id="pomo-ring-fg" cx="90" cy="90" r="80" stroke="#ff5a7e" stroke-dasharray="502.65" stroke-dashoffset="0"/>
+      </svg>
+      <div class="pomo-ring-text">
+        <div class="pomo-time-display" id="pomo-time-display">25:00</div>
+        <div class="pomo-phase-lbl" id="pomo-phase-lbl">CALISMA</div>
+      </div>
+    </div>
+    <div class="pomo-tomatolar" id="pomo-tomatolar"></div>
+    <div class="pomo-ders-sec" id="pomo-ders-sec">
+      <div class="pomo-ders-chip aktif" onclick="pomoDersSec(this,'Matematik')">Mat</div>
+      <div class="pomo-ders-chip" onclick="pomoDersSec(this,'Türkçe')">TRK</div>
+      <div class="pomo-ders-chip" onclick="pomoDersSec(this,'Fizik')">Fiz</div>
+      <div class="pomo-ders-chip" onclick="pomoDersSec(this,'Kimya')">Kim</div>
+      <div class="pomo-ders-chip" onclick="pomoDersSec(this,'Biyoloji')">Bio</div>
+      <div class="pomo-ders-chip" onclick="pomoDersSec(this,'İngilizce')">Ing</div>
+      <div class="pomo-ders-chip" onclick="pomoDersSec(this,'Tarih')">Tar</div>
+      <div class="pomo-ders-chip" onclick="pomoDersSec(this,'Diger')">Diger</div>
+    </div>
+    <div class="pomo-btns">
+      <button class="pomo-btn pomo-btn-bas" id="pomo-bas-btn" onclick="pomoBasDur()">Basla</button>
+      <button class="pomo-btn pomo-btn-atla" onclick="pomoAtla()">Atla</button>
+    </div>
+    <div class="pomo-stats-row">
+      <div class="pomo-stat-item"><div class="pomo-stat-num" id="pomo-bugun-sayi">0</div><div class="pomo-stat-txt">Bugun</div></div>
+      <div class="pomo-stat-item"><div class="pomo-stat-num" id="pomo-toplam-dk">0</div><div class="pomo-stat-txt">Toplam dk</div></div>
+      <div class="pomo-stat-item"><div class="pomo-stat-num" id="pomo-seri">0</div><div class="pomo-stat-txt">Seri</div></div>
+    </div>
+    <div id="pomo-ayar-panel" style="display:none;margin-top:14px">
+      <div class="pomo-ayar-row"><span>Calisma (dk)</span><input type="number" class="pomo-num-inp" id="pomo-ayar-calisma" value="25" min="1" max="90" onchange="pomoAyarGuncelle()"></div>
+      <div class="pomo-ayar-row"><span>Kisa Mola (dk)</span><input type="number" class="pomo-num-inp" id="pomo-ayar-kisa" value="5" min="1" max="30" onchange="pomoAyarGuncelle()"></div>
+      <div class="pomo-ayar-row"><span>Uzun Mola (dk)</span><input type="number" class="pomo-num-inp" id="pomo-ayar-uzun" value="15" min="5" max="60" onchange="pomoAyarGuncelle()"></div>
+      <div class="pomo-ayar-row"><span>Ses bildirimi</span><input type="checkbox" id="pomo-ses-cb" checked style="accent-color:var(--G)"></div>
+    </div>
+  </div>
+</div>
+
+<div class="xp-toast" id="xp-toast"></div>
+<button class="pomo-float-btn" id="pomo-float-btn" onclick="pomoAc()" title="Pomodoro">🍅<span class="pomo-float-time-badge" id="pomo-float-badge"></span></button>
 
 <!-- ═══ APP ═══ -->
 <div id="app-wrap" style="display:flex;flex:1;min-height:100vh">
@@ -925,6 +1134,7 @@ hr.dv{border:none;border-top:1px solid rgba(255,255,255,.055);margin:12px 0}
     <div class="ni" onclick="goPg('odev')"><span class="ni-ic">📚</span><span>Ödev Ata</span></div>
     <div class="ni" onclick="goPg('soruhavuzu')"><span class="ni-ic">🙋</span><span>Soru Havuzu <span id="sb-soru-badge" style="display:none;background:#ef4444;color:#fff;border-radius:10px;padding:1px 5px;font-size:9px;margin-left:2px">0</span></span></div>
     <div class="ni" onclick="goPg('ai')"><span class="ni-ic">🤖</span><span>AI Koçluk</span></div>
+    <div class="ni" onclick="goPg('gamification')"><span class="ni-ic">🏆</span><span>BOSS Puan</span></div>
     <div class="ni" onclick="goPg('ayarlar')"><span class="ni-ic">⚙️</span><span>Ayarlar</span></div>
     <div id="sb-superadmin-menu" style="display:none">
       <div class="sb-sec" style="color:var(--Y);opacity:.9">👑 Süper Admin</div>
@@ -1323,6 +1533,61 @@ hr.dv{border:none;border-top:1px solid rgba(255,255,255,.055);margin:12px 0}
 </div>
 
 <!-- AYARLAR -->
+<!-- ═══ GAMİFİKASYON PANELİ (ÖĞRETMEN) ═══ -->
+<div class="pg" id="pg-gamification">
+  <div class="ph">
+    <div><div class="pt">🏆 BOSS Puan Yönetimi</div><div class="psub">Öğrenci XP istatistikleri ve haftalık lig</div></div>
+  </div>
+  <!-- Özet istatistikler -->
+  <div class="two" style="margin-bottom:14px">
+    <div class="card">
+      <div class="ct">⚡ XP Liderboard</div>
+      <div style="font-size:11px;color:var(--mu2);margin-bottom:10px">Bu haftaki en aktif öğrenciler</div>
+      <div class="ogr-xp-tablo" id="ogr-xp-tablo">
+        <div class="empty">Yükleniyor...</div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="ct">🍅 Pomodoro İstatistikleri</div>
+      <div style="font-size:11px;color:var(--mu2);margin-bottom:10px">Haftalık çalışma süreleri</div>
+      <div id="ogr-pomo-tablo">
+        <div class="empty">Yükleniyor...</div>
+      </div>
+    </div>
+  </div>
+  <!-- Rozet kazanımları -->
+  <div class="card" style="margin-bottom:14px">
+    <div class="ct" style="display:flex;justify-content:space-between;align-items:center">
+      <span>🎖️ Son Kazanılan Rozetler</span>
+      <button class="btn btn-sm" onclick="gamifXpYukle()">🔄 Yenile</button>
+    </div>
+    <div id="ogr-rozet-feed" style="display:flex;flex-direction:column;gap:8px;margin-top:8px">
+      <div class="empty">Henüz rozet kazanımı yok</div>
+    </div>
+  </div>
+  <!-- Manuel XP ver -->
+  <div class="card" style="max-width:500px">
+    <div class="ct">⚡ Manuel XP Ver</div>
+    <div class="fg" style="margin-top:10px">
+      <div class="f">
+        <label>Öğrenci</label>
+        <select id="xp-ogr-sec" style="background:var(--s2);border:1px solid var(--b2);border-radius:8px;padding:8px 10px;color:var(--tx);width:100%;outline:none">
+          <option value="">Öğrenci seç...</option>
+        </select>
+      </div>
+      <div class="f">
+        <label>XP Miktarı</label>
+        <input type="number" id="xp-miktar" value="25" min="1" max="500" style="background:var(--s2);border:1px solid var(--b2);border-radius:8px;padding:8px 10px;color:var(--tx);width:100%;outline:none;font-family:'DM Mono',monospace">
+      </div>
+      <div class="f">
+        <label>Sebep</label>
+        <input type="text" id="xp-sebep" placeholder="Harika performans için..." style="background:var(--s2);border:1px solid var(--b2);border-radius:8px;padding:8px 10px;color:var(--tx);width:100%;outline:none">
+      </div>
+      <button class="btn btn-p" onclick="manuelXpVer()">⚡ XP Ver</button>
+    </div>
+  </div>
+</div>
+
 <div class="pg" id="pg-ayarlar">
   <div class="ph">
     <div><div class="pt">⚙️ Ayarlar</div><div class="psub">API anahtarı ve sistem tercihleri</div></div>
@@ -5617,6 +5882,8 @@ async function ogrenciGiris(userData){
       toast('Öğrenci verileri yüklenemedi: '+(e.message||'bağlantı hatası')+' — lütfen sayfayı yenileyin','err');
       opRender(null, userData);
     });
+  // XP kuyruğunu kontrol et (öğretmenin verdiği XP'ler)
+  setTimeout(xpKuyruguKontrol, 2000);
 }
 
 function cikisYap(){
@@ -5667,9 +5934,7 @@ function opTab(tab, el){
   if(tab==='notlar'&&_opOgr){
     fbGet(COL.notlar).then(n=>{NOTLAR=n;opRenderNotlar(_opOgr.id);});
   }
-  if(tab==='konularim'&&_opOgr){
-    opRenderKonularim(_opOgr);
-  }
+  // Gamification tabs handled by inline onclick
 }
 
 function opRender(ogr, userData){
@@ -8875,11 +9140,11 @@ let KONU_VERI = [];
   };
 })();
 
-// ── AKBİM Karne: PDF'ten her sayfanın satırlarını çıkar ──
-async function konuPdfSatirlar(file){
+// ── PDF metin çıkarma (mevcut pdfjs'i kullanır) ──
+async function konuPdfMetin(file){
   const arr = await file.arrayBuffer();
   const pdf = await pdfjsLib.getDocument({data: arr}).promise;
-  const sayfalar = [];
+  let txt = '';
   for(let i = 1; i <= pdf.numPages; i++){
     const pg = await pdf.getPage(i);
     const ct = await pg.getTextContent();
@@ -8888,142 +9153,45 @@ async function konuPdfSatirlar(file){
     for(const it of items){
       const y = it.transform[5], x = it.transform[4];
       let f = false;
-      for(const g of yG){
-        if(Math.abs(g.y - y) < 5){ g.items.push({x, str: it.str}); f = true; break; }
-      }
+      for(const g of yG){ if(Math.abs(g.y - y) < 4){ g.items.push({x, str: it.str}); f = true; break; } }
       if(!f) yG.push({y, items:[{x, str: it.str}]});
     }
     yG.sort((a,b) => b.y - a.y);
-    const satirlar = yG.map(g => {
-      g.items.sort((a,b) => a.x - b.x);
-      return g.items.map(i => i.str).join(' ').replace(/\s+/g,' ').trim();
-    }).filter(Boolean);
-    sayfalar.push(satirlar);
+    for(const g of yG){ g.items.sort((a,b) => a.x - b.x); txt += g.items.map(i => i.str).join(' ') + '\n'; }
   }
-  return sayfalar;
+  return txt;
 }
 
-// ── AKBİM Karne Parser v3 ──
-async function parseAkbimKarne(file){
-  const sayfalar = await konuPdfSatirlar(file);
-  const sonuc = [];
+// ── AKBİM Karne formatı parser ──
+// Her sayfa bir öğrenci; "KONU ADI SS D Y %" başlığı altında
+// satırlar: konu_metni ... sayı sayı sayı sayı
+function parseAkbimKarne(txt){
+  const satirlar = txt.split('\n').map(l => l.trim()).filter(Boolean);
+  const sonuc = []; // [{ogrAdi, sinavAdi, tarih, dersler}]
 
-  const DERSLER = [
-    'TÜRKÇE','TAR-1','COĞ-1','FEL-1','DİN-1','T. MAT','T.MAT',
-    'GEO-1','KİM-1','BİY-1','FİZ-1','MAT-2','GEO-2','FİZ-2',
-    'KİM-2','BİY-2','EDEB','TAR-2','COĞ-2','SOS','FEN','TDE'
+  let ogrAdi = null, sinavAdi = null, tarih = null;
+  let aktifDers = null;
+  let aktifKonular = {};
+
+  // Öğrenci adı: "SOYADI - ADI" satırından sonra gelen büyük harf isim
+  // Tarih: dd.mm.yyyy formatı
+  // Sınav adı: "TÜRKİYE GENELİ DENEME..." veya parantez içi
+  const DERS_ETIKETLER = [
+    'TÜRKÇE','TAR-1','COĞ-1','FEL-1','DİN-1','T. MAT','GEO-1',
+    'KİM-1','BİY-1','FİZ-1','MAT-2','GEO-2','FİZ-2','KİM-2',
+    'BİY-2','EDEB','TAR-2','COĞ-2','SOS','T.MAT','FEN','TDE'
   ];
 
-  function normDers(s){
-    return s.trim().replace(/T\.MAT/i,'T. MAT').replace(/\s+/g,' ').toUpperCase();
-  }
-  function isDers(line){
-    const l = normDers(line);
-    return DERSLER.some(d => normDers(d) === l);
-  }
-  function derseNormalize(line){
-    const l = normDers(line);
-    return DERSLER.find(d => normDers(d) === l) || line.trim();
-  }
-
-  // Satırın sonundaki sayıları çek: SS D Y PCT (4 sayı) veya SS D PCT (3 sayı)
-  function sonSayilar(line){
-    const tum = [...line.matchAll(/\b(\d{1,3})\b/g)].map(m => parseInt(m[1]));
-    if(tum.length >= 4){
-      const [ss, d, y, pct] = tum.slice(-4);
-      if(ss >= 1 && ss <= 25 && d >= 0 && d <= ss && y >= 0 && y <= ss && pct >= 0 && pct <= 100){
-        return {ss, d, y, pct};
-      }
-    }
-    if(tum.length >= 3){
-      const [ss, d, pct] = tum.slice(-3);
-      if(ss >= 1 && ss <= 25 && d >= 0 && d <= ss && pct >= 0 && pct <= 100){
-        return {ss, d, y: 0, pct};
-      }
-    }
-    return null;
-  }
-
-  function konuMetni(line){
-    let k = line.replace(/(\s+\d{1,3}){2,}\s*$/, '').trim();
-    return k.replace(/\s{2,}/g,' ');
-  }
-
-  const KARA = ['SAMSUN','İLKADIM','MATEMATİK','SINAV','KONU ADI','TÜRKİYE',
-                'AKBIM','AKBİM','SONUÇ','BELGE','MEB KODU','ŞUBE','ÖĞR',
-                'DERSLER','TÜRKÇE','SOSYAL','FEN','DOĞRU','YANLIŞ','PUANLAR'];
-
-  function ogrAdiBul(satirlar){
-    for(const line of satirlar.slice(0, 20)){
-      const m = line.match(/^([A-ZÇĞİÖŞÜ][A-ZÇĞİÖŞÜa-zçğışöüı]*(?:\s+[A-ZÇĞİÖŞÜ][A-ZÇĞİÖŞÜa-zçğışöüı]*){1,4})/);
-      if(!m) continue;
-      const aday = m[1].trim();
-      const kelimeler = aday.split(' ');
-      if(kelimeler.length < 2 || kelimeler.length > 5) continue;
-      if(!kelimeler.every(k => /^[A-ZÇĞİÖŞÜ]/.test(k))) continue;
-      if(KARA.some(k => aday.toUpperCase().startsWith(k))) continue;
-      if(/\d/.test(aday)) continue;
-      return aday;
-    }
-    return null;
-  }
-
-  function sinavAdiBul(satirlar){
-    for(const line of satirlar.slice(0, 20)){
-      const m = line.match(/(?:TÜRKİYE\s+GENELİ\s+)?(DENEME[\s\-]*\d+(?:\s*\([^)]+\))?)/i);
-      if(m) return m[0].replace(/\s+/g,' ').trim();
-      const m2 = line.match(/(YKS\s*\d+|TYT[\s\-]+\d+)/i);
-      if(m2) return m2[0].trim();
-    }
-    return 'Sınav';
-  }
-
-  function tarihBul(satirlar){
-    for(const line of satirlar){
-      const m = line.match(/(\d{1,2}[./]\d{1,2}[./]\d{4})/);
-      if(m) return m[1];
-    }
-    return '';
-  }
-
-  for(const satirlar of sayfalar){
-    const ogrAdi = ogrAdiBul(satirlar);
-    if(!ogrAdi) continue;
-
-    const sinavAdi = sinavAdiBul(satirlar);
-    const tarih = tarihBul(satirlar);
-    const dersler = {};
-    let aktifDers = null;
-
-    for(const line of satirlar){
-      const temiz = line.trim();
-      if(!temiz || temiz.length < 3) continue;
-
-      if(isDers(temiz)){
-        aktifDers = derseNormalize(temiz);
-        if(!dersler[aktifDers]) dersler[aktifDers] = [];
-        continue;
-      }
-
-      if(/KONU\s*ADI/i.test(temiz)) continue;
-      if(!aktifDers || !/\d/.test(temiz)) continue;
-
-      const sayilar = sonSayilar(temiz);
-      if(!sayilar || sayilar.ss < 1) continue;
-
-      let konu = konuMetni(temiz);
-      if(konu.replace(/[\d.\s\-–]/g,'').length < 5) continue;
-      if(konu.length > 130) konu = konu.slice(0, 130) + '…';
-
-      dersler[aktifDers].push({konu, ss: sayilar.ss, d: sayilar.d, y: sayilar.y, pct: sayilar.pct});
-    }
-
-    const dolu = Object.values(dersler).some(k => k.length > 0);
-    if(!dolu) continue;
-
+  function kaydetOgrenci(){
+    if(!ogrAdi) return;
+    // Derslerde veri var mı?
+    const herhangi = Object.values(aktifKonular).some(k => k.length > 0);
+    if(!herhangi) return;
+    // Önceki aynı öğrenciyi bul veya yeni ekle
     const idx = sonuc.findIndex(o => o.ogrAdi === ogrAdi && o.sinavAdi === sinavAdi);
     if(idx >= 0){
-      for(const [d, ks] of Object.entries(dersler)){
+      // Birleştir
+      for(const [d, ks] of Object.entries(aktifKonular)){
         if(!sonuc[idx].dersler[d]) sonuc[idx].dersler[d] = [];
         for(const k of ks){
           if(!sonuc[idx].dersler[d].find(x => x.konu === k.konu))
@@ -9031,114 +9199,105 @@ async function parseAkbimKarne(file){
         }
       }
     } else {
-      sonuc.push({ ogrAdi, sinavAdi, tarih, dersler });
+      sonuc.push({ ogrAdi, sinavAdi: sinavAdi||'Sınav', tarih: tarih||'', dersler: {...aktifKonular} });
     }
   }
-  return sonuc;
-}
 
-// ── Öğrenci paneli: Konu Analizi render ──
-function opRenderKonularim(ogr){
-  const el = document.getElementById('op-konularim-ic');
-  if(!el || !ogr) return;
-
-  const ogrAdi = (ogr.ad||'').toUpperCase().trim();
-  const veriler = KONU_VERI.filter(o =>
-    o.ogrAdi.toUpperCase().trim() === ogrAdi ||
-    o.ogrAdi.toUpperCase().split(' ')[0] === ogrAdi.split(' ')[0]
-  );
-
-  if(!veriler.length){
-    el.innerHTML = `<div style="text-align:center;padding:30px;color:var(--mu2);font-size:12px">
-      📚 <strong style="color:var(--tx)">${ogr.ad}</strong> için henüz konu analizi yüklenmemiş.<br>
-      <span style="font-size:10px;margin-top:6px;display:block">Öğretmeniniz karne PDF'ini yüklediğinde burada görünür.</span>
-    </div>`;
-    return;
+  function yeniOgrenci(){
+    kaydetOgrenci();
+    aktifDers = null;
+    aktifKonular = {};
   }
 
-  const esik = 50;
-  const renk = pct => pct < 25 ? 'var(--R)' : pct < esik ? 'var(--Y)' : pct >= 80 ? 'var(--G)' : 'var(--B)';
+  for(let li = 0; li < satirlar.length; li++){
+    const line = satirlar[li];
 
-  const birlesik = {};
-  for(const v of veriler){
-    for(const [dersAdi, konular] of Object.entries(v.dersler)){
-      if(!birlesik[dersAdi]) birlesik[dersAdi] = [];
-      for(const k of konular){
-        if(!birlesik[dersAdi].find(x => x.konu === k.konu))
-          birlesik[dersAdi].push({...k});
+    // Tarih tespiti
+    const mTarih = line.match(/(\d{1,2}[./]\d{1,2}[./]\d{4})/);
+    if(mTarih && !tarih) tarih = mTarih[1];
+
+    // Sınav adı
+    if(!sinavAdi && (line.includes('DENEME') || line.includes('YKS') || line.includes('TYT') || line.includes('AYT'))){
+      const m = line.match(/(?:TÜRKİYE GENELİ\s+)?(DENEME[\s\-\d]+(?:\([\w\d]+\))?|YKS\s*[\d]+|TYT[\s\-\d]*[\d]*)/i);
+      if(m) sinavAdi = m[0].replace(/\s+/g,' ').trim();
+    }
+
+    // Öğrenci adı: büyük harfli, MEB kodu/şube satırlarından sonra gelen isim
+    // PDF'te "ÇÖRTÜK ERDEM" veya "SUDE UZUN" gibi geliyor
+    if(!ogrAdi || line.match(/MEB KODU\s*\d+/)){
+      // Yeni öğrenci bloğu başlıyor
+      const mMeb = line.match(/MEB KODU\s*(\d+)/);
+      if(mMeb){
+        // Sonraki satırlarda ismi ara
+        for(let k = li+1; k < Math.min(li+6, satirlar.length); k++){
+          const ln = satirlar[k].trim();
+          // Sadece büyük harflerden oluşan 2+ kelime ve sınav adı değil
+          if(/^[A-ZÇĞİÖŞÜ][A-ZÇĞİÖŞÜ\s]{3,}$/.test(ln) && 
+             !ln.includes('SINAV') && !ln.includes('SAMSUN') &&
+             !ln.includes('MEB') && !ln.includes('TYT') && !ln.includes('AYT') &&
+             !ln.includes('KONU') && ln.split(' ').length >= 2 && ln.split(' ').length <= 5){
+            if(ogrAdi && ogrAdi !== ln){
+              yeniOgrenci();
+              tarih = null; sinavAdi = null;
+            }
+            ogrAdi = ln;
+            break;
+          }
+        }
+      }
+    }
+
+    // Ders başlığı tespiti
+    const dersEslesen = DERS_ETIKETLER.find(d => {
+      const pat = new RegExp(`^${d.replace('.','\\.')}\\s*$|^${d.replace('.','\\.')}\\s+\\d`,'i');
+      return pat.test(line) || line === d;
+    });
+    if(dersEslesen){
+      aktifDers = dersEslesen;
+      if(!aktifKonular[aktifDers]) aktifKonular[aktifDers] = [];
+      continue;
+    }
+
+    // KONU ADI başlık satırını atla
+    if(/^KONU ADI\s+SS\s+D\s+Y\s+%/.test(line)) continue;
+
+    // Konu satırı: sonda 2-4 sayı var (SS D Y %) veya (D Y %)
+    // Örnek: "13.1.1. Sözcükte Anlam... 4 4 0 100"
+    if(aktifDers && ogrAdi){
+      // Satırın sonundaki sayıları çek
+      const sayiMatch = line.match(/^(.*?)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s*$/);
+      const sayiMatch3 = line.match(/^(.*?)\s+(\d+)\s+(\d+)\s+(\d+)\s*$/);
+      
+      let konuMetni = null, ss = 0, d = 0, y = 0, pct = 0;
+      
+      if(sayiMatch){
+        konuMetni = sayiMatch[1].trim();
+        ss = parseInt(sayiMatch[2]);
+        d = parseInt(sayiMatch[3]);
+        y = parseInt(sayiMatch[4]);
+        pct = parseInt(sayiMatch[5]);
+      } else if(sayiMatch3){
+        konuMetni = sayiMatch3[1].trim();
+        // 3 sayı: ss d y (% hesapla) veya d y %
+        const a = parseInt(sayiMatch3[2]);
+        const b = parseInt(sayiMatch3[3]);
+        const c = parseInt(sayiMatch3[4]);
+        if(c <= 100){ ss = a; d = b; y = 0; pct = c; }
+        else { ss = a; d = b; y = c; pct = ss > 0 ? Math.round(d/ss*100) : 0; }
+      }
+
+      if(konuMetni && konuMetni.length > 5 && ss > 0){
+        // Temizle: konu kodu içeriyorsa düzelt
+        konuMetni = konuMetni.replace(/\s+/g,' ').trim();
+        // Çok kısa veya sayıdan oluşuyorsa atla
+        if(konuMetni.replace(/[\d.\s]/g,'').length > 4){
+          aktifKonular[aktifDers].push({ konu: konuMetni, ss, d, y, pct });
+        }
       }
     }
   }
-
-  const tumKonular = Object.values(birlesik).flat();
-  const dusuklar = tumKonular.filter(k => k.pct < esik);
-  const kritikler = tumKonular.filter(k => k.pct < 25);
-
-  let html = `<div style="background:var(--s2);border:1px solid var(--b1);border-radius:10px;padding:12px;margin-bottom:12px">
-    <div style="font-size:11px;font-weight:700;color:var(--tx);margin-bottom:8px">📊 Genel Durum · ${veriler.map(v=>v.sinavAdi).join(', ')}</div>
-    <div style="display:flex;gap:8px;flex-wrap:wrap">
-      <div style="flex:1;min-width:65px;background:var(--s3);border-radius:8px;padding:8px;text-align:center">
-        <div style="font-size:20px;font-weight:800;font-family:'DM Mono',monospace;color:var(--B)">${tumKonular.length}</div>
-        <div style="font-size:9px;color:var(--mu2)">Toplam</div>
-      </div>
-      <div style="flex:1;min-width:65px;background:var(--Yd);border:1px solid rgba(255,202,40,.2);border-radius:8px;padding:8px;text-align:center">
-        <div style="font-size:20px;font-weight:800;font-family:'DM Mono',monospace;color:var(--Y)">${dusuklar.length}</div>
-        <div style="font-size:9px;color:var(--mu2)">Çalışılacak</div>
-      </div>
-      <div style="flex:1;min-width:65px;background:var(--Rd);border:1px solid rgba(255,90,126,.2);border-radius:8px;padding:8px;text-align:center">
-        <div style="font-size:20px;font-weight:800;font-family:'DM Mono',monospace;color:var(--R)">${kritikler.length}</div>
-        <div style="font-size:9px;color:var(--mu2)">Kritik</div>
-      </div>
-      <div style="flex:1;min-width:65px;background:var(--Gd);border:1px solid rgba(0,229,160,.2);border-radius:8px;padding:8px;text-align:center">
-        <div style="font-size:20px;font-weight:800;font-family:'DM Mono',monospace;color:var(--G)">${tumKonular.length - dusuklar.length}</div>
-        <div style="font-size:9px;color:var(--mu2)">Başarılı</div>
-      </div>
-    </div>
-  </div>`;
-
-  if(kritikler.length > 0){
-    html += `<div style="background:var(--Rd);border:1px solid var(--R);border-radius:10px;padding:12px;margin-bottom:12px">
-      <div style="font-size:11px;font-weight:700;color:var(--R);margin-bottom:6px">🔴 Acil Çalışılacak Konular!</div>
-      ${kritikler.slice(0,8).map(k=>`<div style="font-size:10px;color:var(--tx);padding:4px 0;border-bottom:1px solid rgba(255,90,126,.1)">
-        • ${k.konu} <span style="color:var(--R);font-family:'DM Mono',monospace;font-weight:700">%${k.pct}</span>
-      </div>`).join('')}
-      ${kritikler.length>8?`<div style="font-size:10px;color:var(--mu2);margin-top:4px">+ ${kritikler.length-8} konu daha</div>`:''}
-    </div>`;
-  }
-
-  for(const [dersAdi, konular] of Object.entries(birlesik)){
-    const sira = konular.slice().sort((a,b) => a.pct - b.pct);
-    const dersPct = Math.round(sira.reduce((a,k)=>a+k.pct,0)/sira.length);
-    const dEsikAlti = sira.filter(k=>k.pct<esik).length;
-    html += `<div style="background:var(--s2);border:1px solid var(--b1);border-radius:10px;margin-bottom:10px;overflow:hidden">
-      <div style="padding:10px 14px;border-bottom:1px solid var(--b1);display:flex;align-items:center;justify-content:space-between">
-        <span style="font-size:12px;font-weight:700;color:var(--tx)">${dersAdi}</span>
-        <div style="display:flex;align-items:center;gap:8px">
-          ${dEsikAlti>0?`<span style="font-size:10px;color:var(--Y)">⚠️ ${dEsikAlti} konu</span>`:''}
-          <span style="font-size:13px;font-weight:800;font-family:'DM Mono',monospace;color:${renk(dersPct)}">Ort. %${dersPct}</span>
-        </div>
-      </div>
-      <div style="padding:8px 10px">
-        ${sira.map(k=>{
-          const r=renk(k.pct);
-          const mesaj=k.pct<25?'🔴 Acil çalışmalısın!':k.pct<esik?'🟡 Biraz daha çalış':'✅ Harika!';
-          return `<div style="padding:6px 4px;border-bottom:1px solid rgba(255,255,255,.04);display:flex;align-items:center;gap:8px">
-            <div style="flex:1">
-              <div style="font-size:10px;color:var(--tx);line-height:1.3">${k.konu}</div>
-              <div style="font-size:10px;color:${r};margin-top:2px">${mesaj} <span style="color:var(--mu2)">${k.d}D/${k.y}Y/${k.ss}SS</span></div>
-            </div>
-            <div style="text-align:right;flex-shrink:0">
-              <div style="font-size:14px;font-weight:800;font-family:'DM Mono',monospace;color:${r}">%${k.pct}</div>
-              <div style="background:var(--s3);border-radius:3px;width:50px;height:4px;overflow:hidden;margin-top:2px">
-                <div style="height:4px;width:${k.pct}%;background:${r};border-radius:3px"></div>
-              </div>
-            </div>
-          </div>`;
-        }).join('')}
-      </div>
-    </div>`;
-  }
-  el.innerHTML = html;
+  kaydetOgrenci();
+  return sonuc;
 }
 
 // ── PDF Yükleme işleyicisi ──
@@ -9151,11 +9310,10 @@ async function konuPdfYukle(ev){
   msg.style.display = 'none';
 
   let toplamYeni = 0;
-  let toplamHata = 0;
   for(const file of files){
     try{
-      const parsed = await parseAkbimKarne(file);
-      if(!parsed.length) toplamHata++;
+      const txt = await konuPdfMetin(file);
+      const parsed = parseAkbimKarne(txt);
       for(const p of parsed){
         const idx = KONU_VERI.findIndex(o => o.ogrAdi === p.ogrAdi && o.sinavAdi === p.sinavAdi);
         if(idx >= 0){
@@ -9181,7 +9339,7 @@ async function konuPdfYukle(ev){
   if(!KONU_VERI.length){
     msg.style.display = 'block';
     msg.style.background = 'var(--Rd)'; msg.style.color = 'var(--R)';
-    msg.textContent = `✗ Öğrenci verisi çıkarılamadı (${toplamHata} dosya). PDF AKBİM/Akbim-Koç formatında olmalı.`;
+    msg.textContent = '✗ PDF okunamadı. AKBİM karne formatında olduğundan emin olun.';
   } else {
     msg.style.display = 'block';
     msg.style.background = 'var(--Gd)'; msg.style.color = 'var(--G)';
@@ -9418,6 +9576,707 @@ function konuBireyselRender(ogrAdi, secilenSinav, secilenDers, esikDeger){
     👤 <strong style="color:var(--tx)">${ogrAdi}</strong> · ${ogrVerileri.map(o=>o.sinavAdi||'').filter(Boolean).join(', ')||''}
   </div>${dersBloklar}`;
 }
+
+// ═══════════════════════════════════════════════════════════════════
+// BOSS PUAN & GAMİFİKASYON SİSTEMİ - v27
+// ═══════════════════════════════════════════════════════════════════
+
+// ─── Rozet Tanımları ───
+const ROZETLER = [
+  {id:'net_canavari',    icon:'🦁', ad:'Net Canavarı',     aciklama:'10+ net artış',    xp:150},
+  {id:'odev_ustasi',     icon:'📚', ad:'Ödev Ustası',      aciklama:'5 ödev tamamla',   xp:100},
+  {id:'gece_kusu',       icon:'🦉', ad:'Gece Kuşu',        aciklama:'Gece Pomodoro',    xp:75},
+  {id:'pomo_savascisi',  icon:'🍅', ad:'Pomodoro Savaşçısı',aciklama:'10 Pomodoro',     xp:120},
+  {id:'devamlilik',      icon:'🔥', ad:'Devam Şampiyonu',  aciklama:'7 gün üst üste',   xp:200},
+  {id:'video_izci',      icon:'🎬', ad:'Video İzci',        aciklama:'10 video izle',    xp:80},
+  {id:'ilk_pomo',        icon:'⏱️', ad:'İlk Adım',          aciklama:'İlk Pomodoro',    xp:30},
+  {id:'haftalik_sef',    icon:'👑', ad:'Haftalık Şef',      aciklama:'Haftanın 1.si',   xp:300},
+];
+
+// ─── XP Seviyeleri ───
+const XP_SEVIYELERI = [0,100,250,500,900,1500,2500,4000,6000,10000];
+
+function xpSeviye(xp){
+  for(let i=XP_SEVIYELERI.length-1;i>=0;i--){
+    if(xp>=XP_SEVIYELERI[i]) return i+1;
+  }
+  return 1;
+}
+function xpSonrakiSeviye(xp){
+  const sv = xpSeviye(xp);
+  return XP_SEVIYELERI[sv] || XP_SEVIYELERI[XP_SEVIYELERI.length-1];
+}
+function xpMevcutSeviyeBaslangic(xp){
+  const sv = xpSeviye(xp);
+  return XP_SEVIYELERI[sv-1] || 0;
+}
+
+// ─── LocalStorage XP Yöneticisi ───
+function xpData(){
+  try{ return JSON.parse(localStorage.getItem('boss_xp')||'{}'); }catch{ return {}; }
+}
+function xpDataKaydet(d){ localStorage.setItem('boss_xp',JSON.stringify(d)); }
+
+function xpAl(){ return (xpData().toplam||0); }
+
+function xpEkle(miktar, sebep){
+  const d = xpData();
+  d.toplam = (d.toplam||0) + miktar;
+  d.log = d.log || [];
+  d.log.unshift({miktar, sebep, ts: Date.now()});
+  if(d.log.length>50) d.log=d.log.slice(0,50);
+  xpDataKaydet(d);
+  xpToastGoster('+'+miktar+' XP — '+sebep);
+  rozetKontrol();
+  bossPuanRenderGuncelle();
+  // Firebase'e de kaydet (tenant bazlı)
+  if(db && mevcutKullanici && mevcutKullanici.uid){
+    const uid = mevcutKullanici.uid;
+    const colRef = db.collection('v5_boss_xp');
+    colRef.doc(uid).set({
+      ad: mevcutKullanici.ad||mevcutKullanici.email||'',
+      toplam: d.toplam,
+      guncelleme: Date.now(),
+      tenantUid: _tenantUid||mevcutKullanici.uid
+    }, {merge:true}).catch(()=>{});
+  }
+}
+
+function xpToastGoster(metin){
+  const t = document.getElementById('xp-toast');
+  if(!t) return;
+  t.textContent = metin;
+  t.style.display = 'block';
+  clearTimeout(t._to);
+  t._to = setTimeout(()=>{ t.style.display='none'; }, 2800);
+}
+
+// ─── Rozet Sistemi ───
+function kazanilmisRozetler(){
+  try{ return JSON.parse(localStorage.getItem('boss_rozetler')||'[]'); }catch{ return []; }
+}
+function rozetKazanildi(id){ return kazanilmisRozetler().includes(id); }
+
+function rozetKazan(id){
+  if(rozetKazanildi(id)) return;
+  const list = kazanilmisRozetler();
+  list.push(id);
+  localStorage.setItem('boss_rozetler', JSON.stringify(list));
+  const r = ROZETLER.find(x=>x.id===id);
+  if(r){
+    xpEkle(r.xp, r.ad+' rozeti!');
+    xpToastGoster('🎖️ '+r.icon+' '+r.ad+' rozeti kazandın!');
+    // Firebase rozet feed
+    if(db && mevcutKullanici && mevcutKullanici.uid){
+      db.collection('v5_boss_rozetler').add({
+        uid: mevcutKullanici.uid,
+        ad: mevcutKullanici.ad||'',
+        rozetId: id,
+        rozetAd: r.ad,
+        rozetIcon: r.icon,
+        ts: Date.now(),
+        tenantUid: _tenantUid||mevcutKullanici.uid
+      }).catch(()=>{});
+    }
+  }
+}
+
+function rozetKontrol(){
+  const d = xpData();
+  const pomoStats = pomoVeriAl();
+  // İlk adım
+  if((pomoStats.toplam||0)>=1) rozetKazan('ilk_pomo');
+  // Pomodoro savaşçısı
+  if((pomoStats.toplam||0)>=10) rozetKazan('pomo_savascisi');
+  // Gece kuşu
+  if(pomoStats.gece) rozetKazan('gece_kusu');
+  // Video izci — XP logdan say
+  const videoXp = (d.log||[]).filter(l=>l.sebep&&l.sebep.includes('video')).length;
+  if(videoXp>=10) rozetKazan('video_izci');
+  // Ödev ustası
+  const odevXp = (d.log||[]).filter(l=>l.sebep&&l.sebep.includes('ödev')).length;
+  if(odevXp>=5) rozetKazan('odev_ustasi');
+}
+
+// ─── BOSS Puan Render (Öğrenci) ───
+function bossPuanRender(){
+  bossPuanRenderGuncelle();
+  ligTabloRender();
+}
+
+function bossPuanRenderGuncelle(){
+  const xp = xpAl();
+  const sv = xpSeviye(xp);
+  const sonraki = xpSonrakiSeviye(xp);
+  const baslangic = xpMevcutSeviyeBaslangic(xp);
+  const pct = sonraki>baslangic ? Math.round((xp-baslangic)/(sonraki-baslangic)*100) : 100;
+  const pomoStats = pomoVeriAl();
+  const d = xpData();
+  const odevSayisi = (d.log||[]).filter(l=>l.sebep&&l.sebep.includes('ödev')).length;
+
+  const svBadge = document.getElementById('op-seviye-badge');
+  if(svBadge) svBadge.textContent = 'Sv. '+sv;
+  const xpEl = document.getElementById('op-toplam-xp');
+  if(xpEl) xpEl.textContent = xp.toLocaleString();
+  const pomoEl = document.getElementById('op-pomo-count');
+  if(pomoEl) pomoEl.textContent = pomoStats.toplam||0;
+  const odevEl = document.getElementById('op-odev-count');
+  if(odevEl) odevEl.textContent = odevSayisi;
+  const fillEl = document.getElementById('op-xp-fill');
+  if(fillEl) fillEl.style.width = pct+'%';
+  const mevEl = document.getElementById('op-xp-mevcut-lbl');
+  if(mevEl) mevEl.textContent = xp.toLocaleString()+' XP';
+  const hdefEl = document.getElementById('op-xp-hedef-lbl');
+  if(hdefEl) hdefEl.textContent = sv>=XP_SEVIYELERI.length ? 'Maksimum!' : 'Sonraki: '+sonraki.toLocaleString()+' XP';
+
+  // Rozetler
+  const grid = document.getElementById('op-rozet-grid');
+  if(grid){
+    grid.innerHTML = ROZETLER.map(r=>{
+      const kazanildi = rozetKazanildi(r.id);
+      return `<div class="rozet-kart ${kazanildi?'kazanildi':'kilitli'}" title="${r.aciklama}">
+        <div class="rozet-icon">${r.icon}</div>
+        <div class="rozet-ad">${r.ad}</div>
+        ${kazanildi?'<div style="font-size:8px;color:var(--G)">✓ Kazanıldı</div>':'<div style="font-size:8px;color:var(--mu)">🔒</div>'}
+      </div>`;
+    }).join('');
+  }
+}
+
+// ─── Haftalık Lig ───
+async function ligTabloRender(){
+  const ligEl = document.getElementById('op-lig-tablo');
+  if(!ligEl) return;
+  ligEl.innerHTML = '<div style="font-size:11px;color:var(--mu2);padding:10px 0">Yükleniyor...</div>';
+
+  if(!db){ ligEl.innerHTML='<div class="empty">Bağlantı yok</div>'; return; }
+  try{
+    const tenantId = _tenantUid || (mevcutKullanici&&mevcutKullanici.uid);
+    const snap = await db.collection('v5_boss_xp')
+      .where('tenantUid','==',tenantId)
+      .orderBy('toplam','desc').limit(10).get();
+    
+    const myUid = mevcutKullanici&&mevcutKullanici.uid;
+    const mevcut = {toplam: xpAl(), uid: myUid};
+    
+    let items = [];
+    snap.forEach(doc=>{ items.push({...doc.data(),uid:doc.id}); });
+    // Kendi verimizi ekle (sync olmayabilir)
+    if(!items.find(x=>x.uid===myUid)){
+      items.push({ad:mevcutKullanici&&mevcutKullanici.ad||'Sen',toplam:xpAl(),uid:myUid});
+      items.sort((a,b)=>b.toplam-a.toplam);
+    }
+
+    const lakaplar = ['YıldızBey','AteşKuşu','GizliKahraman','KoduKıran','MathWizard','AceRunner','SilahlıBeyin','GökKoşucu','TurboMind','AlphaGenius'];
+    
+    ligEl.innerHTML = items.slice(0,10).map((item,i)=>{
+      const benim = item.uid===myUid;
+      const lakap = benim ? (mevcutKullanici&&mevcutKullanici.ad||'Sen') : lakaplar[i]||'Anonim';
+      const renk = ['#ffd700','#c0c0c0','#cd7f32'][i]||'var(--B)';
+      return `<div class="lig-satir ${benim?'benim':''}">
+        <div class="lig-sira">${i===0?'🥇':i===1?'🥈':i===2?'🥉':(i+1)}</div>
+        <div class="lig-avatar" style="background:linear-gradient(135deg,${renk},${renk}88)">${lakap[0]}</div>
+        <div class="lig-ad">${lakap}${benim?' <span style="font-size:9px;color:var(--Y)">(Sen)</span>':''}</div>
+        <div class="lig-puan">${(item.toplam||0).toLocaleString()} XP</div>
+      </div>`;
+    }).join('') || '<div class="empty">Lig henüz boş</div>';
+  }catch(e){
+    ligEl.innerHTML='<div class="empty">Lig yüklenemedi</div>';
+  }
+}
+
+// ─── Öğretmen Gamification ───
+async function gamifXpYukle(){
+  const tabloEl = document.getElementById('ogr-xp-tablo');
+  const pomoEl = document.getElementById('ogr-pomo-tablo');
+  const feedEl = document.getElementById('ogr-rozet-feed');
+  const ogrSec = document.getElementById('xp-ogr-sec');
+  if(!db) return;
+  
+  const tenantId = _tenantUid||(mevcutKullanici&&mevcutKullanici.uid);
+  
+  try{
+    // XP tablosu
+    if(tabloEl){
+      const snap = await db.collection('v5_boss_xp').where('tenantUid','==',tenantId).orderBy('toplam','desc').limit(10).get();
+      let maxXp = 1;
+      const rows = [];
+      snap.forEach(doc=>{ const d=doc.data(); maxXp=Math.max(maxXp,d.toplam||0); rows.push(d); });
+      tabloEl.innerHTML = rows.length ? rows.map(d=>`
+        <div class="ogr-xp-satir">
+          <div class="ogr-xp-ad">${d.ad||'?'}</div>
+          <div class="ogr-xp-bar"><div class="ogr-xp-bar-fill" style="width:${Math.round((d.toplam||0)/maxXp*100)}%"></div></div>
+          <div class="ogr-xp-puan">${(d.toplam||0).toLocaleString()} XP</div>
+        </div>`).join('') : '<div class="empty">Henüz XP verisi yok</div>';
+    }
+    
+    // Rozet feed
+    if(feedEl){
+      const rSnap = await db.collection('v5_boss_rozetler').where('tenantUid','==',tenantId).orderBy('ts','desc').limit(15).get();
+      const rRows = [];
+      rSnap.forEach(doc=>rRows.push(doc.data()));
+      feedEl.innerHTML = rRows.length ? rRows.map(r=>`
+        <div style="display:flex;align-items:center;gap:10px;padding:8px 12px;background:var(--s1);border-radius:10px;border:1px solid rgba(255,255,255,.06)">
+          <span style="font-size:20px">${r.rozetIcon||'🎖️'}</span>
+          <div style="flex:1"><div style="font-size:12px;font-weight:600">${r.ad||''}</div>
+          <div style="font-size:10px;color:var(--mu2)">${r.rozetAd||''}</div></div>
+          <div style="font-size:10px;color:var(--mu)">${new Date(r.ts).toLocaleDateString('tr')}</div>
+        </div>`).join('') : '<div class="empty">Henüz rozet kazanımı yok</div>';
+    }
+    
+    // Öğrenci seç dropdown
+    if(ogrSec){
+      const aokSnap = await db.collection('v5_aok').doc('data').get();
+      const ogrs = aokSnap.exists ? (aokSnap.data().items||[]) : [];
+      ogrSec.innerHTML = '<option value="">Öğrenci seç...</option>' + ogrs.map(o=>`<option value="${o.id||o.ad}">${o.ad}</option>`).join('');
+    }
+
+    // Pomodoro tablo (Firebase'den)
+    if(pomoEl){
+      const pSnap = await db.collection('v5_boss_pomo').where('tenantUid','==',tenantId).orderBy('haftalik','desc').limit(10).get().catch(()=>null);
+      if(pSnap){
+        const pRows = []; pSnap.forEach(doc=>pRows.push({...doc.data(),uid:doc.id}));
+        pomoEl.innerHTML = pRows.length ? pRows.map(p=>`
+          <div class="ogr-xp-satir">
+            <div class="ogr-xp-ad">${p.ad||'?'}</div>
+            <div style="font-size:11px;color:var(--G);font-family:'DM Mono',monospace">${p.haftalik||0} 🍅</div>
+          </div>`).join('') : '<div class="empty">Pomodoro verisi yok</div>';
+      } else {
+        pomoEl.innerHTML='<div class="empty">Veri yüklenemedi</div>';
+      }
+    }
+
+  }catch(e){ console.warn('gamifXpYukle err',e); }
+}
+
+async function manuelXpVer(){
+  const ogrId = document.getElementById('xp-ogr-sec')?.value;
+  const miktar = parseInt(document.getElementById('xp-miktar')?.value)||25;
+  const sebep = document.getElementById('xp-sebep')?.value||'Öğretmen ödülü';
+  if(!ogrId){ toast('Öğrenci seçin','err'); return; }
+  if(!db){ toast('Bağlantı yok','err'); return; }
+  const tenantId = _tenantUid||(mevcutKullanici&&mevcutKullanici.uid);
+  try{
+    await db.collection('v5_boss_xp_queue').add({
+      ogrId, miktar, sebep, tenantUid: tenantId, ts: Date.now(),
+      ogretmen: mevcutKullanici&&mevcutKullanici.ad||''
+    });
+    toast('✅ '+miktar+' XP kuyruğa eklendi! Öğrenci bir sonraki girişte alacak.','ok');
+  }catch(e){ toast('Hata: '+e.message,'err'); }
+}
+
+// ─── XP Tetikleyicileri (mevcut fonksiyonlara hook) ───
+// Bu fonksiyon video tamamlandığında çağrılır
+function videoTamamlaXP(){
+  if(mevcutKullanici&&mevcutKullanici.rol==='ogrenci'){
+    xpEkle(20,'video izleme');
+  }
+}
+// Ödev tamamlandığında çağrılır
+function odevTamamlaXP(){
+  if(mevcutKullanici&&mevcutKullanici.rol==='ogrenci'){
+    xpEkle(30,'ödev tamamlama');
+  }
+}
+// XP kuyruğunu kontrol et (öğrenci girişinde)
+async function xpKuyruguKontrol(){
+  if(!db||!mevcutKullanici) return;
+  const ogrId = mevcutKullanici.ogrenciId||mevcutKullanici.uid;
+  try{
+    const snap = await db.collection('v5_boss_xp_queue')
+      .where('ogrId','==',ogrId).limit(5).get();
+    snap.forEach(async doc=>{
+      const d = doc.data();
+      xpEkle(d.miktar, d.sebep+' (öğretmen ödülü)');
+      await doc.ref.delete().catch(()=>{});
+    });
+  }catch(e){}
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// POMODORO SİSTEMİ - v27
+// ═══════════════════════════════════════════════════════════════════
+
+let _pomoTimer = null;
+let _pomoCalisiyor = false;
+let _pomoCalan = 25*60; // saniye
+let _pomoMod = 'pomo'; // pomo | kisa | uzun
+let _pomoDers = 'Matematik';
+let _pomoTurSayisi = 0; // bu oturumda
+let _pomoTomatoes = 0; // döngüdeki domates sayısı
+let _pomoAyar = {calisma:25, kisa:5, uzun:15};
+
+function pomoVeriAl(){
+  try{ return JSON.parse(localStorage.getItem('boss_pomo')||'{}'); }catch{ return {}; }
+}
+function pomoVeriKaydet(d){ localStorage.setItem('boss_pomo',JSON.stringify(d)); }
+
+function pomoModDk(){
+  if(_pomoMod==='pomo') return _pomoAyar.calisma;
+  if(_pomoMod==='kisa') return _pomoAyar.kisa;
+  return _pomoAyar.uzun;
+}
+function pomoRingRenk(){
+  if(_pomoMod==='pomo') return '#ff5a7e';
+  if(_pomoMod==='kisa') return '#00e5a0';
+  return '#4da6ff';
+}
+function pomoFazLbl(){
+  if(_pomoMod==='pomo') return 'ÇALIŞMA';
+  if(_pomoMod==='kisa') return 'KISA MOLA';
+  return 'UZUN MOLA';
+}
+
+function pomoAc(){
+  document.getElementById('pomo-overlay').classList.add('show');
+  pomoGuncelle();
+  pomoDomatesleriGuncelle();
+  pomoStatsGuncelle();
+}
+function pomoKapat(){
+  document.getElementById('pomo-overlay').classList.remove('show');
+}
+
+function pomoModSec(mod, el){
+  _pomoMod = mod;
+  document.querySelectorAll('.pomo-mod-tab').forEach(t=>t.classList.remove('aktif'));
+  if(el) el.classList.add('aktif');
+  const ayarPanel = document.getElementById('pomo-ayar-panel');
+  if(ayarPanel) ayarPanel.style.display = mod==='ayar'?'block':'none';
+  const ringWrap = document.getElementById('pomo-ring-wrap');
+  if(ringWrap) ringWrap.style.display = mod==='ayar'?'none':'block';
+  const btnWrap = document.querySelector('.pomo-btns');
+  if(btnWrap) btnWrap.style.display = mod==='ayar'?'none':'flex';
+  const dersSec = document.getElementById('pomo-ders-sec');
+  if(dersSec) dersSec.style.display = (mod==='pomo')?'flex':'none';
+  if(mod!=='ayar'){
+    if(_pomoCalisiyor){ pomoTemizle(); }
+    _pomoCalan = pomoModDk()*60;
+    pomoGuncelle();
+  }
+}
+
+function pomoDersSec(el, ders){
+  _pomoDers = ders;
+  document.querySelectorAll('.pomo-ders-chip').forEach(c=>c.classList.remove('aktif'));
+  if(el) el.classList.add('aktif');
+}
+
+function pomoAyarGuncelle(){
+  _pomoAyar.calisma = parseInt(document.getElementById('pomo-ayar-calisma')?.value)||25;
+  _pomoAyar.kisa = parseInt(document.getElementById('pomo-ayar-kisa')?.value)||5;
+  _pomoAyar.uzun = parseInt(document.getElementById('pomo-ayar-uzun')?.value)||15;
+}
+
+function pomoBasDur(){
+  if(_pomoCalisiyor){
+    pomoTemizle();
+    const btn = document.getElementById('pomo-bas-btn');
+    if(btn){ btn.textContent='▶ Başla'; btn.className='pomo-btn pomo-btn-bas'; }
+    document.getElementById('pomo-float-btn').classList.remove('calisirken');
+  } else {
+    if(_pomoCalan<=0) _pomoCalan = pomoModDk()*60;
+    _pomoCalisiyor = true;
+    const btn = document.getElementById('pomo-bas-btn');
+    if(btn){ btn.textContent='⏸ Duraklat'; btn.className='pomo-btn pomo-btn-dur'; }
+    document.getElementById('pomo-float-btn').classList.add('calisirken');
+    _pomoTimer = setInterval(pomoTick, 1000);
+  }
+}
+
+function pomoTick(){
+  _pomoCalan--;
+  pomoGuncelle();
+  if(_pomoCalan<=0){
+    pomoTemizle();
+    pomoBitti();
+  }
+}
+
+function pomoTemizle(){
+  clearInterval(_pomoTimer);
+  _pomoTimer = null;
+  _pomoCalisiyor = false;
+}
+
+function pomoBitti(){
+  const btn = document.getElementById('pomo-bas-btn');
+  if(btn){ btn.textContent='▶ Başla'; btn.className='pomo-btn pomo-btn-bas'; }
+  document.getElementById('pomo-float-btn').classList.remove('calisirken');
+
+  // Ses
+  if(document.getElementById('pomo-ses-cb')?.checked){
+    try{
+      const ctx = new (window.AudioContext||window.webkitAudioContext)();
+      [440,550,660].forEach((f,i)=>{
+        const o=ctx.createOscillator();const g=ctx.createGain();
+        o.connect(g);g.connect(ctx.destination);
+        o.frequency.value=f;g.gain.setValueAtTime(.18,ctx.currentTime+i*.15);
+        g.gain.exponentialRampToValueAtTime(.001,ctx.currentTime+i*.15+.4);
+        o.start(ctx.currentTime+i*.15);o.stop(ctx.currentTime+i*.15+.4);
+      });
+    }catch(e){}
+  }
+
+  if(_pomoMod==='pomo'){
+    _pomoTurSayisi++;
+    _pomoTomatoes++;
+    // Veri kaydet
+    const d = pomoVeriAl();
+    d.toplam = (d.toplam||0)+1;
+    d.bugun = (d.bugun||0)+1;
+    d.toplamDk = (d.toplamDk||0)+_pomoAyar.calisma;
+    d.seri = (d.seri||0)+1;
+    // Gece kuşu kontrolü
+    const saat = new Date().getHours();
+    if(saat>=22||saat<5) d.gece = true;
+    // Ders bazlı kayıt
+    d.dersler = d.dersler||{};
+    d.dersler[_pomoDers] = (d.dersler[_pomoDers]||0)+1;
+    // Haftalık kayıt
+    const haftaKey = 'hafta_'+getHaftaNo();
+    d[haftaKey] = (d[haftaKey]||0)+1;
+    pomoVeriKaydet(d);
+
+    // XP ver
+    xpEkle(25, 'Pomodoro tamamlama ('+_pomoDers+')');
+    rozetKontrol();
+    
+    // Firebase pomo kaydı
+    if(db&&mevcutKullanici&&mevcutKullanici.uid){
+      const tenantId = _tenantUid||mevcutKullanici.uid;
+      db.collection('v5_boss_pomo').doc(mevcutKullanici.uid).set({
+        ad: mevcutKullanici.ad||'',
+        haftalik: d[haftaKey]||0,
+        toplam: d.toplam||0,
+        tenantUid: tenantId,
+        guncelleme: Date.now()
+      },{merge:true}).catch(()=>{});
+    }
+    pomoStatsGuncelle();
+    pomoDomatesleriGuncelle();
+
+    // 4 domates = uzun mola
+    if(_pomoTomatoes>=4){
+      _pomoTomatoes=0;
+      pomoModSec('uzun', document.querySelectorAll('.pomo-mod-tab')[2]);
+      xpToastGoster('🛋️ Uzun mola zamanı! 4 Pomodoro tamamladın!');
+    } else {
+      pomoModSec('kisa', document.querySelectorAll('.pomo-mod-tab')[1]);
+      xpToastGoster('☕ Kısa mola zamanı! '+_pomoTomatoes+'/4 Pomodoro');
+    }
+    // Etüt odası güncelle
+    etutAnalizGuncelle();
+  } else {
+    // Mola bitti → çalışmaya dön
+    pomoModSec('pomo', document.querySelectorAll('.pomo-mod-tab')[0]);
+    xpToastGoster('💪 Mola bitti! Çalışmaya devam!');
+  }
+}
+
+function pomoAtla(){
+  pomoTemizle();
+  pomoBitti();
+}
+
+function pomoGuncelle(){
+  const dk = Math.floor(_pomoCalan/60);
+  const sn = _pomoCalan%60;
+  const str = (dk<10?'0':'')+dk+':'+(sn<10?'0':'')+sn;
+  const disp = document.getElementById('pomo-time-display');
+  if(disp) disp.textContent = str;
+  const lbl = document.getElementById('pomo-phase-lbl');
+  if(lbl) lbl.textContent = pomoFazLbl();
+  
+  // Ring
+  const ring = document.getElementById('pomo-ring-fg');
+  if(ring){
+    const toplam = pomoModDk()*60;
+    const kalan = _pomoCalan/toplam;
+    const cevre = 2*Math.PI*80;
+    ring.style.strokeDashoffset = cevre*(1-kalan);
+    ring.style.stroke = pomoRingRenk();
+  }
+  // Float badge
+  const badge = document.getElementById('pomo-float-badge');
+  if(badge) badge.textContent = str;
+}
+
+function pomoDomatesleriGuncelle(){
+  const wrap = document.getElementById('pomo-tomatolar');
+  if(!wrap) return;
+  wrap.innerHTML = [0,1,2,3].map(i=>`<div class="pomo-domates ${i<_pomoTomatoes?'tamam':''}">🍅</div>`).join('');
+}
+
+function pomoStatsGuncelle(){
+  const d = pomoVeriAl();
+  const bugun = document.getElementById('pomo-bugun-sayi');
+  if(bugun) bugun.textContent = d.bugun||0;
+  const toplamDk = document.getElementById('pomo-toplam-dk');
+  if(toplamDk) toplamDk.textContent = d.toplamDk||0;
+  const seri = document.getElementById('pomo-seri');
+  if(seri) seri.textContent = d.seri||0;
+}
+
+function getHaftaNo(){
+  const now = new Date();
+  const onejan = new Date(now.getFullYear(),0,1);
+  return Math.ceil((((now-onejan)/86400000)+onejan.getDay()+1)/7);
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// ETÜT ODASI SİSTEMİ - v27
+// ═══════════════════════════════════════════════════════════════════
+
+let _etutCalisiyor = false;
+let _etutInterval = null;
+
+function etutOdasiRender(){
+  etutOnlineGuncelle();
+  etutAnalizGuncelle();
+}
+
+function etutToggle(){
+  const btn = document.getElementById('etut-baslat-btn');
+  const ders = document.getElementById('etut-ders-sec')?.value||'Matematik';
+  const dur = document.getElementById('etut-benim-durum');
+
+  if(_etutCalisiyor){
+    // Çalışmayı bitir
+    _etutCalisiyor = false;
+    if(_etutInterval){ clearInterval(_etutInterval); _etutInterval=null; }
+    if(btn){ btn.textContent='🚀 Çalışmaya Başla'; btn.classList.remove('aktif-calis'); }
+    if(dur) dur.style.display='none';
+    // Firebase'den kaldır
+    if(db&&mevcutKullanici){
+      db.collection('v5_etut_odasi').doc(mevcutKullanici.uid).delete().catch(()=>{});
+    }
+    etutOnlineGuncelle();
+  } else {
+    // Çalışmaya başla
+    _etutCalisiyor = true;
+    if(btn){ btn.textContent='⏹ Çalışmayı Bitir'; btn.classList.add('aktif-calis'); }
+    if(dur){
+      dur.style.display='block';
+      dur.textContent='✅ Şu an '+ders+' çalışıyorsun — arkadaşların seni görebilir!';
+    }
+    // Firebase'e yaz
+    if(db&&mevcutKullanici){
+      const tenantId = _tenantUid||mevcutKullanici.uid;
+      db.collection('v5_etut_odasi').doc(mevcutKullanici.uid).set({
+        ad: mevcutKullanici.ad||'Öğrenci',
+        ders: ders,
+        baslangic: Date.now(),
+        tenantUid: tenantId
+      }).catch(()=>{});
+    }
+    // Pomodoro'yu da başlat
+    _pomoDers = ders;
+    document.querySelectorAll('.pomo-ders-chip').forEach(c=>{
+      c.classList.toggle('aktif', c.textContent.toLowerCase().includes(ders.toLowerCase().slice(0,3)));
+    });
+    // 30 dk sonra otomatik kaldır
+    _etutInterval = setInterval(()=>{
+      if(db&&mevcutKullanici){
+        db.collection('v5_etut_odasi').doc(mevcutKullanici.uid).delete().catch(()=>{});
+      }
+      clearInterval(_etutInterval);
+      _etutCalisiyor=false;
+      if(btn){ btn.textContent='🚀 Çalışmaya Başla'; btn.classList.remove('aktif-calis'); }
+      if(dur) dur.style.display='none';
+    }, 30*60*1000);
+    etutOnlineGuncelle();
+    xpEkle(10, 'etüt odasına giriş');
+  }
+}
+
+async function etutOnlineGuncelle(){
+  const liste = document.getElementById('etut-online-list');
+  const sayi = document.getElementById('etut-online-sayi');
+  if(!liste||!db) return;
+  
+  const tenantId = _tenantUid||(mevcutKullanici&&mevcutKullanici.uid);
+  try{
+    const snap = await db.collection('v5_etut_odasi')
+      .where('tenantUid','==',tenantId).get();
+    const items = [];
+    const now = Date.now();
+    snap.forEach(doc=>{
+      const d=doc.data();
+      // 3 saattan eski kayıtları gösterme
+      if(now-(d.baslangic||0)<3*60*60*1000) items.push(d);
+    });
+    if(sayi) sayi.textContent = items.length+' kişi';
+    liste.innerHTML = items.length ? items.map(item=>{
+      const dakika = Math.floor((now-(item.baslangic||now))/60000);
+      return `<div class="etut-satir">
+        <div class="etut-dot"></div>
+        <div class="etut-satir-ad">${item.ad||'Öğrenci'}</div>
+        <div class="etut-satir-ders">${item.ders||'?'}</div>
+        <div style="font-size:9px;color:var(--mu)">${dakika}dk</div>
+      </div>`;
+    }).join('') : '<div class="empty" style="padding:20px 0;text-align:center;color:var(--mu)">Henüz kimse çalışmıyor 🌙</div>';
+  }catch(e){
+    liste.innerHTML='<div class="empty">Yüklenemedi</div>';
+  }
+}
+
+function etutAnalizGuncelle(){
+  const el = document.getElementById('etut-analiz-ic');
+  if(!el) return;
+  const d = pomoVeriAl();
+  if(!d.toplam || d.toplam<3){
+    el.innerHTML='<div style="font-size:12px;color:var(--mu2)">En az 3 Pomodoro tamamladıktan sonra analiz görünecek.</div>';
+    return;
+  }
+  const dersler = d.dersler||{};
+  const topDers = Object.entries(dersler).sort((a,b)=>b[1]-a[1]);
+  const saatAnaliz = generateOdakAnalizi(d);
+  el.innerHTML=`
+    <div style="font-size:12px;color:var(--mu2);line-height:1.8">
+      <div style="margin-bottom:8px">📊 <strong style="color:var(--tx)">Toplam ${d.toplam} Pomodoro</strong> tamamlandı (${d.toplamDk||0} dakika)</div>
+      ${topDers.length?`<div style="margin-bottom:8px">📚 En çok: <strong style="color:var(--Y)">${topDers[0][0]}</strong> (${topDers[0][1]} oturum)</div>`:''}
+      <div style="background:rgba(0,212,255,.08);border:1px solid rgba(0,212,255,.18);border-radius:10px;padding:10px;margin-top:8px;font-size:11px;color:var(--C)">
+        🤖 ${saatAnaliz}
+      </div>
+    </div>`;
+}
+
+function generateOdakAnalizi(d){
+  const toplam = d.toplam||0;
+  const seri = d.seri||0;
+  if(toplam>=10&&seri>=5) return 'Mükemmel bir çalışma ritmin var! Seri odaklanman seni sınav başarısına taşıyacak.';
+  if(toplam>=5) return 'İyi ilerliyorsun. Sabah 08:00–11:00 saatleri en verimli çalışma dilimi — bu saatleri değerlendir!';
+  if(d.gece) return 'Gece çalışıyorsun ama önerilen: akşam programını sabah 07:00–09:00\'a kaydırman odaklanmayı %40 artırabilir.';
+  return 'Düzenli Pomodoro seansları yaparak odak verimini artırabilirsin. Günde en az 4 Pomodoro hedefle!';
+}
+
+// ─── goPg gamification hook ───
+const _orgGoPg = window.goPg;
+// Sayfa render hook — gamification yükle
+document.addEventListener('DOMContentLoaded',()=>{
+  // Etüt odası periyodik güncelleme
+  setInterval(()=>{
+    if(document.getElementById('etut-online-list')&&
+       document.getElementById('op-etutOdasi')?.classList.contains('show')){
+      etutOnlineGuncelle();
+    }
+  }, 30000);
+  // pomo istatistik yükle
+  pomoStatsGuncelle();
+});
+
+// ─── Mevcut goPg'ye gamification entegrasyonu ───
+// goPg fonksiyonu DOM yüklendikten sonra override edilir
+(function patchGoPg(){
+  const origGoPg = typeof goPg === 'function' ? goPg : null;
+  window.goPg = function(id){
+    if(origGoPg) origGoPg(id);
+    if(id==='gamification'){
+      setTimeout(gamifXpYukle, 200);
+    }
+  };
+})();
 
 </script>
 </body>
