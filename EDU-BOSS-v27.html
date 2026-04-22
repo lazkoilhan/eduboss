@@ -890,8 +890,10 @@ hr.dv{border:none;border-top:1px solid rgba(255,255,255,.055);margin:12px 0}
 <div id="ogrenci-panel">
   <div class="op-header" style="flex-shrink:0;width:100%">
     <div class="op-logo">EDU-BOSS</div>
-    <div style="display:flex;align-items:center;gap:10px">
+    <div style="display:flex;align-items:center;gap:8px">
       <div id="op-ad" style="font-size:12px;color:var(--mu2)"></div>
+      <span class="xp-mini" id="op-header-xp" onclick="opTab('bossPuan',document.querySelectorAll('.op-tab')[9]);bossPuanRender()" style="cursor:pointer;display:none">⚡ 0 XP</span>
+      <button style="background:rgba(255,90,126,.12);border:1px solid rgba(255,90,126,.3);color:var(--R);border-radius:8px;padding:4px 10px;cursor:pointer;font-size:13px;font-family:inherit" onclick="pomoAc()" title="Pomodoro Başlat">🍅</button>
       <button class="btn btn-d btn-sm" onclick="cikisYap()">Çıkış</button>
     </div>
   </div>
@@ -1006,6 +1008,8 @@ hr.dv{border:none;border-top:1px solid rgba(255,255,255,.055);margin:12px 0}
 
     <!-- 📚 ETÜT ODASI -->
     <div class="op-content" id="op-etutOdasi">
+
+      <!-- ── SANAL ETÜT ODASI ── -->
       <div class="card" style="margin-bottom:12px">
         <div class="ct">🏫 Sanal Etüt Odası</div>
         <div style="margin-bottom:10px">
@@ -1026,7 +1030,55 @@ hr.dv{border:none;border-top:1px solid rgba(255,255,255,.055);margin:12px 0}
         <button class="etut-baslat-btn" id="etut-baslat-btn" onclick="etutToggle()">🚀 Çalışmaya Başla</button>
         <div id="etut-benim-durum" style="font-size:11px;color:var(--mu2);text-align:center;display:none"></div>
       </div>
-      <div class="card">
+
+      <!-- ── INLINE POMODORO ── -->
+      <div class="card" style="margin-bottom:12px">
+        <div class="ct" style="display:flex;justify-content:space-between;align-items:center">
+          <span>🍅 Pomodoro Zamanlayıcı</span>
+          <div class="pomo-tomatolar" id="etut-pomo-tomatolar" style="margin:0"></div>
+        </div>
+        <!-- Mod tab'lar -->
+        <div class="pomo-mod-tabs" id="etut-mod-tabs" style="margin-bottom:12px">
+          <div class="pomo-mod-tab aktif" onclick="etutModSec('pomo',this)">🍅 Pomodoro</div>
+          <div class="pomo-mod-tab" onclick="etutModSec('kisa',this)">☕ Kısa</div>
+          <div class="pomo-mod-tab" onclick="etutModSec('uzun',this)">🛋️ Uzun</div>
+          <div class="pomo-mod-tab" onclick="etutModSec('ayar',this)">⚙️</div>
+        </div>
+        <!-- Ring -->
+        <div id="etut-pomo-ring-area">
+          <div class="pomo-ring-wrap" style="width:150px;height:150px">
+            <svg class="pomo-ring-svg" viewBox="0 0 180 180" style="width:150px;height:150px">
+              <circle class="pomo-ring-bg" cx="90" cy="90" r="80"/>
+              <circle class="pomo-ring-fg" id="etut-pomo-ring-fg" cx="90" cy="90" r="80" stroke="#ff5a7e" stroke-dasharray="502.65" stroke-dashoffset="0"/>
+            </svg>
+            <div class="pomo-ring-text">
+              <div class="pomo-time-display" id="etut-pomo-time" style="font-size:28px">25:00</div>
+              <div class="pomo-phase-lbl" id="etut-pomo-lbl">ÇALIŞMA</div>
+            </div>
+          </div>
+          <!-- Kontroller -->
+          <div class="pomo-btns" style="margin-top:8px">
+            <button class="pomo-btn pomo-btn-bas" id="etut-pomo-bas" onclick="etutPomoBasDur()">▶ Başla</button>
+            <button class="pomo-btn pomo-btn-atla" onclick="etutPomoAtla()">⏭ Atla</button>
+          </div>
+          <!-- İstatistik -->
+          <div class="pomo-stats-row">
+            <div class="pomo-stat-item"><div class="pomo-stat-num" id="etut-stat-bugun">0</div><div class="pomo-stat-txt">Bugün</div></div>
+            <div class="pomo-stat-item"><div class="pomo-stat-num" id="etut-stat-toplam">0</div><div class="pomo-stat-txt">Toplam dk</div></div>
+            <div class="pomo-stat-item"><div class="pomo-stat-num" id="etut-stat-seri">0</div><div class="pomo-stat-txt">Seri 🔥</div></div>
+          </div>
+        </div>
+        <!-- Ayar paneli -->
+        <div id="etut-pomo-ayar" style="display:none">
+          <div class="pomo-ayar-row"><span>🍅 Çalışma (dk)</span><input type="number" class="pomo-num-inp" id="etut-ayar-calisma" value="25" min="1" max="90" onchange="etutPomoAyarGuncelle()"></div>
+          <div class="pomo-ayar-row"><span>☕ Kısa Mola (dk)</span><input type="number" class="pomo-num-inp" id="etut-ayar-kisa" value="5" min="1" max="30" onchange="etutPomoAyarGuncelle()"></div>
+          <div class="pomo-ayar-row"><span>🛋️ Uzun Mola (dk)</span><input type="number" class="pomo-num-inp" id="etut-ayar-uzun" value="15" min="5" max="60" onchange="etutPomoAyarGuncelle()"></div>
+          <div class="pomo-ayar-row"><span>🔔 Ses</span><input type="checkbox" id="etut-ses-cb" checked style="accent-color:var(--G)"></div>
+        </div>
+      </div>
+
+      <!-- ── ŞU AN ÇALIŞANLAR ── -->
+      <div class="card" style="margin-bottom:12px">
         <div class="ct" style="display:flex;justify-content:space-between;align-items:center">
           <span>👥 Şu An Çalışanlar</span>
           <span class="xp-mini" id="etut-online-sayi">0 kişi</span>
@@ -1035,7 +1087,9 @@ hr.dv{border:none;border-top:1px solid rgba(255,255,255,.055);margin:12px 0}
           <div class="empty" style="padding:20px 0;text-align:center;color:var(--mu)">Henüz kimse çalışmıyor 🌙</div>
         </div>
       </div>
-      <div class="card" style="margin-top:12px">
+
+      <!-- ── ODAK ANALİZİ ── -->
+      <div class="card">
         <div class="ct">🤖 Odak Analizi</div>
         <div id="etut-analiz-ic" style="font-size:12px;color:var(--mu2);padding:8px 0">
           Pomodoro oturumları tamamladıkça AI analizin burada görünecek.
@@ -1118,7 +1172,6 @@ hr.dv{border:none;border-top:1px solid rgba(255,255,255,.055);margin:12px 0}
     <div class="ni on" onclick="goPg('ozet')"><span class="ni-ic">📊</span><span>Genel Özet</span></div>
     <div class="sb-sec">Akademik</div>
     <div class="ni" onclick="goPg('sinav')"><span class="ni-ic">📈</span><span>Sınav Analizi</span></div>
-    <div class="ni" onclick="goPg('konuanaliz')"><span class="ni-ic">📚</span><span>Konu Analizi</span></div>
     <div class="ni" onclick="goPg('optik')"><span class="ni-ic">📷</span><span>Optik Okuma</span></div>
     <div class="ni" onclick="goPg('cevap')"><span class="ni-ic">🗝️</span><span>Cevap Anahtarı</span></div>
     <div class="ni" onclick="goPg('detay')"><span class="ni-ic">🔍</span><span>Öğrenci Detay</span></div>
@@ -1148,6 +1201,10 @@ hr.dv{border:none;border-top:1px solid rgba(255,255,255,.055);margin:12px 0}
   <div class="sb-ft" style="padding:10px 8px;display:flex;flex-direction:column;gap:5px">
     <div id="fb-sync" style="font-size:9px;color:var(--G);text-align:center;padding:4px 8px;background:var(--Gd);border-radius:5px;border:1px solid rgba(52,211,153,.2)">☁️ Firebase</div>
     <div id="sb-user" style="font-size:9px;color:var(--mu2);text-align:center;padding:2px 4px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap"></div>
+  <div onclick="pomoAc()" style="cursor:pointer;display:flex;align-items:center;justify-content:center;gap:5px;padding:6px;border-radius:8px;background:rgba(255,90,126,.08);border:1px solid rgba(255,90,126,.15);margin-top:2px" title="Pomodoro Zamanlayıcı">
+    <span style="font-size:13px">🍅</span>
+    <span style="font-size:9px;color:rgba(255,90,126,.8);font-weight:700" id="sb-pomo-lbl">Pomodoro</span>
+  </div>
     <button class="btn btn-n" style="width:100%;justify-content:center;font-size:10px" onclick="yedekAl()">💾 Yedek Al</button>
     <label class="btn btn-n" style="width:100%;justify-content:center;font-size:10px;cursor:pointer">
       📂 Yedek Yükle<input type="file" accept=".json" style="display:none" onchange="yedekYukle(event)">
@@ -1363,20 +1420,6 @@ hr.dv{border:none;border-top:1px solid rgba(255,255,255,.055);margin:12px 0}
 </div>
 
 <!-- KONU ANALİZİ -->
-<div class="pg" id="pg-konuanaliz">
-  <div class="ph">
-    <div><div class="pt">📚 Konu Analizi</div><div class="psub">AKBİM / karne PDF yükle · konu başarı oranları · kırmızı alan tespiti</div></div>
-    <div class="brow">
-      <input type="file" id="konu-pdf-inp" accept=".pdf" multiple style="display:none" onchange="konuPdfYukle(event)">
-      <button class="btn btn-pf" onclick="document.getElementById('konu-pdf-inp').click()"><span id="konu-pdf-btn-txt">📄 Karne PDF Yükle</span></button>
-      <button class="btn btn-n" onclick="konuVerisiSifirla()">🗑 Temizle</button>
-    </div>
-  </div>
-  <div id="konu-msg" style="display:none;font-size:11px;margin-bottom:11px;padding:7px 11px;border-radius:7px"></div>
-  <div id="konu-ic"><div class="empty"><div class="empty-ic">📚</div><div>AKBİM karne PDF yükleyin · konu bazlı analiz otomatik çıkarılır</div></div></div>
-</div>
-
-<!-- ÖĞRENCİ DETAY -->
 <div class="pg" id="pg-detay">
   <div class="ph"><div><div class="pt">Öğrenci Detay</div><div class="psub">Gelişim grafiği · net düzenleme · PDF çıktı</div></div></div>
   <div style="display:flex;gap:13px">
@@ -5860,6 +5903,14 @@ async function ogrenciGiris(userData){
   mevcutKullanici = userData;
   document.getElementById('ogrenci-panel').classList.add('show');
   document.getElementById('op-ad').textContent = userData.ad || '';
+  // XP header badge
+  const headerXp = document.getElementById('op-header-xp');
+  if(headerXp){
+    headerXp.style.display='inline-flex';
+    headerXp.textContent = '⚡ '+(typeof xpAl==='function'?xpAl():0)+' XP';
+  }
+  // Günlük giriş streak
+  if(typeof _devamlilikKontrol==='function') _devamlilikKontrol();
   db.collection('v5_aok').doc('data').get()
     .then(function(doc){
       var tumOgr = doc.exists ? doc.data().items || [] : [];
@@ -5994,6 +6045,29 @@ function opRender(ogr, userData){
         <td>${deg!==null?`<span style="color:${deg>=0?'var(--G)':'var(--R)'}">${deg>=0?'↑':'↓'}${Math.abs(deg).toFixed(1)}</span>`:'—'}</td>
       </tr>`;}).join('')}</tbody></table></div>`
     :'<div style="color:var(--mu);font-size:12px;padding:12px">Henüz tek sınav var.</div>';
+
+  // ⚡ Net artış XP kontrolü
+  if(typeof xpEkle==='function' && gec.length>=2){
+    const son=gec[gec.length-1]; const onceki=gec[gec.length-2];
+    const sonNet=Object.values(son.tyt||{}).reduce((a,b)=>a+b,0);
+    const oncekiNet=Object.values(onceki.tyt||{}).reduce((a,b)=>a+b,0);
+    const artis=sonNet-oncekiNet;
+    if(artis>=10){
+      // Sadece bir kere ver (localStorage kontrol)
+      const xpKey='xp_sinav_'+son.sinavAdi;
+      if(!localStorage.getItem(xpKey)){
+        localStorage.setItem(xpKey,'1');
+        xpEkle(100,'10+ net artış ('+son.sinavAdi+')');
+        if(typeof rozetKazan==='function') rozetKazan('net_canavari');
+      }
+    } else if(artis>0){
+      const xpKey='xp_sinav_'+son.sinavAdi;
+      if(!localStorage.getItem(xpKey)){
+        localStorage.setItem(xpKey,'1');
+        xpEkle(Math.round(artis*5),'net artış +('+artis.toFixed(1)+') '+son.sinavAdi);
+      }
+    }
+  }
 
   // Gelişim grafikleri
   setTimeout(()=>{
@@ -7900,6 +7974,8 @@ async function opOdevTamamla(odevId) {
   o.tamamlayan.push(ogrId);
   await sv.odev();
   toast('Ödev tamamlandı! Öğretmeninize bildirildi. ✓', 'ok');
+  // ⚡ XP ver
+  if(typeof xpEkle==='function') xpEkle(30,'ödev tamamlama');
   opRenderOdevlerim(_opOdevOgr, _opUserData);
 }
 
@@ -7916,6 +7992,8 @@ async function opGorevTamamla(gorevId) {
   g.tamamlayan.push(ogrId);
   await sv.gorev();
   toast('Görev tamamlandı! Öğretmeninize bildirildi. ✓', 'ok');
+  // ⚡ XP ver
+  if(typeof xpEkle==='function') xpEkle(20,'video izleme tamamlama');
   opRenderGorevlerim(_opOgr, _opUserData);
 }
 
@@ -9136,7 +9214,6 @@ let KONU_VERI = [];
   const _old = window.goPg;
   window.goPg = function(id){
     _old(id);
-    if(id === 'konuanaliz') setTimeout(konuRenderMain, 80);
   };
 })();
 
@@ -9824,11 +9901,24 @@ async function gamifXpYukle(){
         </div>`).join('') : '<div class="empty">Henüz rozet kazanımı yok</div>';
     }
     
-    // Öğrenci seç dropdown
+    // Öğrenci seç dropdown — AOK global array kullan (zaten yüklü)
     if(ogrSec){
-      const aokSnap = await db.collection('v5_aok').doc('data').get();
-      const ogrs = aokSnap.exists ? (aokSnap.data().items||[]) : [];
-      ogrSec.innerHTML = '<option value="">Öğrenci seç...</option>' + ogrs.map(o=>`<option value="${o.id||o.ad}">${o.ad}</option>`).join('');
+      // Önce hafızadaki AOK'u kullan, yoksa Firebase'den çek
+      const ogrs = (typeof AOK !== 'undefined' && AOK.length > 0) ? AOK : [];
+      if(ogrs.length > 0){
+        ogrSec.innerHTML = '<option value="">Öğrenci seç...</option>' +
+          ogrs.map(o=>`<option value="${o.id||o.ad}">${o.ad}</option>`).join('');
+      } else {
+        // Fallback: COL.aok ile çek
+        try{
+          const aokData = await fbGet(COL.aok);
+          const aokList = Array.isArray(aokData) ? aokData : (aokData?.items||[]);
+          ogrSec.innerHTML = '<option value="">Öğrenci seç...</option>' +
+            aokList.map(o=>`<option value="${o.id||o.ad}">${o.ad}</option>`).join('');
+        }catch(e2){
+          ogrSec.innerHTML = '<option value="">Öğrenci yüklenemedi</option>';
+        }
+      }
     }
 
     // Pomodoro tablo (Firebase'den)
@@ -10278,6 +10368,279 @@ document.addEventListener('DOMContentLoaded',()=>{
   };
 })();
 
+
+// ═══════════════════════════════════════════════════════════════════
+// EK SİSTEMLER: STREAK, GÜNLÜK GİRİŞ, HEADER SYNC (v27)
+// ═══════════════════════════════════════════════════════════════════
+
+// ─── 7 Günlük Devam Sistemi ───
+function _devamlilikKontrol(){
+  try{
+    const bugun = new Date().toISOString().slice(0,10);
+    const d = JSON.parse(localStorage.getItem('boss_devam')||'{}');
+    if(d.sonGun===bugun) return; // bugün zaten girildi
+    // Önceki gün mü?
+    const dun = new Date(Date.now()-86400000).toISOString().slice(0,10);
+    if(d.sonGun===dun){
+      d.seri=(d.seri||0)+1;
+    } else {
+      d.seri=1;
+    }
+    d.sonGun=bugun;
+    localStorage.setItem('boss_devam',JSON.stringify(d));
+    // Günlük giriş XP
+    xpEkle(10,'günlük giriş (#'+d.seri+'. gün)');
+    // 7 günlük rozet
+    if(d.seri>=7) rozetKazan('devamlilik');
+    // Pomodoro verisine de yaz
+    const p=pomoVeriAl(); p.seri=d.seri; pomoVeriKaydet(p);
+    // Stats güncelle
+    pomoStatsGuncelle();
+  }catch(e){}
+}
+
+// ─── XP Header Badge Sync ───
+function _xpHeaderSync(){
+  const xp = typeof xpAl==='function' ? xpAl() : 0;
+  const el = document.getElementById('op-header-xp');
+  if(el) el.textContent = '⚡ '+xp.toLocaleString()+' XP';
+}
+
+// xpEkle'yi override ederek header'ı da güncelleyelim
+const _origXpEkle = xpEkle;
+xpEkle = function(miktar, sebep){
+  _origXpEkle(miktar, sebep);
+  setTimeout(_xpHeaderSync, 100);
+};
+
+// ─── Net Artış Rozet Kontrolü ───
+// Sinav render'dan çağrılır — Net Canavarı rozeti zaten rozetKontrol içinde
+// Burada ek: yüksek seri
+
+// ─── Öğretmen: BOSS Puan sekmesi page guard ───
+// goPg zaten override edildi; gamification sayfası yüklendiğinde gamifXpYukle çağrılır
+
+// ─── Pomodoro: Günlük sıfırlama ───
+(function _pomoGunlukSifirla(){
+  try{
+    const bugun = new Date().toISOString().slice(0,10);
+    const d = pomoVeriAl();
+    if(d._sifirGun!==bugun){
+      d.bugun=0; d._sifirGun=bugun;
+      pomoVeriKaydet(d);
+    }
+  }catch(e){}
+})();
+
+// ─── Pomodoro float btn her zaman görünür (öğrenci ve öğretmen) ───
+// Float buton HTML'de body'e eklendi, hem öğrenci hem öğretmen görebilir
+// Öğretmen için de pomodoro kullanılabilir
+
+// ─── Haftalık Lig Rozet: İlk sıra ───
+async function _haftalikLigRozetKontrol(){
+  if(!db||!mevcutKullanici) return;
+  const tenantId=_tenantUid||(mevcutKullanici&&mevcutKullanici.uid);
+  try{
+    const snap=await db.collection('v5_boss_xp').where('tenantUid','==',tenantId).orderBy('toplam','desc').limit(1).get();
+    if(!snap.empty){
+      const top=snap.docs[0];
+      if(top.id===mevcutKullanici.uid && typeof rozetKazan==='function'){
+        rozetKazan('haftalik_sef');
+      }
+    }
+  }catch(e){}
+}
+
+// ─── Boss Puan render güncelleme zamanlayıcısı ───
+// Öğrenci paneli açıkken XP header'ı periyodik güncelle
+setInterval(()=>{
+  if(document.getElementById('ogrenci-panel')?.classList.contains('show')){
+    _xpHeaderSync();
+  }
+}, 15000);
+
+// ─── Öğretmen Paneli: Sınav girildiğinde XP tetikle ───
+// Öğrenci sınav sonucu kaydedildiğinde ilgili öğrenciye XP kuyruğa ekle
+const _origSinavKaydet = typeof sinavKaydet==='function'?sinavKaydet:null;
+// Bu hook sinavKaydet fonksiyonu DOM yüklendikten sonra çalışacak şekilde
+// window.sinavKaydet override mantığını DOMContentLoaded'a bırakıyoruz
+document.addEventListener('DOMContentLoaded',()=>{
+  // Haftalık lig rozeti kontrolü
+  if(mevcutKullanici&&mevcutKullanici.rol==='ogrenci'){
+    setTimeout(_haftalikLigRozetKontrol, 5000);
+  }
+});
+
+// ═══════════════════════════════════════════════════════════════════
+// INLINE POMODORO (Etüt Odası içi) - v27b
+// ═══════════════════════════════════════════════════════════════════
+let _etutPomoTimer = null;
+let _etutCalisiyor = false;
+let _etutPomoCalan = 25*60;
+let _etutPomoMod = 'pomo';
+let _etutPomoTomatoes = 0;
+let _etutPomoAyar = {calisma:25, kisa:5, uzun:15};
+
+function etutModSec(mod, el){
+  _etutPomoMod = mod;
+  document.querySelectorAll('#etut-mod-tabs .pomo-mod-tab').forEach(t=>t.classList.remove('aktif'));
+  if(el) el.classList.add('aktif');
+  const ayar = document.getElementById('etut-pomo-ayar');
+  const ring = document.getElementById('etut-pomo-ring-area');
+  if(ayar) ayar.style.display = mod==='ayar'?'block':'none';
+  if(ring) ring.style.display = mod==='ayar'?'none':'block';
+  if(mod !== 'ayar'){
+    if(_etutCalisiyor){ _etutPomoTemizle(); }
+    _etutPomoCalan = etutPomoDk()*60;
+    etutPomoGuncelle();
+    const btn = document.getElementById('etut-pomo-bas');
+    if(btn){ btn.textContent='▶ Başla'; btn.className='pomo-btn pomo-btn-bas'; }
+  }
+}
+
+function etutPomoDk(){
+  if(_etutPomoMod==='pomo') return _etutPomoAyar.calisma;
+  if(_etutPomoMod==='kisa') return _etutPomoAyar.kisa;
+  return _etutPomoAyar.uzun;
+}
+function etutPomoRenk(){
+  if(_etutPomoMod==='pomo') return '#ff5a7e';
+  if(_etutPomoMod==='kisa') return '#00e5a0';
+  return '#4da6ff';
+}
+function etutPomoFazLbl(){
+  if(_etutPomoMod==='pomo') return 'ÇALIŞMA';
+  if(_etutPomoMod==='kisa') return '☕ KISA MOLA';
+  return '🛋️ UZUN MOLA';
+}
+
+function etutPomoAyarGuncelle(){
+  _etutPomoAyar.calisma = parseInt(document.getElementById('etut-ayar-calisma')?.value)||25;
+  _etutPomoAyar.kisa = parseInt(document.getElementById('etut-ayar-kisa')?.value)||5;
+  _etutPomoAyar.uzun = parseInt(document.getElementById('etut-ayar-uzun')?.value)||15;
+}
+
+function etutPomoBasDur(){
+  if(_etutCalisiyor){
+    _etutPomoTemizle();
+    const btn = document.getElementById('etut-pomo-bas');
+    if(btn){ btn.textContent='▶ Başla'; btn.className='pomo-btn pomo-btn-bas'; }
+  } else {
+    if(_etutPomoCalan<=0) _etutPomoCalan = etutPomoDk()*60;
+    _etutCalisiyor = true;
+    const btn = document.getElementById('etut-pomo-bas');
+    if(btn){ btn.textContent='⏸ Duraklat'; btn.className='pomo-btn pomo-btn-dur'; }
+    _etutPomoTimer = setInterval(etutPomoTick, 1000);
+  }
+}
+
+function _etutPomoTemizle(){
+  clearInterval(_etutPomoTimer);
+  _etutPomoTimer = null;
+  _etutCalisiyor = false;
+}
+
+function etutPomoAtla(){ _etutPomoTemizle(); etutPomoBitti(); }
+
+function etutPomoTick(){
+  _etutPomoCalan--;
+  etutPomoGuncelle();
+  if(_etutPomoCalan <= 0){ _etutPomoTemizle(); etutPomoBitti(); }
+}
+
+function etutPomoBitti(){
+  const btn = document.getElementById('etut-pomo-bas');
+  if(btn){ btn.textContent='▶ Başla'; btn.className='pomo-btn pomo-btn-bas'; }
+
+  // Ses
+  if(document.getElementById('etut-ses-cb')?.checked){
+    try{
+      const ctx = new(window.AudioContext||window.webkitAudioContext)();
+      [440,550,660].forEach((f,i)=>{
+        const o=ctx.createOscillator(),g=ctx.createGain();
+        o.connect(g);g.connect(ctx.destination);
+        o.frequency.value=f;g.gain.setValueAtTime(.18,ctx.currentTime+i*.15);
+        g.gain.exponentialRampToValueAtTime(.001,ctx.currentTime+i*.15+.4);
+        o.start(ctx.currentTime+i*.15);o.stop(ctx.currentTime+i*.15+.4);
+      });
+    }catch(e){}
+  }
+
+  if(_etutPomoMod==='pomo'){
+    _etutPomoTomatoes++;
+    // Ana pomo verisini de güncelle
+    const d = pomoVeriAl();
+    d.toplam=(d.toplam||0)+1;d.bugun=(d.bugun||0)+1;
+    d.toplamDk=(d.toplamDk||0)+_etutPomoAyar.calisma;d.seri=(d.seri||0)+1;
+    const saat=new Date().getHours();if(saat>=22||saat<5)d.gece=true;
+    const ders=document.getElementById('etut-ders-sec')?.value||'Genel';
+    d.dersler=d.dersler||{};d.dersler[ders]=(d.dersler[ders]||0)+1;
+    const hKey='hafta_'+getHaftaNo();d[hKey]=(d[hKey]||0)+1;
+    pomoVeriKaydet(d);
+    // XP
+    if(typeof xpEkle==='function') xpEkle(25,'Pomodoro tamamlama ('+ders+')');
+    if(typeof rozetKontrol==='function') rozetKontrol();
+    // Firebase
+    if(db&&mevcutKullanici&&mevcutKullanici.uid){
+      db.collection('v5_boss_pomo').doc(mevcutKullanici.uid).set({
+        ad:mevcutKullanici.ad||'',haftalik:d[hKey]||0,toplam:d.toplam||0,
+        tenantUid:_tenantUid||mevcutKullanici.uid,guncelleme:Date.now()
+      },{merge:true}).catch(()=>{});
+    }
+    etutPomoStatsGuncelle();
+    etutPomoDomatesleriGuncelle();
+    etutAnalizGuncelle();
+
+    if(_etutPomoTomatoes>=4){
+      _etutPomoTomatoes=0;
+      etutModSec('uzun', document.querySelectorAll('#etut-mod-tabs .pomo-mod-tab')[2]);
+      if(typeof xpToastGoster==='function') xpToastGoster('🛋️ Uzun mola! 4 Pomodoro tamamladın!');
+    } else {
+      etutModSec('kisa', document.querySelectorAll('#etut-mod-tabs .pomo-mod-tab')[1]);
+      if(typeof xpToastGoster==='function') xpToastGoster('☕ Kısa mola! '+_etutPomoTomatoes+'/4');
+    }
+  } else {
+    etutModSec('pomo', document.querySelectorAll('#etut-mod-tabs .pomo-mod-tab')[0]);
+    if(typeof xpToastGoster==='function') xpToastGoster('💪 Mola bitti! Haydi çalışmaya!');
+  }
+}
+
+function etutPomoGuncelle(){
+  const dk=Math.floor(_etutPomoCalan/60), sn=_etutPomoCalan%60;
+  const str=(dk<10?'0':'')+dk+':'+(sn<10?'0':'')+sn;
+  const disp=document.getElementById('etut-pomo-time');
+  if(disp) disp.textContent=str;
+  const lbl=document.getElementById('etut-pomo-lbl');
+  if(lbl) lbl.textContent=etutPomoFazLbl();
+  const ring=document.getElementById('etut-pomo-ring-fg');
+  if(ring){
+    const cevre=2*Math.PI*80;
+    ring.style.strokeDashoffset=cevre*(1-_etutPomoCalan/(etutPomoDk()*60));
+    ring.style.stroke=etutPomoRenk();
+  }
+}
+
+function etutPomoDomatesleriGuncelle(){
+  const w=document.getElementById('etut-pomo-tomatolar');
+  if(w) w.innerHTML=[0,1,2,3].map(i=>`<div class="pomo-domates ${i<_etutPomoTomatoes?'tamam':''}">🍅</div>`).join('');
+}
+
+function etutPomoStatsGuncelle(){
+  const d=pomoVeriAl();
+  const b=document.getElementById('etut-stat-bugun'); if(b) b.textContent=d.bugun||0;
+  const t=document.getElementById('etut-stat-toplam'); if(t) t.textContent=d.toplamDk||0;
+  const s=document.getElementById('etut-stat-seri'); if(s) s.textContent=d.seri||0;
+}
+
+// etutOdasiRender'ı override et - stats da yüklesin
+const _origEtutOdasiRender = typeof etutOdasiRender==='function' ? etutOdasiRender : null;
+function etutOdasiRender(){
+  etutOnlineGuncelle();
+  etutAnalizGuncelle();
+  etutPomoStatsGuncelle();
+  etutPomoDomatesleriGuncelle();
+  etutPomoGuncelle();
+}
 </script>
 </body>
 </html>
