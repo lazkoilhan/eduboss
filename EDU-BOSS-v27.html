@@ -3747,6 +3747,7 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
 /* ── LOGIN EKRANI ── */
 #login-screen{display:none;position:fixed;inset:0;z-index:9998;flex-direction:row}
 #login-screen.show{display:flex}
+#app-wrap{display:none}#app-wrap.show{display:flex}
 
 /* Sol sahne */
 .ls-sol{flex:1;position:relative;overflow:hidden;
@@ -5010,6 +5011,7 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
 /* ── LOGIN EKRANI ── */
 #login-screen{display:none;position:fixed;inset:0;z-index:9998;flex-direction:row}
 #login-screen.show{display:flex}
+#app-wrap{display:none}#app-wrap.show{display:flex}
 
 /* Sol sahne */
 .ls-sol{flex:1;position:relative;overflow:hidden;
@@ -5882,7 +5884,9 @@ async function ogretmenGiris(){
   if(saSidebar) saSidebar.style.display = isSuperAdmin ? 'block' : 'none';
   const hesaplarNi = document.getElementById('sb-hesaplar-ni');
   if(hesaplarNi) hesaplarNi.style.display = isSuperAdmin ? 'flex' : 'none';
-  document.getElementById('app-wrap').classList.add('show');
+  const aw = document.getElementById('app-wrap');
+  aw.style.display = 'flex';
+  aw.classList.add('show');
   const sbUser=document.getElementById('sb-user');
   if(sbUser){
     const rozetRenk = isSuperAdmin ? 'var(--Y)' : 'var(--mu2)';
@@ -5947,7 +5951,9 @@ function cikisYap(){
   _tenantUid=null;
   const gBtnC=document.getElementById('sb-geri-don-btn');
   if(gBtnC)gBtnC.style.display='none';
-  document.getElementById('app-wrap').classList.remove('show');
+  const aw2 = document.getElementById('app-wrap');
+  aw2.style.display = 'none';
+  aw2.classList.remove('show');
   document.getElementById('ogrenci-panel').classList.remove('show');
   document.getElementById('login-screen').classList.add('show');
   document.getElementById('login-email').value='';
