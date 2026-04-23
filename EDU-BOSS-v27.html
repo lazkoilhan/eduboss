@@ -56,6 +56,7 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
 /* ── LOGIN EKRANI ── */
 #login-screen{display:none;position:fixed;inset:0;z-index:9998;flex-direction:row}
 #login-screen.show{display:flex}
+#app-wrap{display:none}#app-wrap.show{display:flex}
 
 /* Sol sahne */
 .ls-sol{flex:1;position:relative;overflow:hidden;
@@ -1156,7 +1157,7 @@ hr.dv{border:none;border-top:1px solid rgba(255,255,255,.055);margin:12px 0}
 <button class="pomo-float-btn" id="pomo-float-btn" onclick="pomoAc()" title="Pomodoro">🍅<span class="pomo-float-time-badge" id="pomo-float-badge"></span></button>
 
 <!-- ═══ APP ═══ -->
-<div id="app-wrap" style="display:flex;flex:1;min-height:100vh">
+<div id="app-wrap" style="display:none;flex:1;min-height:100vh">
 
 <!-- SIDEBAR -->
 <aside class="sb">
@@ -9187,35 +9188,21 @@ function shOgrYeniAc() {
   shModalAc('sh-yeni');
 }
 
-// ── goPg hook: öğretmen soru havuzu sayfası açılınca render et ──
-var _origGoPg = typeof goPg === 'function' ? goPg : null;
+// ── goPg hook: öğretmen soru havuzu + gamification ──
 (function() {
   var _old = window.goPg;
   window.goPg = function(id) {
-    _old(id);
-    if (id === 'soruhavuzu') {
-      setTimeout(shOgretmenRender, 80);
-    }
+    if(typeof _old === 'function') _old(id);
+    if (id === 'soruhavuzu') setTimeout(shOgretmenRender, 80);
+    if (id === 'gamification') setTimeout(gamifXpYukle, 200);
   };
 })();
 
 // ── İlk yükleme: badge güncelle ──
 setTimeout(shBadgeGuncelle, 3000);
 
-// ═══════════════════════════════════════════════════════════════
-// KONU ANALİZİ MODÜLİ — AKBİM Karne PDF Parser
-// ═══════════════════════════════════════════════════════════════
-
-// Veri deposu: {ogrAdi, sinavAdi, tarih, dersler: {dersAdi: [{konu,ss,d,y,pct}]}}
+// KONU_VERI stub (konu analizi kaldırıldı ama referanslar için)
 let KONU_VERI = [];
-
-// ── goPg hook: konu analiz sayfası açılınca render et ──
-(function(){
-  const _old = window.goPg;
-  window.goPg = function(id){
-    _old(id);
-  };
-})();
 
 // ── PDF metin çıkarma (mevcut pdfjs'i kullanır) ──
 async function konuPdfMetin(file){
@@ -10342,7 +10329,6 @@ function generateOdakAnalizi(d){
 }
 
 // ─── goPg gamification hook ───
-const _orgGoPg = window.goPg;
 // Sayfa render hook — gamification yükle
 document.addEventListener('DOMContentLoaded',()=>{
   // Etüt odası periyodik güncelleme
@@ -10356,17 +10342,7 @@ document.addEventListener('DOMContentLoaded',()=>{
   pomoStatsGuncelle();
 });
 
-// ─── Mevcut goPg'ye gamification entegrasyonu ───
-// goPg fonksiyonu DOM yüklendikten sonra override edilir
-(function patchGoPg(){
-  const origGoPg = typeof goPg === 'function' ? goPg : null;
-  window.goPg = function(id){
-    if(origGoPg) origGoPg(id);
-    if(id==='gamification'){
-      setTimeout(gamifXpYukle, 200);
-    }
-  };
-})();
+
 
 
 // ═══════════════════════════════════════════════════════════════════
@@ -10475,7 +10451,7 @@ document.addEventListener('DOMContentLoaded',()=>{
 // INLINE POMODORO (Etüt Odası içi) - v27b
 // ═══════════════════════════════════════════════════════════════════
 let _etutPomoTimer = null;
-let _etutCalisiyor = false;
+// _etutCalisiyor yukarıda tanımlandı (etüt sistemiyle ortak)
 let _etutPomoCalan = 25*60;
 let _etutPomoMod = 'pomo';
 let _etutPomoTomatoes = 0;
