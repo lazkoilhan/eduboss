@@ -9858,78 +9858,103 @@ async function ligTabloRender(){
 // ─── Öğretmen Gamification ───
 async function gamifXpYukle(){
   const tabloEl = document.getElementById('ogr-xp-tablo');
-  const pomoEl = document.getElementById('ogr-pomo-tablo');
-  const feedEl = document.getElementById('ogr-rozet-feed');
-  const ogrSec = document.getElementById('xp-ogr-sec');
+  const pomoEl  = document.getElementById('ogr-pomo-tablo');
+  const feedEl  = document.getElementById('ogr-rozet-feed');
+  const ogrSec  = document.getElementById('xp-ogr-sec');
   if(!db) return;
-  
+
   const tenantId = _tenantUid||(mevcutKullanici&&mevcutKullanici.uid);
-  
-  try{
-    // XP tablosu
-    if(tabloEl){
-      const snap = await db.collection('v5_boss_xp').where('tenantUid','==',tenantId).orderBy('toplam','desc').limit(10).get();
-      let maxXp = 1;
-      const rows = [];
-      snap.forEach(doc=>{ const d=doc.data(); maxXp=Math.max(maxXp,d.toplam||0); rows.push(d); });
-      tabloEl.innerHTML = rows.length ? rows.map(d=>`
+
+  // ── 1. Öğrenci dropdown — AOK'tan direkt doldur (Firebase sorgusu gereksiz) ──
+  const doldurDropdown = ()=>{
+    if(!ogrSec) return;
+    // AOK global: [{id, ad, ...}]
+    const liste = (typeof AOK!=='undefined' && Array.isArray(AOK) && AOK.length>0)
+      ? AOK
+      : (typeof OGRENCILER!=='undefined' ? OGRENCILER : []);
+    if(liste.length>0){
+      ogrSec.innerHTML = '<option value="">Öğrenci seç...</option>' +
+        liste.map(o=>`<option value="${o.id||o.ad||''}">${o.ad||o.email||'?'}</option>`).join('');
+    } else {
+      // Son çare: fbGet ile çek
+      fbGet(COL.aok).then(data=>{
+        const arr = Array.isArray(data)?data:(data?.items||[]);
+        ogrSec.innerHTML = '<option value="">Öğrenci seç...</option>' +
+          arr.map(o=>`<option value="${o.id||o.ad}">${o.ad}</option>`).join('');
+      }).catch(()=>{ ogrSec.innerHTML='<option value="">Yüklenemedi</option>'; });
+    }
+  };
+  doldurDropdown();
+
+  // ── 2. XP Liderboard — orderBy+where composite index yerine client-side sırala ──
+  if(tabloEl){
+    tabloEl.innerHTML='<div style="font-size:11px;color:var(--mu2);padding:8px">Yükleniyor...</div>';
+    try{
+      // where ONLY — no orderBy (composite index gerektirmez)
+      const snap = await db.collection('v5_boss_xp')
+        .where('tenantUid','==',tenantId).limit(20).get();
+      const rows=[];
+      snap.forEach(doc=>{ const d=doc.data(); if(d.toplam>0) rows.push(d); });
+      // Client-side sırala
+      rows.sort((a,b)=>(b.toplam||0)-(a.toplam||0));
+      const maxXp = rows.length ? (rows[0].toplam||1) : 1;
+      tabloEl.innerHTML = rows.length ? rows.slice(0,10).map(d=>`
         <div class="ogr-xp-satir">
           <div class="ogr-xp-ad">${d.ad||'?'}</div>
           <div class="ogr-xp-bar"><div class="ogr-xp-bar-fill" style="width:${Math.round((d.toplam||0)/maxXp*100)}%"></div></div>
           <div class="ogr-xp-puan">${(d.toplam||0).toLocaleString()} XP</div>
-        </div>`).join('') : '<div class="empty">Henüz XP verisi yok</div>';
+        </div>`).join('')
+        : '<div class="empty">Henüz XP verisi yok — öğrenciler sistemi kullandıkça burada görünür</div>';
+    }catch(e){
+      tabloEl.innerHTML='<div class="empty">XP verisi yüklenemedi</div>';
+      console.warn('XP tablo err',e);
     }
-    
-    // Rozet feed
-    if(feedEl){
-      const rSnap = await db.collection('v5_boss_rozetler').where('tenantUid','==',tenantId).orderBy('ts','desc').limit(15).get();
-      const rRows = [];
+  }
+
+  // ── 3. Pomodoro istatistikleri — aynı şekilde client-side sırala ──
+  if(pomoEl){
+    pomoEl.innerHTML='<div style="font-size:11px;color:var(--mu2);padding:8px">Yükleniyor...</div>';
+    try{
+      const pSnap = await db.collection('v5_boss_pomo')
+        .where('tenantUid','==',tenantId).limit(20).get();
+      const pRows=[];
+      pSnap.forEach(doc=>pRows.push({...doc.data(),uid:doc.id}));
+      pRows.sort((a,b)=>(b.haftalik||0)-(a.haftalik||0));
+      pomoEl.innerHTML = pRows.length ? pRows.slice(0,10).map(p=>`
+        <div class="ogr-xp-satir">
+          <div class="ogr-xp-ad">${p.ad||'?'}</div>
+          <div class="ogr-xp-bar"><div class="ogr-xp-bar-fill" style="width:${Math.round((p.haftalik||0)/Math.max(1,pRows[0].haftalik||1)*100)}%"></div></div>
+          <div style="font-size:11px;color:var(--G);font-family:'DM Mono',monospace;white-space:nowrap">${p.haftalik||0} 🍅</div>
+        </div>`).join('')
+        : '<div class="empty">Pomodoro verisi yok — öğrenciler Etüt Odasini kullandıkça görünür</div>';
+    }catch(e){
+      pomoEl.innerHTML='<div class="empty">Pomodoro verisi yüklenemedi</div>';
+      console.warn('Pomo tablo err',e);
+    }
+  }
+
+  // ── 4. Rozet feed ──
+  if(feedEl){
+    try{
+      // No orderBy — client-side sort
+      const rSnap = await db.collection('v5_boss_rozetler')
+        .where('tenantUid','==',tenantId).limit(20).get();
+      const rRows=[];
       rSnap.forEach(doc=>rRows.push(doc.data()));
-      feedEl.innerHTML = rRows.length ? rRows.map(r=>`
+      rRows.sort((a,b)=>(b.ts||0)-(a.ts||0));
+      feedEl.innerHTML = rRows.length ? rRows.slice(0,10).map(r=>`
         <div style="display:flex;align-items:center;gap:10px;padding:8px 12px;background:var(--s1);border-radius:10px;border:1px solid rgba(255,255,255,.06)">
           <span style="font-size:20px">${r.rozetIcon||'🎖️'}</span>
-          <div style="flex:1"><div style="font-size:12px;font-weight:600">${r.ad||''}</div>
-          <div style="font-size:10px;color:var(--mu2)">${r.rozetAd||''}</div></div>
+          <div style="flex:1">
+            <div style="font-size:12px;font-weight:600">${r.ad||''}</div>
+            <div style="font-size:10px;color:var(--mu2)">${r.rozetAd||''}</div>
+          </div>
           <div style="font-size:10px;color:var(--mu)">${new Date(r.ts).toLocaleDateString('tr')}</div>
         </div>`).join('') : '<div class="empty">Henüz rozet kazanımı yok</div>';
+    }catch(e){
+      feedEl.innerHTML='<div class="empty">Rozet verisi yüklenemedi</div>';
     }
-    
-    // Öğrenci seç dropdown — AOK global array kullan (zaten yüklü)
-    if(ogrSec){
-      // Önce hafızadaki AOK'u kullan, yoksa Firebase'den çek
-      const ogrs = (typeof AOK !== 'undefined' && AOK.length > 0) ? AOK : [];
-      if(ogrs.length > 0){
-        ogrSec.innerHTML = '<option value="">Öğrenci seç...</option>' +
-          ogrs.map(o=>`<option value="${o.id||o.ad}">${o.ad}</option>`).join('');
-      } else {
-        // Fallback: COL.aok ile çek
-        try{
-          const aokData = await fbGet(COL.aok);
-          const aokList = Array.isArray(aokData) ? aokData : (aokData?.items||[]);
-          ogrSec.innerHTML = '<option value="">Öğrenci seç...</option>' +
-            aokList.map(o=>`<option value="${o.id||o.ad}">${o.ad}</option>`).join('');
-        }catch(e2){
-          ogrSec.innerHTML = '<option value="">Öğrenci yüklenemedi</option>';
-        }
-      }
-    }
-
-    // Pomodoro tablo (Firebase'den)
-    if(pomoEl){
-      const pSnap = await db.collection('v5_boss_pomo').where('tenantUid','==',tenantId).orderBy('haftalik','desc').limit(10).get().catch(()=>null);
-      if(pSnap){
-        const pRows = []; pSnap.forEach(doc=>pRows.push({...doc.data(),uid:doc.id}));
-        pomoEl.innerHTML = pRows.length ? pRows.map(p=>`
-          <div class="ogr-xp-satir">
-            <div class="ogr-xp-ad">${p.ad||'?'}</div>
-            <div style="font-size:11px;color:var(--G);font-family:'DM Mono',monospace">${p.haftalik||0} 🍅</div>
-          </div>`).join('') : '<div class="empty">Pomodoro verisi yok</div>';
-      } else {
-        pomoEl.innerHTML='<div class="empty">Veri yüklenemedi</div>';
-      }
-    }
-
-  }catch(e){ console.warn('gamifXpYukle err',e); }
+  }
 }
 
 async function manuelXpVer(){
