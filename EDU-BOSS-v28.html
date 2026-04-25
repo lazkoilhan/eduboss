@@ -2735,8 +2735,11 @@ function satirSayilar(line){
 
 // ── Yardımcı: metinden öğrenci adı çıkar ──
 function adCikar(line){
-  const m=line.match(/(?:^|\s)([A-ZÇĞİÖŞÜ][A-ZÇĞİÖŞÜa-zçğışöüı]+(?:\s+[A-ZÇĞİÖŞÜ][A-ZÇĞİÖŞÜa-zçğışöüı]+){1,4})/);
-  return m?m[1].trim():null;
+  // Önce başındaki tek harfli şube kodunu atla (Ör: "E ÇÖRTÜK ERDEM" -> "ÇÖRTÜK ERDEM")
+  const temiz = line.replace(/^\s*[A-ZÇĞİÖŞÜ]\s+(?=[A-ZÇĞİÖŞÜ])/, '').trim();
+  // En az 1 büyük harfle başlayan kelime (tek ad da olabilir: MİNE, AHSEN)
+  const m = temiz.match(/^([A-ZÇĞİÖŞÜ][A-ZÇĞİÖŞÜa-zçğışöüı]+(?:\s+[A-ZÇĞİÖŞÜ][A-ZÇĞİÖŞÜa-zçğışöüı]+){0,4})/);
+  return m ? m[1].trim() : null;
 }
 
 // ── Yardımcı: 0-40 arasında geçerli net mi ──
@@ -2753,7 +2756,9 @@ function parseOzdebir(txt){
   for(const line of txt.split('\n').map(l=>l.trim()).filter(Boolean)){
     const mSira=line.match(/^(\d{1,3})\b/);if(!mSira)continue;
     const sira=parseInt(mSira[1]);if(sira<1||sira>999)continue;
-    const ad=adCikar(line.slice(mSira[0].length));if(!ad)continue;
+    // Sıra numarasından sonraki kısmı al (şube harfi adCikar içinde temizlenir)
+    const sonrasi=line.slice(mSira[0].length).trim();
+    const ad=adCikar(sonrasi);if(!ad)continue;
     const nums=satirSayilar(line);
     if(nums.length<12)continue;
 
@@ -2783,7 +2788,8 @@ function parseOzdebir(txt){
       for(let i=0;i<Math.min(maxAyt,aytSayilar.length);i++) aytNets.push(gecerliNet(aytSayilar[i])?aytSayilar[i]:0);
     }
 
-    if(tytNets.filter(n=>n>0).length<2)continue;
+    // EA sıralaması: TYT net sayısı düşük olabilir, en az 1 net yeterlid
+    if(tytNets.filter(n=>n>0).length<1 && aytNets.filter(n=>n>0).length<1)continue;
 
     // EA puanı
     let puan=null,puanSAY=null;
