@@ -1,0 +1,1021 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gündem Otomasyonu</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=IBM+Plex+Sans:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap');
+
+  :root {
+    --bg: #0a0f0d;
+    --surface: #111916;
+    --surface2: #172019;
+    --border: #1e2e23;
+    --accent-teal: #00c9a7;
+    --accent-red: #ff4d5a;
+    --accent-green: #3ddc84;
+    --accent-blue: #4da6ff;
+    --accent-orange: #ffaa44;
+    --text: #e8f0eb;
+    --text-muted: #6b8c73;
+    --text-dim: #3a5040;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'IBM Plex Sans', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ── BACKGROUND GRID ── */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(0,201,167,.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,201,167,.03) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .app-wrap { position: relative; z-index: 1; display: flex; gap: 0; min-height: 100vh; }
+
+  /* ── LEFT PANEL ── */
+  .panel-left {
+    width: 420px;
+    flex-shrink: 0;
+    background: var(--surface);
+    border-right: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    position: sticky;
+    top: 0;
+    overflow-y: auto;
+  }
+
+  .panel-header {
+    padding: 28px 28px 20px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .logo-line {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 6px;
+  }
+
+  .logo-dot {
+    width: 8px; height: 8px;
+    background: var(--accent-teal);
+    border-radius: 50%;
+    box-shadow: 0 0 10px var(--accent-teal);
+    animation: pulse 2s infinite;
+  }
+
+  @keyframes pulse {
+    0%,100% { opacity: 1; transform: scale(1); }
+    50% { opacity: .5; transform: scale(.8); }
+  }
+
+  .logo-text {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 22px;
+    letter-spacing: 3px;
+    color: var(--accent-teal);
+  }
+
+  .panel-subtitle {
+    font-size: 11px;
+    color: var(--text-muted);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    font-family: 'IBM Plex Mono', monospace;
+  }
+
+  .panel-body { padding: 20px 28px; flex: 1; }
+
+  label {
+    display: block;
+    font-size: 10px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: 8px;
+    font-family: 'IBM Plex Mono', monospace;
+  }
+
+  .time-row {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 18px;
+  }
+
+  .time-select {
+    flex: 1;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 10px 14px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 14px;
+    border-radius: 6px;
+    cursor: pointer;
+    outline: none;
+    transition: border-color .2s;
+  }
+  .time-select:focus { border-color: var(--accent-teal); }
+
+  .date-display {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    padding: 10px 14px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 13px;
+    color: var(--accent-teal);
+    border-radius: 6px;
+  }
+
+  .news-list { display: flex; flex-direction: column; gap: 10px; margin-bottom: 18px; }
+
+  .news-item {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+    transition: border-color .2s;
+  }
+  .news-item:hover { border-color: var(--text-dim); }
+
+  .news-item-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+  }
+
+  .news-num {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    color: var(--text-muted);
+    background: var(--bg);
+    width: 24px; height: 24px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .color-dot {
+    width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0;
+  }
+
+  .news-title-input {
+    flex: 1;
+    background: transparent;
+    border: none;
+    color: var(--text);
+    font-family: 'IBM Plex Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    outline: none;
+  }
+  .news-title-input::placeholder { color: var(--text-dim); }
+
+  .news-desc-input {
+    width: 100%;
+    background: transparent;
+    border: none;
+    border-top: 1px solid var(--border);
+    color: var(--text-muted);
+    font-family: 'IBM Plex Sans', sans-serif;
+    font-size: 11px;
+    outline: none;
+    padding: 8px 12px 8px 46px;
+    resize: none;
+    min-height: 36px;
+  }
+  .news-desc-input::placeholder { color: var(--text-dim); }
+
+  .add-btn {
+    width: 100%;
+    background: transparent;
+    border: 1px dashed var(--border);
+    color: var(--text-muted);
+    padding: 10px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12px;
+    letter-spacing: 1px;
+    transition: all .2s;
+    margin-bottom: 18px;
+  }
+  .add-btn:hover { border-color: var(--accent-teal); color: var(--accent-teal); }
+
+  .source-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 18px;
+  }
+
+  .source-input {
+    flex: 1;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 10px 14px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12px;
+    border-radius: 6px;
+    outline: none;
+    transition: border-color .2s;
+  }
+  .source-input:focus { border-color: var(--accent-teal); }
+
+  .divider { border: none; border-top: 1px solid var(--border); margin: 8px 0 18px; }
+
+  .generate-btn {
+    width: 100%;
+    background: var(--accent-teal);
+    color: #000;
+    border: none;
+    padding: 14px;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 18px;
+    letter-spacing: 3px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all .2s;
+    margin-bottom: 10px;
+  }
+  .generate-btn:hover { background: #00e5c0; transform: translateY(-1px); box-shadow: 0 6px 20px rgba(0,201,167,.3); }
+  .generate-btn:active { transform: translateY(0); }
+  .generate-btn:disabled { opacity: .5; cursor: not-allowed; transform: none; }
+
+  .ai-btn {
+    width: 100%;
+    background: transparent;
+    color: var(--accent-teal);
+    border: 1px solid var(--accent-teal);
+    padding: 11px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12px;
+    letter-spacing: 1px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all .2s;
+    margin-bottom: 10px;
+  }
+  .ai-btn:hover { background: rgba(0,201,167,.1); }
+  .ai-btn:disabled { opacity: .5; cursor: not-allowed; }
+
+  .x-btn {
+    width: 100%;
+    background: #000;
+    color: #fff;
+    border: 1px solid #333;
+    padding: 11px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12px;
+    letter-spacing: 1px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all .2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+  }
+  .x-btn:hover { background: #111; border-color: #555; }
+
+  .status-bar {
+    padding: 12px 28px;
+    border-top: 1px solid var(--border);
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    color: var(--text-muted);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .status-indicator {
+    width: 6px; height: 6px; border-radius: 50%; background: var(--text-dim);
+    transition: background .3s;
+  }
+  .status-indicator.active { background: var(--accent-teal); box-shadow: 0 0 6px var(--accent-teal); }
+  .status-indicator.loading { background: var(--accent-orange); animation: pulse 1s infinite; }
+  .status-indicator.error { background: var(--accent-red); }
+
+  /* ── RIGHT PANEL / PREVIEW ── */
+  .panel-right {
+    flex: 1;
+    padding: 40px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    overflow-y: auto;
+  }
+
+  .preview-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 2px;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    margin-bottom: 24px;
+    align-self: flex-start;
+  }
+
+  /* ── THE CARD ── */
+  .card {
+    width: 800px;
+    max-width: 100%;
+    background: linear-gradient(145deg, #0d1a11 0%, #091410 100%);
+    border-radius: 16px;
+    overflow: hidden;
+    border: 1px solid #1a2e20;
+    box-shadow:
+      0 0 0 1px rgba(0,201,167,.05),
+      0 40px 80px rgba(0,0,0,.8),
+      inset 0 1px 0 rgba(255,255,255,.04);
+    font-family: 'IBM Plex Sans', sans-serif;
+  }
+
+  .card-header {
+    padding: 22px 32px 18px;
+    border-bottom: 1px solid #1a2e20;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    background: linear-gradient(180deg, rgba(0,201,167,.04) 0%, transparent 100%);
+  }
+
+  .card-eyebrow {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 3px;
+    color: #3a5a45;
+    text-transform: uppercase;
+    margin-bottom: 4px;
+  }
+
+  .card-time {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 52px;
+    color: #e8f0eb;
+    line-height: 1;
+    letter-spacing: 2px;
+  }
+
+  .card-meta {
+    text-align: right;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    color: #3a5a45;
+    line-height: 1.8;
+  }
+
+  .card-meta .handle { color: #4a7a55; }
+
+  .card-body { padding: 20px 32px 24px; }
+
+  .card-news-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    padding: 12px 0;
+    border-bottom: 1px solid rgba(26,46,32,.8);
+  }
+  .card-news-item:last-child { border-bottom: none; }
+
+  .card-num {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    color: #2a4a32;
+    background: #0f1e12;
+    width: 22px; height: 22px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+    margin-top: 2px;
+    border: 1px solid #1a3020;
+  }
+
+  .card-dash {
+    width: 18px; height: 2px; flex-shrink: 0; margin-top: 9px; border-radius: 1px;
+  }
+
+  .card-news-content { flex: 1; min-width: 0; }
+
+  .card-news-title {
+    font-size: 16px;
+    font-weight: 600;
+    color: #e0ebe3;
+    line-height: 1.3;
+    margin-bottom: 3px;
+    letter-spacing: -.1px;
+  }
+
+  .card-news-desc {
+    font-size: 11px;
+    color: #4a6a52;
+    line-height: 1.5;
+    font-weight: 300;
+  }
+
+  .card-footer {
+    padding: 12px 32px 14px;
+    border-top: 1px solid #1a2e20;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: rgba(0,0,0,.2);
+  }
+
+  .card-sources {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    color: #2a4a32;
+    letter-spacing: .5px;
+  }
+
+  .card-disclaimer {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    color: #2a4a32;
+    letter-spacing: .5px;
+  }
+
+  /* ── EXPORT ACTIONS ── */
+  .export-row {
+    display: flex;
+    gap: 10px;
+    margin-top: 24px;
+    align-self: flex-start;
+  }
+
+  .export-btn {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--text-muted);
+    padding: 10px 18px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12px;
+    letter-spacing: 1px;
+    transition: all .2s;
+  }
+  .export-btn:hover { border-color: var(--accent-teal); color: var(--accent-teal); }
+
+  /* ── AUTOMATION SECTION ── */
+  .auto-section {
+    margin-top: 32px;
+    width: 800px;
+    max-width: 100%;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+  }
+
+  .auto-header {
+    padding: 16px 24px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 1.5px;
+    color: var(--text-muted);
+    text-transform: uppercase;
+  }
+
+  .auto-body { padding: 20px 24px; display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+
+  .info-card {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 16px;
+  }
+
+  .info-card-title {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--accent-teal);
+    margin-bottom: 10px;
+  }
+
+  .info-card ul {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .info-card li {
+    font-size: 12px;
+    color: var(--text-muted);
+    padding-left: 14px;
+    position: relative;
+    line-height: 1.4;
+  }
+  .info-card li::before {
+    content: '→';
+    position: absolute;
+    left: 0;
+    color: var(--accent-teal);
+    font-size: 10px;
+  }
+
+  .ai-loading {
+    display: none;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 16px;
+    background: rgba(0,201,167,.05);
+    border: 1px solid rgba(0,201,167,.15);
+    border-radius: 8px;
+    margin-top: 10px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12px;
+    color: var(--accent-teal);
+  }
+  .ai-loading.show { display: flex; }
+
+  .spinner {
+    width: 14px; height: 14px;
+    border: 2px solid rgba(0,201,167,.3);
+    border-top-color: var(--accent-teal);
+    border-radius: 50%;
+    animation: spin .8s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .toast {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    padding: 14px 20px;
+    border-radius: 10px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12px;
+    color: var(--text);
+    transform: translateY(80px);
+    opacity: 0;
+    transition: all .3s cubic-bezier(.34,1.56,.64,1);
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .toast.show { transform: translateY(0); opacity: 1; }
+  .toast.success { border-color: var(--accent-teal); }
+  .toast.error { border-color: var(--accent-red); }
+
+  /* ── AI PANEL ── */
+  .ai-panel {
+    margin-top: 10px;
+    background: var(--surface2);
+    border: 1px solid rgba(0,201,167,.15);
+    border-radius: 8px;
+    overflow: hidden;
+    display: none;
+  }
+  .ai-panel.open { display: block; }
+  .ai-panel-header {
+    padding: 10px 14px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    color: var(--accent-teal);
+    letter-spacing: 1.5px;
+    border-bottom: 1px solid rgba(0,201,167,.1);
+    text-transform: uppercase;
+  }
+  .api-key-input {
+    width: 100%;
+    background: transparent;
+    border: none;
+    color: var(--text);
+    padding: 10px 14px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12px;
+    outline: none;
+    border-bottom: 1px solid rgba(0,201,167,.1);
+  }
+  .api-key-input::placeholder { color: var(--text-dim); }
+  .ai-topics-input {
+    width: 100%;
+    background: transparent;
+    border: none;
+    color: var(--text);
+    padding: 10px 14px;
+    font-family: 'IBM Plex Sans', sans-serif;
+    font-size: 12px;
+    outline: none;
+    resize: none;
+    min-height: 60px;
+  }
+  .ai-topics-input::placeholder { color: var(--text-dim); }
+
+  @media (max-width: 900px) {
+    .app-wrap { flex-direction: column; }
+    .panel-left { width: 100%; height: auto; position: static; }
+    .panel-right { padding: 24px 16px; }
+    .card { width: 100%; }
+    .auto-section { width: 100%; }
+    .auto-body { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<div class="app-wrap">
+
+  <!-- LEFT PANEL -->
+  <div class="panel-left">
+    <div class="panel-header">
+      <div class="logo-line">
+        <div class="logo-dot"></div>
+        <span class="logo-text">GÜNDEM OTO</span>
+      </div>
+      <div class="panel-subtitle">Saatlik Haber Yayın Sistemi</div>
+    </div>
+
+    <div class="panel-body">
+
+      <!-- SAAT & TARİH -->
+      <label>Saat Seçimi</label>
+      <div class="time-row">
+        <select class="time-select" id="hourSelect" onchange="updateCard()">
+        </select>
+        <div class="date-display" id="dateDisplay">28 Nis</div>
+      </div>
+
+      <!-- HABERLER -->
+      <label>Haberler</label>
+      <div class="news-list" id="newsList"></div>
+      <button class="add-btn" onclick="addNewsItem()">+ HABER EKLE</button>
+
+      <!-- KAYNAK -->
+      <label>Kaynak Sayısı & Handle</label>
+      <div class="source-row">
+        <input class="source-input" id="sourceCount" type="number" value="31" min="1" max="999" onchange="updateCard()" style="width:80px;flex:none;">
+        <input class="source-input" id="handleInput" value="@OneHoursHaber" onchange="updateCard()">
+      </div>
+
+      <hr class="divider">
+
+      <!-- AI ÖZETLEME -->
+      <button class="ai-btn" id="aiToggleBtn" onclick="toggleAiPanel()">⚡ AI İLE OTOMATİK ÖZETLE</button>
+
+      <div class="ai-panel" id="aiPanel">
+        <div class="ai-panel-header">Claude API Bağlantısı</div>
+        <input class="api-key-input" id="apiKeyInput" type="password" placeholder="sk-ant-... (API anahtarınız)">
+        <textarea class="ai-topics-input" id="aiTopicsInput" placeholder="Gündem konularını buraya yapıştırın, AI başlık + özet oluştursun...&#10;&#10;Örn: Trump İran açıklaması, İstanbul Edirne hızlı tren, Hindistan banka davası..."></textarea>
+        <div style="padding:10px 14px;">
+          <button class="generate-btn" id="aiGenerateBtn" onclick="generateWithAI()" style="margin:0;">AI İLE OLUŞTUR</button>
+        </div>
+      </div>
+
+      <div class="ai-loading" id="aiLoading">
+        <div class="spinner"></div>
+        <span>Haberler oluşturuluyor...</span>
+      </div>
+
+      <hr class="divider">
+
+      <!-- GENERATE -->
+      <button class="generate-btn" onclick="updateCard()">KARTI GÜNCELLE</button>
+
+      <!-- X PAYLAŞ -->
+      <button class="x-btn" onclick="shareX()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="white"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.747l7.73-8.835L1.254 2.25H8.08l4.253 5.622zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+        X'E PAYLAŞ
+      </button>
+
+    </div>
+
+    <div class="status-bar">
+      <div class="status-indicator" id="statusIndicator"></div>
+      <span id="statusText">Hazır</span>
+    </div>
+  </div>
+
+  <!-- RIGHT PANEL -->
+  <div class="panel-right">
+    <div class="preview-label">// ÖNİZLEME</div>
+
+    <!-- THE CARD -->
+    <div class="card" id="mainCard">
+      <div class="card-header">
+        <div>
+          <div class="card-eyebrow">SON BİR SAATtE NELER OLDU?</div>
+          <div class="card-time" id="cardTime">17:00 GÜNDEM</div>
+        </div>
+        <div class="card-meta">
+          <div id="cardDate">28 Nis</div>
+          <div class="handle" id="cardHandle">@OneHoursHaber</div>
+        </div>
+      </div>
+
+      <div class="card-body" id="cardBody">
+        <!-- news items injected here -->
+      </div>
+
+      <div class="card-footer">
+        <div class="card-sources" id="cardSources">31 kaynaktan derlendi</div>
+        <div class="card-disclaimer">Kaynaklar gündem paylaşımlarından alınmaktadır.</div>
+      </div>
+    </div>
+
+    <!-- EXPORT -->
+    <div class="export-row">
+      <button class="export-btn" onclick="copyCard()">📋 KOPYALA</button>
+      <button class="export-btn" onclick="downloadCard()">⬇ PNG İNDİR</button>
+      <button class="export-btn" onclick="schedulePost()">⏰ ZAMANLAMA</button>
+    </div>
+
+    <!-- OTOMASYON BİLGİ -->
+    <div class="auto-section">
+      <div class="auto-header">
+        <div class="logo-dot" style="width:6px;height:6px;"></div>
+        TAM OTOMASYON — NASIL ÇALIŞIR?
+      </div>
+      <div class="auto-body">
+        <div class="info-card">
+          <div class="info-card-title">📡 Haber Kaynakları</div>
+          <ul>
+            <li>RSS feed'lerden otomatik çekim (NTV, CNN Türk, Sözcü vb.)</li>
+            <li>NewsAPI.org ile Türkçe haber akışı</li>
+            <li>Google News RSS ücretsiz kullanılabilir</li>
+            <li>Twitter/X arama API ile trending konular</li>
+          </ul>
+        </div>
+        <div class="info-card">
+          <div class="info-card-title">🤖 AI Özetleme</div>
+          <ul>
+            <li>Claude API ile otomatik başlık + özet</li>
+            <li>20 haber seçip önem sırasına dizme</li>
+            <li>Dil tonu ve uzunluk kontrolü</li>
+            <li>Tekrar eden haberleri otomatik filtreler</li>
+          </ul>
+        </div>
+        <div class="info-card">
+          <div class="info-card-title">🖼️ Görsel Üretim</div>
+          <ul>
+            <li>Puppeteer ile HTML → PNG otomatik çevirme</li>
+            <li>Her saat yeni kart render edilir</li>
+            <li>1920x1080 veya kare format seçeneği</li>
+            <li>Sunucu (VPS) üzerinde çalışır</li>
+          </ul>
+        </div>
+        <div class="info-card">
+          <div class="info-card-title">𝕏 Otomatik Paylaşım</div>
+          <ul>
+            <li>X API v2 ile görsel + metin tweet</li>
+            <li>Cron job ile saatlik zamanlama</li>
+            <li>Hata durumunda tekrar deneme</li>
+            <li>Node.js + Railway/Render ücretsiz host</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+  const COLORS = [
+    '#4da6ff', '#3ddc84', '#4da6ff', '#4da6ff',
+    '#ff4d5a', '#888', '#4da6ff', '#3ddc84',
+    '#ff4d5a', '#ffaa44', '#4da6ff', '#888',
+    '#3ddc84', '#4da6ff', '#ff4d5a', '#4da6ff',
+    '#888', '#3ddc84', '#4da6ff', '#ffaa44'
+  ];
+
+  let newsData = [
+    { title: 'Trump: İran çöktüklerini bildirdi', desc: "Trump, İran'ın çöküş aşamasında olduklarını bildirip Hürmüz Boğazı'nın açılmasını istediğini açıkladı." },
+    { title: 'İstanbul-Edirne hızlı trenle 1,5 saate inecek', desc: "Şu anda 4 saat süren İstanbul-Edirne yolculuğunun hızlı tren projesiyle 1,5 saate düşürülmesi planlanıyor." },
+    { title: "Hindistan'da cenazeyi bankaya götürdü", desc: 'Ölen kız kardeşinin hesabından para çekemeyen adam, banka ısrarı üzerine cenazeyi mezardan çıkarıp şubeye götürdü.' },
+    { title: 'Beyaz Saray polisi çizgi film izlerken yakalandı', desc: 'Bir Twitch yayıncısı, Beyaz Saray çevresinde görevli polisi çizgi film izlerken uyuyakalmış halde görüntüledi.' },
+    { title: 'İBB davasında itirafçıdan çelişkili ifade', desc: 'İtirafçı Adem Soytekin, savunmada rüşvet vermediğini söyledikten 2 saat sonra 1,5 milyon dolar rüşvet verdiğini iddia etti.' },
+    { title: "Oteldeki kişiye 25 restorandan sahte sipariş", desc: "İstanbul'da otelde kalan bir vatandaş adına husumetlisi tarafından 25 farklı restorandan yemek siparişi verildiği ortaya çıktı." },
+    { title: "Trump: Buckingham Sarayı'nda yaşamak istiyorum", desc: "Trump, kendisini Kral Charles ile kuzen gösteren haberi paylaşarak Buckingham Sarayı'nda yaşamak istediğini söyledi." },
+  ];
+
+  // Populate hour select
+  const hourSelect = document.getElementById('hourSelect');
+  for (let h = 0; h < 24; h++) {
+    const opt = document.createElement('option');
+    opt.value = h;
+    opt.textContent = `${String(h).padStart(2,'0')}:00`;
+    if (h === 17) opt.selected = true;
+    hourSelect.appendChild(opt);
+  }
+
+  // Set date
+  function formatDate() {
+    const months = ['Oca','Şub','Mar','Nis','May','Haz','Tem','Ağu','Eyl','Eki','Kas','Ara'];
+    const now = new Date();
+    return `${now.getDate()} ${months[now.getMonth()]}`;
+  }
+  document.getElementById('dateDisplay').textContent = formatDate();
+
+  function renderNewsList() {
+    const list = document.getElementById('newsList');
+    list.innerHTML = '';
+    newsData.forEach((item, i) => {
+      const el = document.createElement('div');
+      el.className = 'news-item';
+      el.innerHTML = `
+        <div class="news-item-header">
+          <div class="news-num">${i+1}</div>
+          <div class="color-dot" style="background:${COLORS[i]}"></div>
+          <input class="news-title-input" placeholder="Başlık..." value="${escH(item.title)}"
+            oninput="newsData[${i}].title=this.value;updateCard()">
+          <button onclick="removeItem(${i})" style="background:none;border:none;color:#3a5040;cursor:pointer;font-size:14px;padding:0 4px;">×</button>
+        </div>
+        <textarea class="news-desc-input" placeholder="Kısa açıklama..." rows="2"
+          oninput="newsData[${i}].desc=this.value;updateCard()">${escH(item.desc)}</textarea>
+      `;
+      list.appendChild(el);
+    });
+  }
+
+  function escH(s) {
+    return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+
+  function addNewsItem() {
+    if (newsData.length >= 20) { showToast('Maksimum 20 haber eklenebilir', 'error'); return; }
+    newsData.push({ title: '', desc: '' });
+    renderNewsList();
+    updateCard();
+  }
+
+  function removeItem(i) {
+    newsData.splice(i, 1);
+    renderNewsList();
+    updateCard();
+  }
+
+  function updateCard() {
+    const h = document.getElementById('hourSelect').value;
+    const handle = document.getElementById('handleInput').value || '@OneHoursHaber';
+    const sources = document.getElementById('sourceCount').value || '31';
+    const date = formatDate();
+
+    document.getElementById('cardTime').textContent = `${String(h).padStart(2,'0')}:00 GÜNDEM`;
+    document.getElementById('cardDate').textContent = date;
+    document.getElementById('cardHandle').textContent = handle;
+    document.getElementById('cardSources').textContent = `${sources} kaynaktan derlendi`;
+
+    const body = document.getElementById('cardBody');
+    body.innerHTML = newsData.map((item, i) => `
+      <div class="card-news-item">
+        <div class="card-num">${i+1}</div>
+        <div class="card-dash" style="background:${COLORS[i]}"></div>
+        <div class="card-news-content">
+          <div class="card-news-title">${item.title || '...'}</div>
+          ${item.desc ? `<div class="card-news-desc">${item.desc}</div>` : ''}
+        </div>
+      </div>
+    `).join('');
+  }
+
+  // AI PANEL
+  function toggleAiPanel() {
+    const panel = document.getElementById('aiPanel');
+    panel.classList.toggle('open');
+  }
+
+  async function generateWithAI() {
+    const apiKey = document.getElementById('apiKeyInput').value.trim();
+    const topics = document.getElementById('aiTopicsInput').value.trim();
+
+    if (!apiKey) { showToast('API anahtarı girin', 'error'); return; }
+    if (!topics) { showToast('Gündem konularını girin', 'error'); return; }
+
+    setStatus('loading', 'AI haberleri oluşturuyor...');
+    document.getElementById('aiLoading').classList.add('show');
+    document.getElementById('aiGenerateBtn').disabled = true;
+
+    try {
+      const resp = await fetch('https://api.anthropic.com/v1/messages', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-api-key': apiKey,
+          'anthropic-version': '2023-06-01',
+          'anthropic-dangerous-direct-browser-access': 'true'
+        },
+        body: JSON.stringify({
+          model: 'claude-sonnet-4-20250514',
+          max_tokens: 2000,
+          messages: [{
+            role: 'user',
+            content: `Sen Türkçe haber editörüsün. Aşağıdaki konulardan en fazla 10 gündem maddesi oluştur.
+Her madde için kısa bir başlık ve 1-2 cümlelik özet yaz.
+Sadece JSON döndür, başka hiçbir şey yazma.
+Format: [{"title":"...","desc":"..."},...]
+
+Konular:
+${topics}`
+          }]
+        })
+      });
+
+      const data = await resp.json();
+      const text = data.content?.[0]?.text || '[]';
+      const clean = text.replace(/```json|```/g, '').trim();
+      const parsed = JSON.parse(clean);
+
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        newsData = parsed.slice(0, 20);
+        renderNewsList();
+        updateCard();
+        showToast(`✓ ${parsed.length} haber oluşturuldu`, 'success');
+        setStatus('active', 'AI haberleri oluşturuldu');
+      }
+    } catch (e) {
+      showToast('Hata: ' + e.message, 'error');
+      setStatus('error', 'AI hatası');
+    } finally {
+      document.getElementById('aiLoading').classList.remove('show');
+      document.getElementById('aiGenerateBtn').disabled = false;
+    }
+  }
+
+  // COPY TEXT
+  function copyCard() {
+    const h = document.getElementById('hourSelect').value;
+    const handle = document.getElementById('handleInput').value || '@OneHoursHaber';
+    const date = formatDate();
+    let text = `${String(h).padStart(2,'0')}:00 GÜNDEM | ${date} | ${handle}\n\n`;
+    newsData.forEach((item, i) => {
+      text += `${i+1}. ${item.title}\n${item.desc}\n\n`;
+    });
+    navigator.clipboard.writeText(text).then(() => showToast('✓ Metin kopyalandı', 'success'));
+  }
+
+  // DOWNLOAD PNG
+  async function downloadCard() {
+    showToast('PNG indirme için html2canvas gerekli', 'error');
+    // In production: use html2canvas or puppeteer server-side
+    // import html2canvas from CDN and capture #mainCard
+  }
+
+  // SCHEDULE
+  function schedulePost() {
+    showToast('Zamanlama: Node.js cron job ile yapılır (bkz. aşağıdaki rehber)', 'success');
+  }
+
+  // X SHARE
+  function shareX() {
+    const h = document.getElementById('hourSelect').value;
+    const handle = document.getElementById('handleInput').value || '';
+    const topItems = newsData.slice(0,3).map((n,i) => `${i+1}. ${n.title}`).join('\n');
+    const text = encodeURIComponent(`${String(h).padStart(2,'0')}:00 GÜNDEM\n\n${topItems}\n\n${handle}`);
+    window.open(`https://twitter.com/intent/tweet?text=${text}`, '_blank');
+  }
+
+  function setStatus(type, msg) {
+    const ind = document.getElementById('statusIndicator');
+    ind.className = 'status-indicator ' + (type === 'loading' ? 'loading' : type === 'error' ? 'error' : 'active');
+    document.getElementById('statusText').textContent = msg;
+  }
+
+  function showToast(msg, type = 'success') {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.className = 'toast show ' + type;
+    setTimeout(() => t.className = 'toast', 3000);
+  }
+
+  // INIT
+  renderNewsList();
+  updateCard();
+  setStatus('active', 'Hazır');
+</script>
+</body>
+</html>
