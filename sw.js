@@ -3,7 +3,7 @@
 // (blob:/data: URL'lerden servis çalışanı kaydı çoğu tarayıcıda desteklenmez,
 //  bu yüzden gerçek bir statik dosya olarak sunulur.)
 
-const CACHE_VERSION = 'eduboss-v30';
+const CACHE_VERSION = 'eduboss-v33';
 const STATIC = [
   'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js',
   'https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js',
