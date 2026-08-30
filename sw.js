@@ -1,10 +1,11 @@
 // EDU-BOSS Service Worker
-// Bu dosya, EDU-BOSS-v29.html ile TAM OLARAK AYNI KLASÖRDE bulunmalıdır.
+// Bu dosya, EDU-BOSS-v36.html VE manifest.json ile TAM OLARAK AYNI KLASÖRDE bulunmalıdır.
 // (blob:/data: URL'lerden servis çalışanı kaydı çoğu tarayıcıda desteklenmez,
 //  bu yüzden gerçek bir statik dosya olarak sunulur.)
 
-const CACHE_VERSION = 'eduboss-v35';
+const CACHE_VERSION = 'eduboss-v36';
 const STATIC = [
+  './manifest.json',
   'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js',
   'https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js',
   'https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Mono:wght@400;500&family=Black+Ops+One&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap'
