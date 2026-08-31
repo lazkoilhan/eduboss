@@ -202,18 +202,28 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
   font-family:'Plus Jakarta Sans',sans-serif;font-size:12px;transition:.14s;margin-bottom:14px}
 .ls-geri-btn:hover{background:rgba(255,255,255,.11);color:#fff}
 /* Mobil */
-@media(max-width:700px){
+/* Tablet + Mobil — kayan/aşırı boş görünen 2 sütunlu masaüstü tasarımı yerine
+   iPad gibi orta genişlikteki ekranlarda da alt-üst (stacked) düzene geçiyoruz.
+   Eskiden bu eşik 700px'ti; iPad (768-1024px CSS genişliği) bu aralığın dışında
+   kalıp sabit 420px'lik sağ panel + esnek sol paneldeki roket/ikonlar sabit
+   piksel boyutlarında kaldığı için ekranın çoğu boş/dağınık görünüyordu.
+   Bu blok sadece DÜZENİ değiştirir; boyut küçültmeleri aşağıdaki 700px'lik
+   blokta sadece dar telefonlara uygulanıyor. */
+@media(max-width:1024px){
   #login-screen{flex-direction:column}
   .ls-sol{height:42vh;min-height:220px;flex:none}
   .ls-sol::after{display:none}
-  .ls-marka{bottom:42%}
-  .ls-marka-ad{font-size:22px}
-  .ls-roket{width:92px}
   .ls-sag{width:100%;flex:1;padding:24px 18px;border-radius:22px 22px 0 0;
     margin-top:-18px;z-index:5;box-shadow:0 -8px 28px rgba(0,0,0,.5);
     justify-content:flex-start;padding-top:28px}
   .ls-aciklama{margin-bottom:16px}
   .ls-ozellikler{margin-bottom:16px}
+}
+/* Mobil — dar telefon ekranlarına özel ek küçültmeler */
+@media(max-width:700px){
+  .ls-marka{bottom:42%}
+  .ls-marka-ad{font-size:22px}
+  .ls-roket{width:92px}
   .ls-oz-lbl{font-size:7.5px}
   .ls-btn{padding:6px}
   .ls-btn-avatar{width:42px;height:42px;font-size:19px}
