@@ -951,6 +951,26 @@ hr.dv{border:none;border-top:1px solid rgba(255,255,255,.055);margin:12px 0}
     </div>
     <!-- Sınav Sonuçları -->
     <div class="op-content show" id="op-sinav">
+      <div class="card" style="margin-bottom:10px">
+        <div class="ct" style="display:flex;justify-content:space-between;align-items:center;cursor:pointer" onclick="kdFormToggle()">
+          <span>📝 Kendi Denemeni Ekle</span>
+          <span id="op-kd-toggle-ok" style="font-size:11px;color:var(--mu2)">▼ Aç</span>
+        </div>
+        <div id="op-kd-form" style="display:none">
+          <div style="font-size:10.5px;color:var(--mu2);margin:6px 0 10px">Kurumda yapmadığın (evde/kütüphanede vb.) denemeleri buradan gir — öğretmenin de görecek, gelişim grafiğine dahil olacak.</div>
+          <div class="fr">
+            <div class="f"><label>Sınav Adı</label><input id="op-kd-sinavadi" placeholder="Örn: Hocalara Geldik Deneme 5"></div>
+            <div class="f"><label>Tarih</label><input id="op-kd-tarih" type="date"></div>
+          </div>
+          <div style="font-size:10px;color:var(--Y);text-transform:uppercase;letter-spacing:1px;margin:10px 0 6px">TYT</div>
+          <div id="op-kd-tyt-dersler" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:8px"></div>
+          <label style="display:flex;align-items:center;gap:6px;margin:12px 0 6px;font-size:11px;color:var(--mu2);cursor:pointer">
+            <input type="checkbox" id="op-kd-ayt-cb" onchange="kdAytToggle()"> AYT de girdim
+          </label>
+          <div id="op-kd-ayt-dersler" style="display:none;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:8px"></div>
+          <button class="btn btn-p" style="width:100%;margin-top:12px" onclick="kendiDenemeKaydet()">💾 Denemeyi Kaydet</button>
+        </div>
+      </div>
       <div class="sr" id="op-sinav-stats"></div>
       <div class="card mt3">
         <div class="ct" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px">
@@ -3739,22 +3759,40 @@ function waTumunuGonder(sec){
 let selDetId=null;
 let gelisimAktif=['TR','MAT'];
 
-function renderDetPage(){renderDetListe();}
+function renderDetPage(){ ozelDenemelerYukleTumu(true); renderDetListe(); }
 
-function renderDetListe(){
+// ─── Tüm öğrencilerin kendi girdiği denemeleri TEK sorguda çek ve önbelleğe al ───
+// Öğrenci Detay ekranında öğrenci öğrenci ayrı sorgu atmak yerine (150 deneme x
+// çok öğrenci = çok okuma) tenant başına bir kere çekip client'ta filtreliyoruz.
+let _ozelDenemeCache = null;
+async function ozelDenemelerYukleTumu(zorlaYenile){
+  if(_ozelDenemeCache && !zorlaYenile) return _ozelDenemeCache;
+  _ozelDenemeCache = [];
+  try{
+    if(db && _tenantUid){
+      const snap = await db.collection('v5_ozel_denemeler').where('tenantUid','==',_tenantUid).get();
+      snap.forEach(d=>_ozelDenemeCache.push({...d.data(), _id:d.id}));
+    }
+  }catch(e){ console.warn('Kendi deneme verileri alınamadı (toplu):', e.message); }
+  return _ozelDenemeCache;
+}
+
+async function renderDetListe(){
   const q=(document.getElementById('det-ara')?.value||'').toLowerCase();
   const el=document.getElementById('det-liste');
   const fil=AOK.filter(o=>!q||o.ad.toLowerCase().includes(q));
   if(!fil.length){el.innerHTML='<div class="empty" style="padding:16px">Öğrenci yok</div>';return;}
+  const tumKendi = await ozelDenemelerYukleTumu();
   el.innerHTML=fil.map(o=>{
     const t=Object.values(o.tyt).reduce((a,b)=>a+b,0);
-    const g=(o.gecmis||[]).length;
+    const kendiSay = tumKendi.filter(d=>d.ogrenciId===o.id).length;
+    const g=(o.gecmis||[]).length + kendiSay;
     return`<div class="ok ${selDetId===o.id?'sel':''}" onclick="selDet('${o.id}')" style="margin-bottom:6px">
       <div class="ok-ad">${o.ad}</div>
       <div class="ok-meta">${o.sinif||''} ${o.sira?'· #'+o.sira:''}</div>
       <div class="flex gap2 mt2" style="flex-wrap:wrap">
         <span class="b bG">TYT ${t.toFixed(1)}</span>
-        ${g>1?`<span class="sbadge">📈 ${g} sınav</span>`:''}
+        ${g>1?`<span class="sbadge">📈 ${g} sınav${kendiSay?' ('+kendiSay+' kendi)':''}</span>`:''}
         ${o.puan?`<span class="b bY">${o.puan.toFixed(0)}</span>`:''}
       </div>
     </div>`;
@@ -3763,11 +3801,16 @@ function renderDetListe(){
 
 function selDet(id){selDetId=id;renderDetListe();renderDetPanel(id);}
 
-function renderDetPanel(id){
+async function renderDetPanel(id){
   const o=AOK.find(x=>x.id===id);if(!o)return;
   const tytT=Object.values(o.tyt).reduce((a,b)=>a+b,0);
   const aytT=Object.values(o.ayt).reduce((a,b)=>a+b,0);
-  const gec=(o.gecmis||[]).slice().sort((a,b)=>a.tarih.localeCompare(b.tarih));
+  document.getElementById('det-panel').innerHTML='<div class="empty" style="padding:30px">Yükleniyor...</div>';
+  const tumKendi = await ozelDenemelerYukleTumu();
+  const kendiGec = tumKendi.filter(d=>d.ogrenciId===o.id)
+    .map(d=>({tarih:d.tarih, sinavAdi:d.sinavAdi, tyt:d.tyt||{}, ayt:d.ayt||{}, kaynak:'kendi', _id:d._id}));
+  const gec = [...(o.gecmis||[]).map(g=>({...g,kaynak:'kurum'})), ...kendiGec]
+    .sort((a,b)=>(a.tarih||'').localeCompare(b.tarih||''));
   const hasTarih=gec.length>1;
 
   document.getElementById('det-panel').innerHTML=`
@@ -3841,8 +3884,8 @@ function renderDetPanel(id){
   </div>
   <div class="card">
     <div class="ct">📋 Sınav Geçmişi — Tarihsel Sıralama <span class="sub">${gec.length} sınav</span></div>
-    <div class="tbl-wrap"><table><thead><tr>
-      <th>Tarih</th><th>Sınav</th><th>Sıra</th>
+    <div class="tbl-wrap" style="max-height:460px;overflow-y:auto"><table><thead><tr>
+      <th>Kaynak</th><th>Tarih</th><th>Sınav</th><th>Sıra</th>
       ${TYT.map(d=>`<th style="color:${RC[d]}">${d}</th>`).join('')}
       ${AYT.map(d=>`<th style="color:${RC[d]}">${d}</th>`).join('')}
       <th>EA Puan</th><th>TYT Top.</th><th>Değişim</th>
@@ -3853,6 +3896,7 @@ function renderDetPanel(id){
       const prevT=prev?Object.values(prev.tyt||{}).reduce((a,b)=>a+b,0):null;
       const trend=prevT!==null?t-prevT:null;
       return`<tr>
+        <td>${g.kaynak==='kendi'?'<span class="b bP" title="Öğrencinin kendi girdiği">👤 Kendi</span>':'<span class="b bB" title="Kurumda girilen">👨‍🏫 Kurum</span>'}</td>
         <td>${tfmt(g.tarih)}</td>
         <td><span class="b bP">${g.sinavAdi||'—'}</span></td>
         <td style="color:var(--mu)">${g.sira||'—'}</td>
@@ -3862,7 +3906,7 @@ function renderDetPanel(id){
         <td class="mono"><strong>${t.toFixed(1)}</strong></td>
         <td>${trend!==null?`<span style="color:${trend>=0?'var(--G)':'var(--R)'}">
           ${trend>=0?'↑':'↓'}${Math.abs(trend).toFixed(1)}</span>`:'—'}</td>
-      </tr>`;}).join('')}
+      </tr>`;}).reverse().join('')}
     </tbody></table></div>
   </div>`:`<div class="card"><div style="color:var(--mu);font-size:12px;text-align:center;padding:16px">📈 Gelişim grafiği için birden fazla sınav PDF'i yükleyin</div></div>`}
   `;
@@ -3876,15 +3920,17 @@ function renderDetPanel(id){
     });
     if(hasTarih){
       dChart('ch-gelisim');
+      const cokSinav = gec.length>25;
       const labels=gec.map(g=>g.sinavAdi||g.tarih);
       const datasets=gelisimAktif.map(d=>({
-        label:d,tension:.35,pointRadius:4,borderWidth:2,
+        label:d,tension:.35,pointRadius:cokSinav?1.5:4,borderWidth:2,
         data:gec.map(g=>(TYT.includes(d)?g.tyt?.[d]:g.ayt?.[d])||0),
         borderColor:RC[d],backgroundColor:RC[d]+'22',pointBackgroundColor:RC[d]
       }));
       charts['ch-gelisim']=new Chart(document.getElementById('ch-gelisim'),{
         type:'line',data:{labels,datasets},
-        options:{...cBase,plugins:{legend:{display:true,labels:{color:'#527a98',font:{size:10},boxWidth:12}}},scales:{...cBase.scales,y:{...cBase.scales.y,min:0,max:40}}}
+        options:{...cBase,plugins:{legend:{display:true,labels:{color:'#527a98',font:{size:10},boxWidth:12}}},
+          scales:{...cBase.scales,y:{...cBase.scales.y,min:0,max:40},x:{...cBase.scales.x,ticks:{...cBase.scales.x?.ticks,maxTicksLimit:cokSinav?12:undefined,autoSkip:true}}}}
       });
     }
   },60);
@@ -5140,6 +5186,8 @@ async function ogrenciGiris(userData){
   if(pomoHızlıBtn) pomoHızlıBtn.style.display = veliModu ? 'none' : '';
   const aiYorumBtn = document.querySelector('[onclick="opAiYorumAl()"]');
   if(aiYorumBtn) aiYorumBtn.style.display = veliModu ? 'none' : '';
+  const kdKart = document.querySelector('[onclick="kdFormToggle()"]');
+  if(kdKart) kdKart.closest('.card').style.display = veliModu ? 'none' : '';
 
   // XP header badge (veli için gösterilmiyor — kendi hesabının XP'si anlamsız)
   const headerXp = document.getElementById('op-header-xp');
@@ -5231,7 +5279,32 @@ function opTab(tab, el){
   // Gamification tabs handled by inline onclick
 }
 
-function opRender(ogr, userData){
+// ─── Öğrencinin kurum + kendi girdiği tüm denemelerini birleştir ───
+// Teacher tarafında AOK'ın o.gecmis dizisi "kurum" kaynaklı sınavları tutar.
+// Öğrencinin kendi girdiği denemeler ayrı bir koleksiyonda (v5_ozel_denemeler)
+// tutulur — AOK tek bir büyük dokümanda tutulduğu için öğrencinin doğrudan
+// oraya yazması, öğretmenin aynı anda yaptığı toplu kayıtları ezme riski
+// taşırdı. Bu yüzden ayrı koleksiyon + render'da birleştirme tercih edildi.
+let _opGecMerged = [];
+async function ogrTumGecmisGetir(ogr){
+  const kurumGec = (ogr.gecmis||[]).map(g=>({...g, kaynak:'kurum'}));
+  let kendiGec = [];
+  try{
+    if(db && _tenantUid && ogr.id){
+      const snap = await db.collection('v5_ozel_denemeler')
+        .where('tenantUid','==',_tenantUid)
+        .where('ogrenciId','==',ogr.id)
+        .get();
+      snap.forEach(doc=>{
+        const d = doc.data();
+        kendiGec.push({tarih:d.tarih, sinavAdi:d.sinavAdi, tyt:d.tyt||{}, ayt:d.ayt||{}, kaynak:'kendi', _id:doc.id});
+      });
+    }
+  }catch(e){ console.warn('Kendi deneme verisi alınamadı:', e.message); }
+  return [...kurumGec, ...kendiGec].sort((a,b)=>(a.tarih||'').localeCompare(b.tarih||''));
+}
+
+async function opRender(ogr, userData){
   _opOgr=ogr;
   if(!ogr){
     document.getElementById('op-sinav-stats').innerHTML='<div class="empty">Henüz sınav verisi yok</div>';
@@ -5244,6 +5317,7 @@ function opRender(ogr, userData){
     opRenderGorevlerim(null, userData);
     return;
   }
+  kdFormHazirla();
   // Hedef, takvim, notlar paralel yükle
   Promise.all([fbGet(tenantCol('v5_hedef')),fbGet(COL.takvim),fbGet(COL.notlar)]).then(([h,t,n])=>{
     HEDEFLER=h;TAKVIM=t;NOTLAR=n;
@@ -5253,13 +5327,14 @@ function opRender(ogr, userData){
   });
   const tytTop=Object.values(ogr.tyt||{}).reduce((a,b)=>a+b,0);
   const eaTop=EA_AYT.reduce((a,d)=>a+(ogr.ayt[d]||0),0);
-  const gec=(ogr.gecmis||[]).slice().sort((a,b)=>a.tarih.localeCompare(b.tarih));
+  const gec = await ogrTumGecmisGetir(ogr);
+  _opGecMerged = gec;
 
-  // Sınav seçici doldur
+  // Sınav seçici doldur (en yeni üstte — 100+ deneme birikince aramak kolaylaşsın)
   const opSec=document.getElementById('op-sinav-sec');
   if(opSec){
     opSec.innerHTML='<option value="son">Son Sınav</option>'+
-      gec.map(g=>`<option value="${g.sinavAdi}">${g.sinavAdi} · ${tfmt(g.tarih)}</option>`).join('');
+      gec.slice().reverse().map(g=>`<option value="${g.sinavAdi}">${g.sinavAdi} · ${tfmt(g.tarih)}</option>`).join('');
     opSec.value='son';
   }
 
@@ -5275,19 +5350,21 @@ function opRender(ogr, userData){
   opSinavFiltre(ogr);
   opZayifDerslerRender(ogr);
 
-  // Geçmiş tablo
+  // Geçmiş tablo — trend kronolojik (eskiden yeniye) sırayla hesaplanır,
+  // sonra listede en yeni en üstte görünsün diye ters çevrilir. Çok sayıda
+  // deneme (100+) birikince sayfa uzamasın diye tablo kendi içinde kaydırılır.
   document.getElementById('op-sinav-gecmis').innerHTML=gec.length>1?`
-    <div class="tbl-wrap"><table><thead><tr><th>Tarih</th><th>Sınav</th><th>TYT Top.</th><th>EA Puan</th><th>SAY Puan</th><th>Değişim</th></tr></thead>
+    <div class="tbl-wrap" style="max-height:420px;overflow-y:auto"><table><thead><tr><th>Kaynak</th><th>Tarih</th><th>Sınav</th><th>TYT Top.</th><th>EA Puan</th><th>SAY Puan</th><th>Değişim</th></tr></thead>
     <tbody>${gec.map((g,gi)=>{
       const t=Object.values(g.tyt||{}).reduce((a,b)=>a+b,0);
       const prev=gec[gi-1];const prevT=prev?Object.values(prev.tyt||{}).reduce((a,b)=>a+b,0):null;
       const deg=prevT!==null?t-prevT:null;
-      return`<tr><td>${tfmt(g.tarih)}</td><td><span class="b bP">${g.sinavAdi||'—'}</span></td>
+      return`<tr><td>${g.kaynak==='kendi'?'<span class="b bP" title="Kendi girdiğin deneme">👤 Kendi</span>':'<span class="b bB" title="Öğretmenin girdiği">👨‍🏫 Kurum</span>'}</td><td>${tfmt(g.tarih)}</td><td><span class="b bP">${g.sinavAdi||'—'}</span></td>
         <td style="color:var(--G)"><strong>${t.toFixed(1)}</strong></td>
         <td style="color:var(--Y)">${g.puan?.toFixed(0)||'—'}</td>
         <td style="color:var(--O)">${g.puanSAY?.toFixed(0)||'—'}</td>
         <td>${deg!==null?`<span style="color:${deg>=0?'var(--G)':'var(--R)'}">${deg>=0?'↑':'↓'}${Math.abs(deg).toFixed(1)}</span>`:'—'}</td>
-      </tr>`;}).join('')}</tbody></table></div>`
+      </tr>`;}).reverse().join('')}</tbody></table></div>`
     :'<div style="color:var(--mu);font-size:12px;padding:12px">Henüz tek sınav var.</div>';
 
   // ⚡ Net artış XP kontrolü
@@ -5323,11 +5400,13 @@ function opRender(ogr, userData){
         backgroundColor:[...TYT,...AYT].map(d=>RC[d]+'88'),borderColor:[...TYT,...AYT].map(d=>RC[d]),borderWidth:1,borderRadius:4}]},
       options:cBase2});
     if(gec.length>1){
+      const cokSinav = gec.length>25;
       opCharts.gelisim=new Chart(document.getElementById('op-ch-gelisim'),{type:'line',
         data:{labels:gec.map(g=>g.sinavAdi||g.tarih),
           datasets:[{label:'TYT Toplam',data:gec.map(g=>Object.values(g.tyt||{}).reduce((a,b)=>a+b,0)),
-            borderColor:'#34d399',backgroundColor:'rgba(52,211,153,.15)',tension:.35,pointRadius:4,borderWidth:2,pointBackgroundColor:'#34d399'}]},
-        options:{...cBase2,plugins:{legend:{display:true,labels:{color:'#527a98',font:{size:10}}}}}});
+            borderColor:'#34d399',backgroundColor:'rgba(52,211,153,.15)',tension:.35,pointRadius:cokSinav?1.5:4,borderWidth:2,pointBackgroundColor:'#34d399'}]},
+        options:{...cBase2,plugins:{legend:{display:true,labels:{color:'#527a98',font:{size:10}}}},
+          scales:{...cBase2.scales,x:{...cBase2.scales.x,ticks:{...cBase2.scales.x.ticks,maxTicksLimit:cokSinav?12:undefined,autoSkip:true}}}}});
     } else {
       document.getElementById('op-ch-gelisim').parentElement.innerHTML='<div class="empty" style="padding:20px">Gelişim grafiği için birden fazla sınav gerekli</div>';
     }
@@ -5384,7 +5463,7 @@ async function opAiYorumAl(){
   const key = localStorage.getItem('eduboss_apikey');
   if(!key){ el.innerHTML='API anahtarı girilmemiş — <strong>Ayarlar</strong> sayfasından ekleyebilirsin.'; return; }
 
-  const gec = (ogr.gecmis||[]).slice().sort((a,b)=>a.tarih.localeCompare(b.tarih));
+  const gec = _opGecMerged.length ? _opGecMerged : (ogr.gecmis||[]).slice().sort((a,b)=>(a.tarih||'').localeCompare(b.tarih||''));
   const son = gec[gec.length-1];
   const onceki = gec[gec.length-2];
   const sonNet = son ? Object.values(son.tyt||{}).reduce((a,b)=>a+b,0) : Object.values(ogr.tyt||{}).reduce((a,b)=>a+b,0);
@@ -5431,7 +5510,7 @@ Sadece geri bildirim metnini yaz, başlık veya markdown kullanma.`;
 function opSinavFiltre(ogrParam){
   const ogr=ogrParam||_opOgr;if(!ogr)return;
   const sec=document.getElementById('op-sinav-sec')?.value||'son';
-  const gec=(ogr.gecmis||[]).slice().sort((a,b)=>a.tarih.localeCompare(b.tarih));
+  const gec = _opGecMerged.length ? _opGecMerged : (ogr.gecmis||[]).slice().sort((a,b)=>(a.tarih||'').localeCompare(b.tarih||''));
   let tyt=ogr.tyt, ayt=ogr.ayt, sinavAdi='Son Sınav';
   if(sec==='son'){
     const son=gec[gec.length-1];
@@ -5454,6 +5533,106 @@ function opSinavFiltre(ogrParam){
           <div class="pb mt2"><div class="pf" style="width:${Math.max(0,(n||0)/40*100)}%;background:${RC[d]}"></div></div>
         </div>`;}).join('')||'<div style="padding:16px;color:var(--mu);font-size:12px">Bu sınav için net bulunamadı</div>'}
     </div>`;
+}
+
+// ─── Öğrencinin Kendi Deneme Girişi ───
+let _kdDersRowsHazir = false;
+
+function kdFormHazirla(){
+  if(_kdDersRowsHazir) return;
+  const tytEl = document.getElementById('op-kd-tyt-dersler');
+  const aytEl = document.getElementById('op-kd-ayt-dersler');
+  if(!tytEl || !aytEl) return;
+  const rowHtml = (d)=>`<div style="background:var(--s2);border:1px solid ${RC[d]}33;border-radius:8px;padding:8px">
+    <div style="font-size:9px;color:${RC[d]};margin-bottom:4px;font-weight:700">${d}</div>
+    <div style="display:flex;gap:4px;align-items:center">
+      <input type="number" min="0" placeholder="D" data-ders="${d}" data-tip="d" class="kd-net-inp" oninput="kdNetGuncelle('${d}')" style="width:42px;background:var(--s1);border:1px solid var(--b1);border-radius:6px;padding:4px;color:var(--G);font-size:11px;text-align:center">
+      <input type="number" min="0" placeholder="Y" data-ders="${d}" data-tip="y" class="kd-net-inp" oninput="kdNetGuncelle('${d}')" style="width:42px;background:var(--s1);border:1px solid var(--b1);border-radius:6px;padding:4px;color:var(--R);font-size:11px;text-align:center">
+      <span id="op-kd-net-${d}" style="font-size:9px;color:var(--mu2);margin-left:2px;white-space:nowrap">0.00</span>
+    </div>
+  </div>`;
+  tytEl.innerHTML = TYT.map(rowHtml).join('');
+  aytEl.innerHTML = AYT.map(rowHtml).join('');
+  _kdDersRowsHazir = true;
+}
+
+function kdNetGuncelle(ders){
+  const dInp = document.querySelector('.kd-net-inp[data-ders="'+ders+'"][data-tip="d"]');
+  const yInp = document.querySelector('.kd-net-inp[data-ders="'+ders+'"][data-tip="y"]');
+  const d = parseFloat(dInp?.value)||0;
+  const y = parseFloat(yInp?.value)||0;
+  const net = Math.max(0, d - y/4);
+  const el = document.getElementById('op-kd-net-'+ders);
+  if(el) el.textContent = net.toFixed(2);
+}
+
+function kdFormToggle(){
+  const f = document.getElementById('op-kd-form');
+  const ok = document.getElementById('op-kd-toggle-ok');
+  if(!f) return;
+  kdFormHazirla();
+  const acik = f.style.display !== 'none';
+  f.style.display = acik ? 'none' : 'block';
+  if(ok) ok.textContent = acik ? '▼ Aç' : '▲ Kapat';
+  const tarihInp = document.getElementById('op-kd-tarih');
+  if(!acik && tarihInp && !tarihInp.value) tarihInp.value = bugun();
+}
+
+function kdAytToggle(){
+  const cb = document.getElementById('op-kd-ayt-cb');
+  const el = document.getElementById('op-kd-ayt-dersler');
+  if(el) el.style.display = cb.checked ? 'grid' : 'none';
+}
+
+async function kendiDenemeKaydet(){
+  if(mevcutKullanici && mevcutKullanici.rol==='veli'){ toast('Veli hesabı deneme giremez, bu öğrencinin işi', 'err'); return; }
+  const ogrId = getOgrId();
+  if(!ogrId){ toast('Öğrenci kimliği bulunamadı, sayfayı yenileyip tekrar deneyin', 'err'); return; }
+  const sinavAdiEl = document.getElementById('op-kd-sinavadi');
+  const sinavAdi = sinavAdiEl.value.trim();
+  const tarih = document.getElementById('op-kd-tarih').value || bugun();
+  if(!sinavAdi){ toast('Sınav adı zorunlu', 'err'); return; }
+
+  const netHesapla=(d)=>{
+    const dv = parseFloat(document.querySelector('.kd-net-inp[data-ders="'+d+'"][data-tip="d"]')?.value)||0;
+    const yv = parseFloat(document.querySelector('.kd-net-inp[data-ders="'+d+'"][data-tip="y"]')?.value)||0;
+    return Math.max(0, dv - yv/4);
+  };
+  const tyt = {}; let toplamNet = 0;
+  TYT.forEach(d=>{ const n=netHesapla(d); tyt[d]=n; toplamNet+=n; });
+  const aytAcik = document.getElementById('op-kd-ayt-cb')?.checked;
+  const ayt = {};
+  if(aytAcik){ AYT.forEach(d=>{ const n=netHesapla(d); ayt[d]=n; toplamNet+=n; }); }
+
+  if(toplamNet<=0){ toast('En az bir dersten doğru/yanlış gir', 'err'); return; }
+  if(!db){ toast('Bağlantı yok, deneme kaydedilemedi', 'err'); return; }
+
+  const btn = document.querySelector('#op-kd-form .btn-p');
+  if(btn){ btn.disabled=true; btn.textContent='Kaydediliyor...'; }
+  try{
+    await db.collection('v5_ozel_denemeler').add({
+      tenantUid: _tenantUid,
+      ogrenciId: ogrId,
+      ogrAdi: (_opOgr && _opOgr.ad) || mevcutKullanici.ad || '',
+      sinavAdi, tarih, tyt, ayt,
+      girenUid: mevcutKullanici.uid || null,
+      olusturma: Date.now()
+    });
+    toast('✓ Deneme kaydedildi! Toplam '+toplamNet.toFixed(1)+' net', 'ok');
+    sinavAdiEl.value='';
+    document.querySelectorAll('.kd-net-inp').forEach(i=>i.value='');
+    document.querySelectorAll('[id^="op-kd-net-"]').forEach(e=>e.textContent='0.00');
+    const aytCb = document.getElementById('op-kd-ayt-cb');
+    if(aytCb) aytCb.checked=false;
+    const aytWrap = document.getElementById('op-kd-ayt-dersler');
+    if(aytWrap) aytWrap.style.display='none';
+    kdFormToggle(); // formu kapat
+    if(typeof xpEkle==='function') xpEkle(15,'Kendi deneme girişi ('+sinavAdi+')');
+    if(_opOgr) opRender(_opOgr, _opUserData); // birleşik geçmişi tazele
+  }catch(e){
+    toast('Kaydedilemedi: '+e.message, 'err');
+  }
+  if(btn){ btn.disabled=false; btn.textContent='💾 Denemeyi Kaydet'; }
 }
 
 function opRenderProgram(ad){
