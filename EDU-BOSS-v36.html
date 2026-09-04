@@ -450,13 +450,33 @@ tr:hover td{background:rgba(255,255,255,.018)}
 /* ── PROGRAM ── */
 .prog-wrap{overflow-x:auto}
 .prog-grid{display:grid;grid-template-columns:68px repeat(7,1fr);gap:3px;min-width:620px}
-.pg-head{padding:5px;text-align:center;font-size:9px;text-transform:uppercase;color:var(--mu);letter-spacing:1px;font-weight:600}
-.pg-time{padding:5px 6px;color:var(--mu);font-size:9px;text-align:right;line-height:34px}
+/* Gün başlıkları dikey kaydırmada, saat sütunu yatay kaydırmada sabit kalsın —
+   telefonda hem aşağı hem sağa kaydırırken hangi hücrenin hangi gün/saate ait
+   olduğunu kaybetmemek için. Köşe hücresi ikisinde de sabit, en üstte durur. */
+.pg-head{padding:5px;text-align:center;font-size:9px;text-transform:uppercase;color:var(--mu);letter-spacing:1px;font-weight:600;
+  position:sticky;top:0;z-index:3;background:var(--s1)}
+.pg-head-corner{position:sticky;top:0;left:0;z-index:4;background:var(--s1)}
+.pg-time{padding:5px 6px;color:var(--mu);font-size:9px;text-align:right;line-height:34px;
+  position:sticky;left:0;z-index:2;background:var(--s1)}
 .pg-cell{border-radius:8px;background:rgba(255,255,255,.028);border:1px solid rgba(255,255,255,.048);
   min-height:34px;cursor:pointer;transition:.1s;font-size:10px;padding:4px;
   display:flex;align-items:center;justify-content:center;text-align:center}
 .pg-cell:hover{border-color:rgba(34,211,238,.28);background:rgba(34,211,238,.038)}
 .pg-cell.dolu{border-width:1.5px}
+.prog-grid-mobil{display:none}
+.prog-daytabs{display:none}
+@media(max-width:700px){
+  /* Telefonda 7 sütunu yatay kaydırmak dikey sayfa kaydırmasıyla çakışıp
+     "kayan/zor kullanılan" bir his veriyordu — bu yüzden tek gün + gün
+     seçici çipler gösteriliyor, yatay kaydırmaya hiç gerek kalmıyor. */
+  .prog-grid:not(.prog-grid-mobil){display:none}
+  .prog-grid-mobil{display:grid;grid-template-columns:52px 1fr;min-width:0}
+  .prog-wrap{overflow-x:hidden}
+  .prog-daytabs{display:flex;gap:6px;overflow-x:auto;padding-bottom:6px;margin-bottom:4px;-webkit-overflow-scrolling:touch}
+  .pdt{flex:0 0 auto;padding:7px 12px;border-radius:20px;background:var(--s2);border:1px solid var(--b1);
+    color:var(--mu2);font-size:11px;font-weight:700;cursor:pointer;white-space:nowrap}
+  .pdt.aktif{background:rgba(34,211,238,.14);border-color:var(--C);color:var(--C)}
+}
 
 /* ── NET BARLAR ── */
 .nbar{display:flex;align-items:center;gap:7px;margin-bottom:5px}
@@ -2805,11 +2825,11 @@ function mAc(id,editId=null){
     document.getElementById('nh-err').style.display='none';
     document.getElementById('nh-btn').disabled=false;
     document.getElementById('nh-btn').textContent='✓ Hesap Oluştur';
-    // Firebase'den taze öğrenci listesi çek
-    fbGet(COL.aok).then(taze=>{
-      AOK=taze;
+    // Firebase'den taze öğrenci listesi çek (hem sınav hem finansal taraf)
+    Promise.all([fbGet(COL.aok), fbGet(COL.fok)]).then(([taze, taze2])=>{
+      AOK=taze; FOK=taze2;
       const sel=document.getElementById('nh-ogr-sec');
-      if(sel){sel.innerHTML='<option value="">— Seçin —</option>'+AOK.map(o=>`<option value="${o.id}">${o.ad}</option>`).join('');}
+      if(sel) sel.innerHTML = nhOgrenciSecenekleriOlustur();
     });
   }
   if(id==='manuel'){
@@ -2922,7 +2942,7 @@ function render(id){
     optik:renderOptik,cevap:renderCevap,
     gorev:renderGorev,
     odev:renderOdev,
-    hesaplar:()=>{renderHesaplar();fbGet(COL.aok).then(taze=>{AOK=taze;const s=document.getElementById('nh-ogr-sec');if(s){s.innerHTML='<option value="">— Seçin —</option>'+AOK.map(o=>`<option value="${o.id}">${o.ad}</option>`).join('');}})}
+    hesaplar:()=>{renderHesaplar();Promise.all([fbGet(COL.aok),fbGet(COL.fok)]).then(([taze,taze2])=>{AOK=taze;FOK=taze2;const s=document.getElementById('nh-ogr-sec');if(s)s.innerHTML=nhOgrenciSecenekleriOlustur();})}
   }[id]||function(){})();
 }
 function dChart(id){if(charts[id]){charts[id].destroy();delete charts[id];}}
@@ -5838,31 +5858,57 @@ function musaitSil(id){
 }
 
 // Programı müsait slotlarla birlikte render et
+// Tek bir hücrenin HTML'i — hem masaüstü 7-sütun ızgarasında hem mobildeki
+// tek-gün görünümünde AYNI mantık kullanılsın diye ortak fonksiyona alındı.
+function pgHucreHtml(g, saat){
+  const sl=PROG.filter(s=>s.gun==g&&s.bas===saat);
+  const ms=MUSAIT.filter(m=>m.gun==g&&m.bas===saat&&m.aktif);
+  if(sl.length){
+    let h=`<div class="pg-cell dolu" style="border-color:${sl[0].renk};background:${sl[0].renk}14;flex-direction:column;gap:1px">`;
+    for(const s of sl){const ok=FOK.find(o=>o.id===s.okId);h+=`<div style="color:${s.renk};font-size:9px;cursor:pointer" onclick="slotSil('${s.id}')" title="Sil">${ok?.ad?.split(' ')[0]||'?'} ✕</div>`;}
+    return h+`</div>`;
+  } else if(ms.length){
+    return `<div class="pg-cell" style="border:1px dashed #34d399;background:#34d39911;cursor:pointer" onclick="musaitSil('${ms[0].id}')" title="Müsait — tıkla sil">
+      <span style="color:#34d399;font-size:9px">✅ Müsait</span>
+      ${ms[0].not?`<span style="color:var(--mu);font-size:8px">${ms[0].not}</span>`:''}
+    </div>`;
+  }
+  return `<div class="pg-cell" onclick="hucreAc(${g},'${saat}')"></div>`;
+}
+
+// Mobilde 7 günü aynı anda yatay kaydırarak göstermek dokunmatik ekranda
+// dikey sayfa kaydırmasıyla çakışıp "kayan/zor kullanılan" bir his veriyordu.
+// Bu yüzden dar ekranlarda tek günlük bir görünüme geçiyoruz (gün seçici
+// çipler ile), masaüstünde ise eski 7 sütunlu tam ızgara kalıyor — ikisi de
+// aynı anda üretilir, hangisinin göründüğünü CSS medya sorgusu belirler.
+let _progMobilGun = new Date().getDay()===0 ? 6 : new Date().getDay()-1; // bugüne göre başlangıç günü
+
+function progGunSec(i){ _progMobilGun=i; renderProgMusait(); }
+
 function renderProgMusait(){
   const el=document.getElementById('prog-tablo');
   if(!el)return;
+
+  // Masaüstü: 7 sütunlu tam ızgara
   let h=`<div class="prog-grid">
-    <div class="pg-head"></div>${GUNLER.map(g=>`<div class="pg-head">${g.slice(0,3)}</div>`).join('')}`;
+    <div class="pg-head pg-head-corner"></div>${GUNLER.map(g=>`<div class="pg-head">${g.slice(0,3)}</div>`).join('')}`;
   for(const saat of SAATLER){
     h+=`<div class="pg-time">${saat}</div>`;
-    for(let g=0;g<7;g++){
-      const sl=PROG.filter(s=>s.gun==g&&s.bas===saat);
-      const ms=MUSAIT.filter(m=>m.gun==g&&m.bas===saat&&m.aktif);
-      if(sl.length){
-        h+=`<div class="pg-cell dolu" style="border-color:${sl[0].renk};background:${sl[0].renk}14;flex-direction:column;gap:1px">`;
-        for(const s of sl){const ok=FOK.find(o=>o.id===s.okId);h+=`<div style="color:${s.renk};font-size:9px;cursor:pointer" onclick="slotSil('${s.id}')" title="Sil">${ok?.ad?.split(' ')[0]||'?'} ✕</div>`;}
-        h+=`</div>`;
-      } else if(ms.length){
-        h+=`<div class="pg-cell" style="border:1px dashed #34d399;background:#34d39911;cursor:pointer" onclick="musaitSil('${ms[0].id}')" title="Müsait — tıkla sil">
-          <span style="color:#34d399;font-size:9px">✅ Müsait</span>
-          ${ms[0].not?`<span style="color:var(--mu);font-size:8px">${ms[0].not}</span>`:''}
-        </div>`;
-      } else {
-        h+=`<div class="pg-cell" onclick="hucreAc(${g},'${saat}')"></div>`;
-      }
-    }
+    for(let g=0;g<7;g++) h+=pgHucreHtml(g,saat);
   }
-  h+='</div><div style="margin-top:8px;font-size:10px;color:var(--mu)">💡 Öğrenci slotuna tıkla sil · Boş hücreye tıkla ekle · Yeşil = Müsait (tıkla sil)</div>';
+  h+='</div>';
+
+  // Mobil: gün seçici + tek sütunlu ızgara
+  let m=`<div class="prog-daytabs">${GUNLER.map((g,i)=>`<div class="pdt ${_progMobilGun===i?'aktif':''}" onclick="progGunSec(${i})">${g.slice(0,3)}</div>`).join('')}</div>`;
+  m+=`<div class="prog-grid prog-grid-mobil">
+    <div class="pg-head pg-head-corner"></div><div class="pg-head">${GUNLER[_progMobilGun]}</div>`;
+  for(const saat of SAATLER){
+    m+=`<div class="pg-time">${saat}</div>`;
+    m+=pgHucreHtml(_progMobilGun,saat);
+  }
+  m+='</div>';
+
+  h = m + h + '<div style="margin-top:8px;font-size:10px;color:var(--mu)">💡 Öğrenci slotuna tıkla sil · Boş hücreye tıkla ekle · Yeşil = Müsait (tıkla sil)</div>';
   el.innerHTML=h;
   // Bildirim sayacını güncelle
   const bekleyenler=TALEP.filter(t=>t.durum==='bekliyor');
@@ -7322,13 +7368,25 @@ async function hesapOlustur(){
   const email=document.getElementById('nh-email').value.trim();
   const sifre=document.getElementById('nh-sifre').value.trim();
   const rol=document.getElementById('nh-rol').value;
-  const ogrenciId=document.getElementById('nh-ogr-sec').value;
+  let ogrenciId=document.getElementById('nh-ogr-sec').value;
   const err=document.getElementById('nh-err');
   const btn=document.getElementById('nh-btn');
   if(!ad||!email||!sifre){err.style.display='block';err.textContent='Ad, e-posta ve şifre zorunlu!';return;}
   if(sifre.length<6){err.style.display='block';err.textContent='Şifre en az 6 karakter olmalı!';return;}
   btn.disabled=true;btn.textContent='Oluşturuluyor...';err.style.display='none';
   try{
+    // Seçilen öğrenci sadece finansal (FOK) tarafta varsa, sınav analizi
+    // için arkada boş bir AOK kaydı açıp gerçek ogrenciId'yi ona bağlıyoruz.
+    if(ogrenciId && ogrenciId.startsWith('fok:')){
+      const fok=FOK.find(x=>x.id===ogrenciId.slice(4));
+      if(fok){
+        const yeniAok=bosAok(fok.ad);
+        yeniAok.sinif=fok.sinif||'';
+        AOK.push(yeniAok);
+        await sv.aok();
+        ogrenciId=yeniAok.id;
+      } else ogrenciId='';
+    }
     // Firebase REST API ile kullanıcı oluştur (mevcut oturumu bozmaz)
     const apiKey=firebaseConfig.apiKey;
     const res=await fetch(`https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=${apiKey}`,{
@@ -9534,6 +9592,21 @@ function gunSerisiHesapla(){
     gun.setDate(gun.getDate()-1);
   }
   return sayac;
+}
+
+// ─── Yeni Hesap: Bağlı Öğrenci seçenekleri ───
+// Sınav Analizi (AOK) ve Finansal (FOK) iki AYRI öğrenci listesidir — biri
+// optik/PDF sınav yükleyince, diğeri "+ Öğrenci Ekle" (finansal) ile oluşur.
+// Öğretmen bir öğrenciyi sadece finansal tarafa eklemiş olabilir; hesap
+// oluştururken o öğrenci "Bağlı Öğrenci" listesinde hiç görünmezdi. Şimdi
+// FOK'ta olup AOK'ta olmayanlar da listede görünüyor; seçilirse hesap
+// oluşturulurken arkada otomatik boş bir AOK kaydı açılıyor.
+function nhOgrenciSecenekleriOlustur(){
+  const aokAdlari = new Set(AOK.map(o=>(o.ad||'').trim().toLowerCase()));
+  const fokEk = FOK.filter(o=>!aokAdlari.has((o.ad||'').trim().toLowerCase()));
+  const aokOpts = AOK.map(o=>`<option value="${o.id}">${o.ad}</option>`).join('');
+  const fokOpts = fokEk.map(o=>`<option value="fok:${o.id}">${o.ad} — sınav kaydı yok, otomatik açılacak</option>`).join('');
+  return '<option value="">— Seçin —</option>'+aokOpts+fokOpts;
 }
 
 function xpToastGoster(metin){
