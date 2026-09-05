@@ -2459,6 +2459,19 @@ hr.dv{border:none;border-top:1px solid rgba(255,255,255,.055);margin:12px 0}
   </div>
 </div>
 
+<!-- Öğrenci Bağla/Değiştir Modal -->
+<div class="mo" id="modal-ogrenci-bagla">
+  <div class="md"><div class="mtit">🔗 Öğrenciyi Bağla</div>
+    <input type="hidden" id="ob-uid">
+    <div class="fg">
+      <div style="font-size:11px;color:var(--mu);margin-bottom:4px">Hesap: <strong id="ob-ad" style="color:var(--tx)"></strong></div>
+      <div class="f"><label>Bağlı Öğrenci (Sınav Analizi) *</label><select id="ob-ogr-sec"></select></div>
+      <div style="font-size:10px;color:var(--mu)">Bu hesap sınav/hedef/mesaj/deneme verisini seçtiğin öğrenciyle eşleştirecek. Yanlış bağlıysa buradan düzeltebilirsin.</div>
+    </div>
+    <div class="mft"><button class="btn btn-n" onclick="mKapat('ogrenci-bagla')">İptal</button><button class="btn btn-p" onclick="hesapOgrenciBaglaKaydet()">💾 Kaydet</button></div>
+  </div>
+</div>
+
 <!-- Müsait Slot Modal -->
 <div class="mo" id="modal-musait">
   <div class="md"><div class="mtit">📅 Müsait Slot Ekle</div>
@@ -2873,6 +2886,16 @@ function mAc(id,editId=null){
     AOK.forEach(o=>{if(!tumOgrenciler.find(f=>f.ad===o.ad))tumOgrenciler.push(o);});
     tumOgrenciler.sort((a,b)=>a.ad.localeCompare(b.ad,'tr'));
     selFill('sl-ok',tumOgrenciler);
+  }
+  if(id==='ogrenci-bagla'){
+    Promise.all([fbGet(COL.aok),fbGet(COL.fok)]).then(([taze,taze2])=>{
+      AOK=taze; FOK=taze2;
+      const sel=document.getElementById('ob-ogr-sec');
+      if(sel){
+        sel.innerHTML = nhOgrenciSecenekleriOlustur();
+        if(_obMevcutOgrId) sel.value = _obMevcutOgrId;
+      }
+    });
   }
   if(id==='hedef'){
     Promise.all([fbGet(COL.aok),fbGet(COL.fok)]).then(([taze,taze2])=>{
@@ -5472,12 +5495,20 @@ async function ogrTumGecmisGetir(ogr){
 async function opRender(ogr, userData){
   _opOgr=ogr;
   if(!ogr){
-    document.getElementById('op-sinav-stats').innerHTML='<div class="empty">Henüz sınav verisi yok</div>';
-    document.getElementById('op-sinav-netler').innerHTML='<div class="empty">Öğretmeniniz henüz sınav sonucu eklememiş</div>';
+    // Hesap hiçbir öğrenciyle eşleşmedi — genel "veri yok" mesajları yerine
+    // NEDENİ açıkça söylüyoruz, yoksa öğretmen/öğrenci "sistem bozuk" sanıp
+    // saatlerce debug etmeye çalışıyor (tam da yaşandığı gibi).
+    const banner = `<div class="empty" style="color:var(--R);background:rgba(248,113,113,.08);border:1px solid rgba(248,113,113,.3);border-radius:10px;padding:12px;text-align:left;line-height:1.5">
+      ⚠️ <strong>Bu hesap bir öğrenciyle eşleştirilmemiş.</strong><br>
+      Sınav, hedef, mesaj, kendi deneme — hiçbiri çalışmaz çünkü sistem bu hesabın hangi öğrenci olduğunu bilmiyor.<br>
+      <strong>Öğretmen çözer:</strong> Yönetim Paneli → Hesaplar → bu hesabın satırındaki "⚠️ Öğrenci" butonuna bas → doğru öğrenciyi seç → Kaydet. Sonra bu hesap çıkış yapıp tekrar girsin.
+    </div>`;
+    document.getElementById('op-sinav-stats').innerHTML=banner;
+    document.getElementById('op-sinav-netler').innerHTML='';
     document.getElementById('op-sinav-gecmis').innerHTML='';
     const hozEl = document.getElementById('op-haftalik-ozet');
-    if(hozEl) hozEl.innerHTML = '<div class="empty">Veri yok</div>';
-    document.getElementById('op-program-ic').innerHTML='<div class="empty">Ders programı henüz oluşturulmamış</div>';
+    if(hozEl) hozEl.innerHTML = banner;
+    document.getElementById('op-program-ic').innerHTML=banner;
     opRenderTakvim();
     opRenderNotlar(userData?.ogrenciId||'');
     opRenderHedef(null);
@@ -5762,7 +5793,7 @@ function kdAytToggle(){
 async function kendiDenemeKaydet(){
   if(mevcutKullanici && mevcutKullanici.rol==='veli'){ toast('Veli hesabı deneme giremez, bu öğrencinin işi', 'err'); return; }
   const ogrId = getOgrId();
-  if(!ogrId){ toast('Öğrenci kimliği bulunamadı, sayfayı yenileyip tekrar deneyin', 'err'); return; }
+  if(!ogrId){ toast('Hesabın bir öğrenciyle eşleştirilmemiş — öğretmenine söyle, Yönetim Panelinden bağlasın', 'err'); return; }
   const sinavAdiEl = document.getElementById('op-kd-sinavadi');
   const sinavAdi = sinavAdiEl.value.trim();
   const tarih = document.getElementById('op-kd-tarih').value || bugun();
@@ -6440,7 +6471,7 @@ async function msjGonder(){
   if(!metin) return;
   if(!db){ toast('Bağlantı yok, mesaj gönderilemedi', 'err'); return; }
   const ogrId = getOgrId();
-  if(!ogrId){ toast('Öğrenci kimliği bulunamadı', 'err'); return; }
+  if(!ogrId){ toast('Hesabın bir öğrenciyle eşleştirilmemiş — öğretmenine söyle, Yönetim Panelinden bağlasın', 'err'); return; }
   el.value=''; el.disabled=true;
   try{
     await db.collection('v5_mesajlar').add({
@@ -7434,6 +7465,7 @@ async function renderHesaplar(){
         <td data-label="İşlem" style="display:flex;gap:4px;flex-wrap:wrap">
           ${h.rol==='ogretmen'?`<button class="btn btn-n btn-sm" onclick="abonelikUzat('${h.uid}','${h.abonelikBitis||''}')" title="Abonelik uzat">📅 Uzat</button>`:''}
           ${h.rol==='ogretmen'?`<button class="btn btn-c btn-sm" onclick="ogretmenVerisiGor('${h.uid}','${h.ad||h.email}')">👁 Gör</button>`:''}
+          ${(h.rol==='ogrenci'||h.rol==='veli')?`<button class="btn btn-n btn-sm" onclick="hesapOgrenciBagla('${h.uid}','${(h.ad||'').replace(/'/g,"\\'")}','${h.ogrenciId||''}')" title="${h.ogrenciId?'Bağlı öğrenciyi değiştir':'⚠️ Öğrenciye bağlı değil'}">${h.ogrenciId?'🔗':'⚠️'} Öğrenci</button>`:''}
           ${h.rol!=='superadmin'?`<button class="btn btn-d btn-sm" onclick="hesapSil('${h.uid}')">✕</button>`:''}
         </td>
       </tr>`;
@@ -7461,6 +7493,42 @@ async function abonelikUzat(uid, mevcutBitis){
   }catch(e){toast('Hata: '+e.message,'err');}
 }
 
+// ─── Var Olan Hesabı Öğrenciye Bağla/Değiştir ───
+// hesapOlustur() sırasında Bağlı Öğrenci seçilmezse (veya sonradan yanlış
+// öğrenciyle eşleşirse) hesap "askıda" kalıyor — giriş yapan öğrenci hiçbir
+// veri göremiyor, mesaj bile gönderemiyor. Bu araç hesabı SİLMEDEN (XP,
+// mesaj geçmişi kaybolmadan) doğru öğrenciye yeniden bağlamayı sağlıyor.
+let _obUid = null, _obMevcutOgrId = null;
+function hesapOgrenciBagla(uid, ad, mevcutOgrId){
+  _obUid = uid; _obMevcutOgrId = mevcutOgrId;
+  document.getElementById('ob-ad').textContent = ad || '(isimsiz)';
+  document.getElementById('ob-uid').value = uid;
+  mAc('ogrenci-bagla');
+}
+
+async function hesapOgrenciBaglaKaydet(){
+  const uid = document.getElementById('ob-uid').value;
+  let ogrId = document.getElementById('ob-ogr-sec').value;
+  if(!uid||!ogrId){toast('Öğrenci seçin','err');return;}
+  if(ogrId.startsWith('fok:')){
+    const fok=FOK.find(x=>x.id===ogrId.slice(4));
+    if(!fok){toast('Öğrenci bulunamadı','err');return;}
+    const yeniAok=bosAok(fok.ad);
+    yeniAok.sinif=fok.sinif||'';
+    AOK.push(yeniAok);
+    await sv.aok();
+    ogrId=yeniAok.id;
+  }
+  try{
+    await db.collection('users').doc(uid).set({ogrenciId:ogrId},{merge:true});
+    toast('✓ Öğrenci bağlandı — hesap bir sonraki girişte güncel veriyi görecek','ok');
+    mKapat('ogrenci-bagla');
+    renderHesaplar();
+  }catch(e){
+    toast('Kaydedilemedi: '+e.message,'err');
+  }
+}
+
 async function hesapOlustur(){
   const ad=document.getElementById('nh-ad').value.trim();
   const email=document.getElementById('nh-email').value.trim();
@@ -7471,6 +7539,7 @@ async function hesapOlustur(){
   const btn=document.getElementById('nh-btn');
   if(!ad||!email||!sifre){err.style.display='block';err.textContent='Ad, e-posta ve şifre zorunlu!';return;}
   if(sifre.length<6){err.style.display='block';err.textContent='Şifre en az 6 karakter olmalı!';return;}
+  if((rol==='ogrenci'||rol==='veli')&&!ogrenciId){err.style.display='block';err.textContent='Öğrenci/Veli hesabı için "Bağlı Öğrenci" seçimi zorunlu — seçilmezse hesap hiçbir veri göremez!';return;}
   btn.disabled=true;btn.textContent='Oluşturuluyor...';err.style.display='none';
   try{
     // Seçilen öğrenci sadece finansal (FOK) tarafta varsa, sınav analizi
