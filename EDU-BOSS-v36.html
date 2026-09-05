@@ -533,6 +533,14 @@ hr.dv{border:none;border-top:1px solid rgba(255,255,255,.055);margin:12px 0}
 .op-tab.active{color:var(--C)}
 .op-tab.active .op-tab-ic{transform:scale(1.1)}
 .op-tab.active::after{width:70%}
+@media(max-width:700px){
+  /* 12 sekme tek satırda yatay kaydırılınca hem parmakla bulması zor
+     oluyordu hem de sayfa kaydırmasıyla karışıyordu — telefonda sabit
+     6x2 bir ızgaraya alıp kaydırma ihtiyacını tamamen kaldırıyoruz. */
+  .op-tabs{display:grid;grid-template-columns:repeat(6,1fr);overflow-x:hidden;scroll-snap-type:none}
+  .op-tab{padding:7px 1px 6px;font-size:8px;letter-spacing:0}
+  .op-tab .op-tab-ic{font-size:15px}
+}
 
 /* ── QA KARTLARI ── */
 .qa-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:11px;margin-bottom:18px}
@@ -2833,7 +2841,16 @@ function mAc(id,editId=null){
     });
   }
   if(id==='manuel'){
-    selFill('mn-ok',AOK);
+    // Öğrenci listesini taze çek — eskiden bellekteki (belki hiç yüklenmemiş)
+    // AOK kullanılıyordu, sekmeye hiç girilmemişse liste bomboş kalıyordu.
+    Promise.all([fbGet(COL.aok), fbGet(COL.fok)]).then(([taze,taze2])=>{
+      AOK=taze; FOK=taze2;
+      const sel=document.getElementById('mn-ok');
+      if(sel){
+        sel.innerHTML = nhOgrenciSecenekleriOlustur();
+        if(editId) sel.value = editId;
+      }
+    });
     document.getElementById('mn-tar').value=bugun();
     ['mn-ad','mn-puan-ea','mn-puan-say'].forEach(i=>{const e=document.getElementById(i);if(e)e.value='';});
     // TYT alanlarını JS ile oluştur
@@ -5301,18 +5318,40 @@ async function ogrenciGiris(userData){
   if(typeof _devamlilikKontrol==='function') _devamlilikKontrol();
   turOtomatikBaslat('ogrenci');
   db.collection('v5_aok').doc('data').get()
-    .then(function(doc){
+    .then(async function(doc){
       var tumOgr = doc.exists ? doc.data().items || [] : [];
+      AOK = tumOgr;
       var ogr = null;
       // 1. ogrenciId ile eşleştir (tek kimlik kuralı)
       if (userData.ogrenciId) {
         ogr = tumOgr.find(function(o){ return o.id === userData.ogrenciId; }) || null;
       }
-      // 2. Bulamazsa isim fallback
+      // 2. Bulamazsa isim fallback (AOK içinde)
       if (!ogr && userData.ad) {
         ogr = tumOgr.find(function(o){
           return o.ad.toLowerCase() === userData.ad.toLowerCase();
         }) || null;
+      }
+      // 3. Hâlâ bulamazsa: öğrenci sadece Finansal (FOK) tarafta kayıtlı
+      // olabilir — hesabı önceden oluşturulmuş ama sınav tarafında hiç
+      // kaydı açılmamış olabilir. Kendini onarır: boş bir AOK kaydı açıp
+      // hesabı ona bağlar, bir daha bu sorun çıkmaz.
+      if (!ogr) {
+        try{
+          const fokTaze = await fbGet(COL.fok);
+          FOK = fokTaze;
+          let fok = null;
+          if (userData.ogrenciId) fok = fokTaze.find(f=>f.id===userData.ogrenciId) || null;
+          if (!fok && userData.ad) fok = fokTaze.find(f=>(f.ad||'').toLowerCase()===userData.ad.toLowerCase()) || null;
+          if (fok) {
+            const yeniAok = bosAok(fok.ad);
+            yeniAok.sinif = fok.sinif || '';
+            AOK.push(yeniAok);
+            await sv.aok();
+            if (db) await db.collection('users').doc(mevcutKullanici.uid).set({ogrenciId:yeniAok.id},{merge:true});
+            ogr = yeniAok;
+          }
+        }catch(e){ console.warn('Otomatik AOK onarımı başarısız:', e.message); }
       }
       // Global state'e yaz
       _opOgr = ogr;
@@ -6454,11 +6493,23 @@ function opRenderNotlar(ogrId){
 
 function mnOgrSec(id){document.getElementById('mn-ogrId').value=id;}
 
-function manuelKaydet(){
-  const ogrId=document.getElementById('mn-ok').value;
+async function manuelKaydet(){
+  let ogrId=document.getElementById('mn-ok').value;
   const sinavAdi=document.getElementById('mn-ad').value.trim();
   const tarih=document.getElementById('mn-tar').value;
   if(!ogrId||!sinavAdi||!tarih){toast('Öğrenci, sınav adı ve tarih zorunlu','err');return;}
+
+  // Seçilen öğrenci sadece finansal (FOK) tarafta varsa, arkada boş bir AOK
+  // kaydı açıp gerçek netleri ona yazıyoruz (bkz. nhOgrenciSecenekleriOlustur).
+  if(ogrId.startsWith('fok:')){
+    const fok=FOK.find(x=>x.id===ogrId.slice(4));
+    if(!fok){toast('Öğrenci bulunamadı','err');return;}
+    const yeniAok=bosAok(fok.ad);
+    yeniAok.sinif=fok.sinif||'';
+    AOK.push(yeniAok);
+    await sv.aok();
+    ogrId=yeniAok.id;
+  }
 
   const ogr=AOK.find(o=>o.id===ogrId);if(!ogr){toast('Öğrenci bulunamadı','err');return;}
 
