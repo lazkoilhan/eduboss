@@ -2874,14 +2874,27 @@ function mAc(id,editId=null){
     tumOgrenciler.sort((a,b)=>a.ad.localeCompare(b.ad,'tr'));
     selFill('sl-ok',tumOgrenciler);
   }
-  if(id==='hedef'){selFill('hdf-ok',AOK);['hdf-tyt','hdf-ea-net','hdf-say-net','hdf-uni','hdf-not'].forEach(i=>{const e=document.getElementById(i);if(e)e.value='';});
+  if(id==='hedef'){
+    Promise.all([fbGet(COL.aok),fbGet(COL.fok)]).then(([taze,taze2])=>{
+      AOK=taze; FOK=taze2;
+      const sel=document.getElementById('hdf-ok');
+      if(sel) sel.innerHTML = nhOgrenciSecenekleriOlustur();
+    });
+    ['hdf-tyt','hdf-ea-net','hdf-say-net','hdf-uni','hdf-not'].forEach(i=>{const e=document.getElementById(i);if(e)e.value='';});
     document.getElementById('hdf-ok').onchange=function(){
       const h=HEDEFLER.find(x=>x.ogrId===this.value);
       if(h){document.getElementById('hdf-tyt').value=h.tyt||'';document.getElementById('hdf-ea-net').value=h.eaNet||'';document.getElementById('hdf-say-net').value=h.sayNet||'';document.getElementById('hdf-uni').value=h.uni||'';document.getElementById('hdf-not').value=h.not||'';}
     };
   }
   if(id==='takvim-ekle'){document.getElementById('tkv-tar').value=bugun();['tkv-ad','tkv-not'].forEach(i=>{const e=document.getElementById(i);if(e)e.value='';});}
-  if(id==='not'){selFill('not-ok',AOK);document.getElementById('not-ic').value='';}
+  if(id==='not'){
+    Promise.all([fbGet(COL.aok),fbGet(COL.fok)]).then(([taze,taze2])=>{
+      AOK=taze; FOK=taze2;
+      const sel=document.getElementById('not-ok');
+      if(sel) sel.innerHTML = nhOgrenciSecenekleriOlustur();
+    });
+    document.getElementById('not-ic').value='';
+  }
   if(id==='cevap-ekle'){
     document.getElementById('ce-id').value='';
     document.getElementById('ce-ad').value='';
@@ -5419,6 +5432,15 @@ function opTab(tab, el){
   if(tab==='notlar'&&_opOgr){
     fbGet(COL.notlar).then(n=>{NOTLAR=n;opRenderNotlar(_opOgr.id);});
   }
+  if(tab==='gelisim'){
+    // Chart.js gizli (display:none) bir canvas üzerinde oluşturulan grafiği
+    // doğru boyutlandıramıyor — sekme görünür hale gelince elle resize()
+    // çağırmak gerekiyor, yoksa grafik "boş" görünüyor.
+    setTimeout(()=>{
+      if(opCharts.bar) opCharts.bar.resize();
+      if(opCharts.gelisim) opCharts.gelisim.resize();
+    },50);
+  }
   // Gamification tabs handled by inline onclick
 }
 
@@ -5538,6 +5560,7 @@ async function opRender(ogr, userData){
 
   // Gelişim grafikleri
   setTimeout(()=>{
+   try{
     if(opCharts.bar){opCharts.bar.destroy();}
     if(opCharts.gelisim){opCharts.gelisim.destroy();}
     const cBase2={responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{grid:{color:'rgba(255,255,255,.04)'},ticks:{color:'#527a98',font:{size:10}}},y:{grid:{color:'rgba(255,255,255,.04)'},ticks:{color:'#527a98',font:{size:10}},min:0,max:40}}};
@@ -5556,6 +5579,12 @@ async function opRender(ogr, userData){
     } else {
       document.getElementById('op-ch-gelisim').parentElement.innerHTML='<div class="empty" style="padding:20px">Gelişim grafiği için birden fazla sınav gerekli</div>';
     }
+   }catch(e){
+     console.error('Gelişim grafiği çizilemedi:', e);
+     const barEl=document.getElementById('op-ch-bar'), gelEl=document.getElementById('op-ch-gelisim');
+     if(barEl) barEl.parentElement.innerHTML='<div class="empty" style="padding:20px">Grafik yüklenemedi, sayfayı yenileyin</div>';
+     if(gelEl) gelEl.parentElement.innerHTML='<div class="empty" style="padding:20px">Grafik yüklenemedi, sayfayı yenileyin</div>';
+   }
   },100);
 
   // Program
@@ -6091,9 +6120,18 @@ async function hedeflerYukle(){try{HEDEFLER=await fbGet(tenantCol('v5_hedef'));
   }}
 const svHedef=()=>fbSet(tenantCol('v5_hedef'),HEDEFLER);
 
-function hedefKaydet(){
-  const ogrId=document.getElementById('hdf-ok').value;
+async function hedefKaydet(){
+  let ogrId=document.getElementById('hdf-ok').value;
   if(!ogrId){toast('Öğrenci seçin','err');return;}
+  if(ogrId.startsWith('fok:')){
+    const fok=FOK.find(x=>x.id===ogrId.slice(4));
+    if(!fok){toast('Öğrenci bulunamadı','err');return;}
+    const yeniAok=bosAok(fok.ad);
+    yeniAok.sinif=fok.sinif||'';
+    AOK.push(yeniAok);
+    await sv.aok();
+    ogrId=yeniAok.id;
+  }
   const tyt=parseFloat(document.getElementById('hdf-tyt').value)||0;
   const eaNet=parseFloat(document.getElementById('hdf-ea-net').value)||0;
   const sayNet=parseFloat(document.getElementById('hdf-say-net').value)||0;
@@ -6307,11 +6345,20 @@ function notAc(ogrId){
   },50);
 }
 
-function notKaydet(){
-  const ogrId=document.getElementById('not-ok').value;
+async function notKaydet(){
+  let ogrId=document.getElementById('not-ok').value;
   const ic=document.getElementById('not-ic').value.trim();
   const tur=document.getElementById('not-tur').value;
   if(!ogrId||!ic){toast('Öğrenci ve not zorunlu','err');return;}
+  if(ogrId.startsWith('fok:')){
+    const fok=FOK.find(x=>x.id===ogrId.slice(4));
+    if(!fok){toast('Öğrenci bulunamadı','err');return;}
+    const yeniAok=bosAok(fok.ad);
+    yeniAok.sinif=fok.sinif||'';
+    AOK.push(yeniAok);
+    await sv.aok();
+    ogrId=yeniAok.id;
+  }
   const ogr=AOK.find(o=>o.id===ogrId);
   NOTLAR.push({id:uid(),ogrId,ogrAd:ogr?.ad||'?',ic,tur,tarih:bugun()});
   sv.notlar();mKapat('not');toast('Not gönderildi 💬','ok');
