@@ -5313,11 +5313,38 @@ async function ogretmenGiris(){
   await fbYukle();
 }
 
+// ─── Öğrenci/Veli girişinde tenant (öğretmen) uid'ini bul ───
+// Hesap oluşturulurken tenantUid kaydedilmişse direkt onu kullan (hızlı,
+// doğru yol). Eski/legacy hesaplarda bu alan hiç yoktu — o durumda tek
+// öğretmenli/tek yöneticili kurulumu varsayıp platformdaki öğretmen ya da
+// (yoksa) süper admin hesabını tenant kabul ediyoruz.
+async function ogrenciTenantBul(userData){
+  if(userData.tenantUid) return userData.tenantUid;
+  try{
+    const snap = await db.collection('users').where('rol','==','ogretmen').limit(1).get();
+    if(!snap.empty) return snap.docs[0].id;
+    const snap2 = await db.collection('users').where('rol','==','superadmin').limit(1).get();
+    if(!snap2.empty) return snap2.docs[0].id;
+  }catch(e){ console.warn('Tenant bulunamadı:', e.message); }
+  return null;
+}
+
 async function ogrenciGiris(userData){
   _opUserData = userData;
   mevcutKullanici = userData;
   document.getElementById('ogrenci-panel').classList.add('show');
   document.getElementById('op-ad').textContent = userData.ad || '';
+
+  // ── KRİTİK: tenant çözümleme ──
+  // _tenantUid ayarlanmadan COL.aok/COL.fok gibi her şey YANLIŞ (eski, tenant'sız,
+  // düz) bir Firestore yoluna düşüyor — sınav/hedef/mesaj/deneme'nin hiçbiri
+  // öğretmenin gördüğü veriyle eşleşmiyor. Eskiden bu satır hiç yoktu.
+  _tenantUid = await ogrenciTenantBul(userData);
+  if(_tenantUid && !userData.tenantUid && db && mevcutKullanici.uid){
+    // Eski/legacy hesap: tenantUid hiç kaydedilmemiş — bir dahaki girişte
+    // tekrar aramaya gerek kalmasın diye şimdi kaydediyoruz.
+    db.collection('users').doc(mevcutKullanici.uid).set({tenantUid:_tenantUid},{merge:true}).catch(()=>{});
+  }
 
   // ── Veli modu: salt-okunur görünüm ──
   const veliModu = (userData.rol === 'veli');
@@ -5353,9 +5380,8 @@ async function ogrenciGiris(userData){
   // Günlük giriş streak
   if(typeof _devamlilikKontrol==='function') _devamlilikKontrol();
   turOtomatikBaslat('ogrenci');
-  db.collection('v5_aok').doc('data').get()
-    .then(async function(doc){
-      var tumOgr = doc.exists ? doc.data().items || [] : [];
+  fbGet(COL.aok)
+    .then(async function(tumOgr){
       AOK = tumOgr;
       var ogr = null;
       // 1. ogrenciId ile eşleştir (tek kimlik kuralı)
@@ -7520,7 +7546,10 @@ async function hesapOgrenciBaglaKaydet(){
     ogrId=yeniAok.id;
   }
   try{
-    await db.collection('users').doc(uid).set({ogrenciId:ogrId},{merge:true});
+    // tenantUid'i de burada onarıyoruz — eski hesaplarda hiç yoktu, bu da
+    // "öğrenci bağlı görünüyor ama hâlâ hiçbir veri gelmiyor" durumunun
+    // asıl sebebiydi.
+    await db.collection('users').doc(uid).set({ogrenciId:ogrId, tenantUid:_tenantUid},{merge:true});
     toast('✓ Öğrenci bağlandı — hesap bir sonraki girişte güncel veriyi görecek','ok');
     mKapat('ogrenci-bagla');
     renderHesaplar();
@@ -7578,6 +7607,10 @@ async function hesapOlustur(){
     await db.collection('users').doc(uid).set({
       ad, email, rol,
       ogrenciId: (rol==='ogrenci'||rol==='veli')?ogrenciId:'',
+      // ogrenci/veli hesapları hangi öğretmenin öğrencisi olduğunu bu alanla
+      // biliyor — bu alan olmadan giriş yaptıklarında tüm sınav/hedef/mesaj/
+      // deneme verisi yanlış (tenant'sız) bir yoldan okunuyordu.
+      tenantUid: (rol==='ogrenci'||rol==='veli') ? _tenantUid : null,
       abonelikBitis: rol==='ogretmen'?(abonelikBitis||null):null,
       olusturma: firebase.firestore.FieldValue.serverTimestamp()
     });
