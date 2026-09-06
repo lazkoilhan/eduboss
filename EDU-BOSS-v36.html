@@ -5639,15 +5639,25 @@ async function opRender(ogr, userData){
       // TYT Toplam 0-120 arası olabilir — bar grafiğin per-ders 0-40 eksenini
       // burada MİRAS ALMIYORUZ, yoksa çizgi ekranın dışına taşıp hiç
       // görünmüyordu (tam da yaşanan "boş grafik" sorunu buydu).
+      // AYT iki farklı alan (EA/SAY) olduğu için ikisini de ayrı çizgi
+      // olarak ekliyoruz — öğrenci hangisine girdiyse o çizgi dolu görünür,
+      // hiç girmediği taraf düz sıfır çizgisi olarak kalır (yanıltıcı değil,
+      // sadece veri yok demektir).
+      const eaVarMi = gec.some(g=>EA_AYT.some(d=>(g.ayt?.[d]||0)>0));
+      const sayVarMi = gec.some(g=>SAY_AYT.some(d=>(g.ayt?.[d]||0)>0));
+      const datasets = [{label:'TYT Toplam',data:gec.map(g=>Object.values(g.tyt||{}).reduce((a,b)=>a+b,0)),
+        borderColor:'#34d399',backgroundColor:'rgba(52,211,153,.15)',tension:.35,pointRadius:cokSinav?1.5:4,borderWidth:2,pointBackgroundColor:'#34d399'}];
+      if(eaVarMi) datasets.push({label:'EA AYT Toplam',data:gec.map(g=>EA_AYT.reduce((a,d)=>a+(g.ayt?.[d]||0),0)),
+        borderColor:'#38bdf8',backgroundColor:'rgba(56,189,248,.12)',tension:.35,pointRadius:cokSinav?1.5:4,borderWidth:2,pointBackgroundColor:'#38bdf8'});
+      if(sayVarMi) datasets.push({label:'SAY AYT Toplam',data:gec.map(g=>SAY_AYT.reduce((a,d)=>a+(g.ayt?.[d]||0),0)),
+        borderColor:'#fb923c',backgroundColor:'rgba(251,146,60,.12)',tension:.35,pointRadius:cokSinav?1.5:4,borderWidth:2,pointBackgroundColor:'#fb923c'});
       opCharts.gelisim=new Chart(document.getElementById('op-ch-gelisim'),{type:'line',
-        data:{labels:gec.map(g=>g.sinavAdi||g.tarih),
-          datasets:[{label:'TYT Toplam',data:gec.map(g=>Object.values(g.tyt||{}).reduce((a,b)=>a+b,0)),
-            borderColor:'#34d399',backgroundColor:'rgba(52,211,153,.15)',tension:.35,pointRadius:cokSinav?1.5:4,borderWidth:2,pointBackgroundColor:'#34d399'}]},
+        data:{labels:gec.map(g=>g.sinavAdi||g.tarih), datasets},
         options:{responsive:true,maintainAspectRatio:false,
           plugins:{legend:{display:true,labels:{color:'#527a98',font:{size:10}}}},
           scales:{
             x:{grid:{color:'rgba(255,255,255,.04)'},ticks:{color:'#527a98',font:{size:10},maxTicksLimit:cokSinav?12:undefined,autoSkip:true}},
-            y:{grid:{color:'rgba(255,255,255,.04)'},ticks:{color:'#527a98',font:{size:10}},min:0,suggestedMax:120}
+            y:{grid:{color:'rgba(255,255,255,.04)'},ticks:{color:'#527a98',font:{size:10}},min:0,suggestedMax:135}
           }}});
     } else {
       document.getElementById('op-ch-gelisim').parentElement.innerHTML='<div class="empty" style="padding:20px">Gelişim grafiği için birden fazla sınav gerekli</div>';
