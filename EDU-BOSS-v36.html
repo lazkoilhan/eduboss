@@ -3937,8 +3937,6 @@ function selDet(id){selDetId=id;localStorage.setItem('msj_son_gorulen_'+id, Date
 
 async function renderDetPanel(id){
   const o=AOK.find(x=>x.id===id);if(!o)return;
-  const tytT=Object.values(o.tyt).reduce((a,b)=>a+b,0);
-  const aytT=Object.values(o.ayt).reduce((a,b)=>a+b,0);
   document.getElementById('det-panel').innerHTML='<div class="empty" style="padding:30px">Yükleniyor...</div>';
   const tumKendi = await ozelDenemelerYukleTumu();
   const kendiGec = tumKendi.filter(d=>d.ogrenciId===o.id)
@@ -3946,6 +3944,23 @@ async function renderDetPanel(id){
   const gec = [...(o.gecmis||[]).map(g=>({...g,kaynak:'kurum'})), ...kendiGec]
     .sort((a,b)=>(a.tarih||'').localeCompare(b.tarih||''));
   const hasTarih=gec.length>1;
+
+  // Öğrenci sadece kendi deneme girdiyse (kurum sınavı hiç eklenmediyse)
+  // o.tyt/o.ayt hep sıfır kalıyordu — bu detay ekranı ilk açıldığında en
+  // son sınavla otomatik senkronize ediyoruz, tabloda/sıralamada da doğru
+  // görünsün diye.
+  const enSonKayit = gec[gec.length-1];
+  if(enSonKayit && enSonKayit.kaynak==='kendi'){
+    const guncelTytToplam = Object.values(enSonKayit.tyt||{}).reduce((a,b)=>a+b,0);
+    const eskiTytToplam = Object.values(o.tyt||{}).reduce((a,b)=>a+b,0);
+    if(Math.abs(guncelTytToplam-eskiTytToplam)>0.01){
+      o.tyt = {...o.tyt, ...enSonKayit.tyt};
+      if(Object.values(enSonKayit.ayt||{}).some(v=>v>0)) o.ayt = {...o.ayt, ...enSonKayit.ayt};
+      sv.aok(); // arka planda kaydet, ekranı bekletme
+    }
+  }
+  const tytT=Object.values(o.tyt).reduce((a,b)=>a+b,0);
+  const aytT=Object.values(o.ayt).reduce((a,b)=>a+b,0);
 
   document.getElementById('det-panel').innerHTML=`
   <div class="flex aic jb mb3 fwrap gap2">
@@ -5547,6 +5562,7 @@ async function opRender(ogr, userData){
   });
   const gec = await ogrTumGecmisGetir(ogr);
   _opGecMerged = gec;
+  opRenderHedef(ogr); // Promise.all'daki ilk çağrı _opGecMerged henüz hazır değilken çalışmış olabilir, garantiye alıyoruz
   // Üstteki özet kartları SADECE öğretmenin resmi ogr.tyt/ogr.ayt alanına
   // bakıyordu — öğrenci sadece kendi deneme girmişse (kurum sınavı hiç
   // yoksa) bu alanlar hep 0 kalıyor, alttaki "Sınav Netleri" doluyken üstte
@@ -5876,6 +5892,27 @@ async function kendiDenemeKaydet(){
       olusturma: Date.now()
     });
     toast('✓ Deneme kaydedildi! Toplam '+toplamNet.toFixed(1)+' net', 'ok');
+
+    // Öğretmenin tablolarında, sıralamalarda, hedef karşılaştırmasında hâlâ
+    // AOK'nın tyt/ayt alanlarına bakılıyor — bu alanlar sadece kurum sınavı
+    // girilince güncelleniyordu. Öğrenci sadece kendi deneme giriyorsa
+    // öğretmen onu hiç göremiyordu. Bu YENİ deneme gerçekten en sonuncuysa
+     // (eski bir tarih girilmediyse) AOK'daki güncel net alanlarını da
+    // senkronize ediyoruz — taze veri üstüne, minimum çakışma penceresiyle.
+    try{
+      const tazeAok = await fbGet(COL.aok);
+      const idx = tazeAok.findIndex(o=>o.id===ogrId);
+      if(idx>-1){
+        const tumGec = await ogrTumGecmisGetir(tazeAok[idx]);
+        const enSon = tumGec[tumGec.length-1];
+        if(enSon && enSon.tarih===tarih && enSon.sinavAdi===sinavAdi){
+          tazeAok[idx] = {...tazeAok[idx], tyt: {...tazeAok[idx].tyt, ...tyt}, ayt: aytAcik ? {...tazeAok[idx].ayt, ...ayt} : tazeAok[idx].ayt};
+          AOK = tazeAok;
+          await sv.aok();
+        }
+      }
+    }catch(e){ console.warn('AOK güncel net senkronizasyonu başarısız:', e.message); }
+
     sinavAdiEl.value='';
     document.querySelectorAll('.kd-net-inp').forEach(i=>i.value='');
     document.querySelectorAll('[id^="op-kd-net-"]').forEach(e=>e.textContent='0.00');
@@ -6280,10 +6317,16 @@ function opRenderHedef(ogr){
   const el=document.getElementById('op-hedef-ic');if(!el)return;
   if(!ogr){el.innerHTML='<div style="padding:16px;text-align:center;color:var(--mu)">Veri yok</div>';return;}
   const h=HEDEFLER.find(x=>x.ogrId===ogr.id);
-  const tytT=Object.values(ogr.tyt).reduce((a,b)=>a+b,0);
+  // Diğer yerlerdeki gibi: sadece öğretmenin resmi ogr.tyt'sine değil, en son
+  // sınava (kendi ya da kurum) bakıyoruz — yoksa öğrenci hep kendi deneme
+  // giriyorsa "Mevcut TYT" hep 0 görünürdü.
+  const sonSinavHedef = (_opGecMerged && _opGecMerged.length) ? _opGecMerged[_opGecMerged.length-1] : null;
+  const tytKaynak = sonSinavHedef ? (sonSinavHedef.tyt||{}) : (ogr.tyt||{});
+  const aytKaynak = sonSinavHedef ? (sonSinavHedef.ayt||{}) : (ogr.ayt||{});
+  const tytT=Object.values(tytKaynak).reduce((a,b)=>a+b,0);
   if(!h){el.innerHTML='<div style="padding:20px;text-align:center;color:var(--mu);font-size:12px">🎯 Öğretmeniniz henüz hedef belirlemedi</div>';return;}
-  const mevcutEA=EA_AYT.reduce((s,d)=>s+(ogr.ayt[d]||0),0);
-  const mevcutSAY=SAY_AYT.reduce((s,d)=>s+(ogr.ayt[d]||0),0);
+  const mevcutEA=EA_AYT.reduce((s,d)=>s+(aytKaynak[d]||0),0);
+  const mevcutSAY=SAY_AYT.reduce((s,d)=>s+(aytKaynak[d]||0),0);
   const tytYuzde=h.tyt?Math.min(100,(tytT/h.tyt)*100):0;
   const eaYuzde=h.eaNet?Math.min(100,(mevcutEA/h.eaNet)*100):0;
   const sayYuzde=h.sayNet?Math.min(100,(mevcutSAY/h.sayNet)*100):0;
