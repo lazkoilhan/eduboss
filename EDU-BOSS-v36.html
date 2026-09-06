@@ -990,7 +990,8 @@ hr.dv{border:none;border-top:1px solid rgba(255,255,255,.055);margin:12px 0}
       <div class="op-tab" onclick="opTab('hedef',this)"><span class="op-tab-ic">🎯</span>Hedef</div>
       <div class="op-tab" onclick="opTab('takvim',this)"><span class="op-tab-ic">📅</span>Takvim</div>
       <div class="op-tab" onclick="opTab('notlar',this)"><span class="op-tab-ic">💬</span>Notlar</div>
-      <div class="op-tab" onclick="opTab('mesajlar',this);msjTabAcildi()"><span class="op-tab-ic">✉️</span>Mesajlar<span id="op-msj-rozet" class="msj-rozet" style="display:none"></span></div>
+      <!-- Mesajlaşma kaldırıldı (güvenilir çalışmıyordu) -->
+      <div class="op-tab" style="display:none" onclick="opTab('mesajlar',this);msjTabAcildi()"><span class="op-tab-ic">✉️</span>Mesajlar<span id="op-msj-rozet" class="msj-rozet" style="display:none"></span></div>
       <div class="op-tab" onclick="opTab('program',this)"><span class="op-tab-ic">🗓</span>Program</div>
       <div class="op-tab" onclick="opTab('gorevlerim',this)"><span class="op-tab-ic">🎬</span>Videolar</div>
       <div class="op-tab" onclick="opTab('odevlerim',this)"><span class="op-tab-ic">📚</span>Ödevler</div>
@@ -4042,18 +4043,9 @@ async function renderDetPanel(id){
       </tr>`;}).reverse().join('')}
     </tbody></table></div>
   </div>`:`<div class="card"><div style="color:var(--mu);font-size:12px;text-align:center;padding:16px">📈 Gelişim grafiği için birden fazla sınav PDF'i yükleyin</div></div>`}
-
-  <div class="card" style="display:flex;flex-direction:column;height:min(60vh,480px)">
-    <div class="ct" style="flex-shrink:0">✉️ ${o.ad} ile Mesajlaşma</div>
-    <div id="det-msj-liste" style="flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:8px;padding:4px 2px"></div>
-    <div style="display:flex;gap:8px;margin-top:10px;flex-shrink:0">
-      <textarea id="det-msj-metin" rows="1" placeholder="Mesaj yaz..." style="flex:1;resize:none;background:rgba(255,255,255,.038);border:1px solid rgba(255,255,255,.08);border-radius:10px;padding:10px 12px;color:var(--tx);font-family:inherit;font-size:13px;outline:none" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();detMsjGonder('${o.id}');}"></textarea>
-      <button class="btn btn-p" style="flex-shrink:0;padding:0 16px" onclick="detMsjGonder('${o.id}')">Gönder</button>
-    </div>
-  </div>
   `;
-
-  detMsjDinlemeyeBasla(o.id);
+  // Mesajlaşma kaldırıldı — güvenilir çalışmıyordu, ekrandan tamamen çıkarıldı.
+  // detMsjDinlemeyeBasla(o.id);
   localStorage.setItem('msj_son_gorulen_'+o.id, Date.now().toString());
 
   setTimeout(()=>{
@@ -5369,7 +5361,8 @@ async function ogrenciGiris(userData){
   if(msjMetinKutusu) msjMetinKutusu.style.display = veliModu ? 'none' : '';
   if(msjGonderBtn) msjGonderBtn.style.display = veliModu ? 'none' : '';
   const ogrIdMesaj = getOgrId();
-  if(ogrIdMesaj && typeof msjDinlemeyeBasla==='function') msjDinlemeyeBasla(ogrIdMesaj);
+  // Mesajlaşma kaldırıldı — dinleyici başlatılmıyor (gereksiz okuma/hata yok)
+  // if(ogrIdMesaj && typeof msjDinlemeyeBasla==='function') msjDinlemeyeBasla(ogrIdMesaj);
 
   // XP header badge (veli için gösterilmiyor — kendi hesabının XP'si anlamsız)
   const headerXp = document.getElementById('op-header-xp');
@@ -5542,12 +5535,15 @@ async function opRender(ogr, userData){
     return;
   }
   kdFormHazirla();
-  // Hedef, takvim, notlar paralel yükle
-  Promise.all([fbGet(tenantCol('v5_hedef')),fbGet(COL.takvim),fbGet(COL.notlar)]).then(([h,t,n])=>{
-    HEDEFLER=h;TAKVIM=t;NOTLAR=n;
+  // Hedef, takvim, notlar, program (FOK+PROG) paralel yükle — bunlar normalde
+  // sadece öğretmen girişinde yükleniyordu, öğrenci oturumunda hep boş
+  // kalıyordu, bu yüzden "Haftalık Ders Programı" hep boş görünüyordu.
+  Promise.all([fbGet(tenantCol('v5_hedef')),fbGet(COL.takvim),fbGet(COL.notlar),fbGet(COL.fok),fbGet(COL.prog)]).then(([h,t,n,f,p])=>{
+    HEDEFLER=h;TAKVIM=t;NOTLAR=n;FOK=f;PROG=p;
     opRenderHedef(ogr);
     opRenderTakvim();
     opRenderNotlar(ogr.id);
+    opRenderProgram(ogr.ad);
   });
   const gec = await ogrTumGecmisGetir(ogr);
   _opGecMerged = gec;
@@ -5627,18 +5623,32 @@ async function opRender(ogr, userData){
     if(opCharts.bar){opCharts.bar.destroy();}
     if(opCharts.gelisim){opCharts.gelisim.destroy();}
     const cBase2={responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{grid:{color:'rgba(255,255,255,.04)'},ticks:{color:'#527a98',font:{size:10}}},y:{grid:{color:'rgba(255,255,255,.04)'},ticks:{color:'#527a98',font:{size:10}},min:0,max:40}}};
+    // Bar grafik ("Net Dağılımı") artık en son sınavın (kendi ya da kurum,
+    // hangisi güncelse) netlerini gösteriyor — sadece öğretmenin resmi
+    // ogr.tyt/ogr.ayt alanına bakmak, öğrenci hep kendi deneme girdiyse
+    // (kurum sınavı hiç yoksa) barları hep sıfır gösteriyordu.
+    const barKaynagi = sonSinavOzet || ogr;
+    const barTyt = sonSinavOzet ? (sonSinavOzet.tyt||{}) : (ogr.tyt||{});
+    const barAyt = sonSinavOzet ? (sonSinavOzet.ayt||{}) : (ogr.ayt||{});
     opCharts.bar=new Chart(document.getElementById('op-ch-bar'),{type:'bar',
-      data:{labels:[...TYT,...AYT],datasets:[{data:[...TYT.map(d=>ogr.tyt[d]||0),...AYT.map(d=>ogr.ayt[d]||0)],
+      data:{labels:[...TYT,...AYT],datasets:[{data:[...TYT.map(d=>barTyt[d]||0),...AYT.map(d=>barAyt[d]||0)],
         backgroundColor:[...TYT,...AYT].map(d=>RC[d]+'88'),borderColor:[...TYT,...AYT].map(d=>RC[d]),borderWidth:1,borderRadius:4}]},
       options:cBase2});
     if(gec.length>1){
       const cokSinav = gec.length>25;
+      // TYT Toplam 0-120 arası olabilir — bar grafiğin per-ders 0-40 eksenini
+      // burada MİRAS ALMIYORUZ, yoksa çizgi ekranın dışına taşıp hiç
+      // görünmüyordu (tam da yaşanan "boş grafik" sorunu buydu).
       opCharts.gelisim=new Chart(document.getElementById('op-ch-gelisim'),{type:'line',
         data:{labels:gec.map(g=>g.sinavAdi||g.tarih),
           datasets:[{label:'TYT Toplam',data:gec.map(g=>Object.values(g.tyt||{}).reduce((a,b)=>a+b,0)),
             borderColor:'#34d399',backgroundColor:'rgba(52,211,153,.15)',tension:.35,pointRadius:cokSinav?1.5:4,borderWidth:2,pointBackgroundColor:'#34d399'}]},
-        options:{...cBase2,plugins:{legend:{display:true,labels:{color:'#527a98',font:{size:10}}}},
-          scales:{...cBase2.scales,x:{...cBase2.scales.x,ticks:{...cBase2.scales.x.ticks,maxTicksLimit:cokSinav?12:undefined,autoSkip:true}}}}});
+        options:{responsive:true,maintainAspectRatio:false,
+          plugins:{legend:{display:true,labels:{color:'#527a98',font:{size:10}}}},
+          scales:{
+            x:{grid:{color:'rgba(255,255,255,.04)'},ticks:{color:'#527a98',font:{size:10},maxTicksLimit:cokSinav?12:undefined,autoSkip:true}},
+            y:{grid:{color:'rgba(255,255,255,.04)'},ticks:{color:'#527a98',font:{size:10}},min:0,suggestedMax:120}
+          }}});
     } else {
       document.getElementById('op-ch-gelisim').parentElement.innerHTML='<div class="empty" style="padding:20px">Gelişim grafiği için birden fazla sınav gerekli</div>';
     }
@@ -5650,8 +5660,7 @@ async function opRender(ogr, userData){
    }
   },100);
 
-  // Program
-  opRenderProgram(ogr.ad);
+  // Program artık yukarıdaki Promise.all içinde FOK/PROG yüklendikten sonra çağrılıyor
 
   // Görevlerim - userData ile birlikte çağır
   opRenderGorevlerim(ogr, userData);
@@ -5913,14 +5922,7 @@ async function haftalikOzetOlustur(ogr){
       + (gorevler||[]).filter(g=>(g.tamamlayan||[]).includes(ogr.id)).length;
   }catch(e){}
 
-  // 3) Mesaj — bu hafta gelen/giden toplam
-  let mesajSayisi = 0;
-  try{
-    if(db && _tenantUid){
-      const msnap = await db.collection('v5_mesajlar').where('tenantUid','==',_tenantUid).where('ogrenciId','==',ogr.id).get();
-      msnap.forEach(d=>{ if((d.data().ts||0)>=haftaBasi) mesajSayisi++; });
-    }
-  }catch(e){}
+  // Mesajlaşma kaldırıldı — bu ölçüm artık gösterilmiyor
 
   // 4) Pomodoro — Firestore'daki 'haftalik' alanı (öğrenci kendi hesabıyla girmişse localden anlık; veliyse hesap eşleştirmesiyle)
   let pomoHaftalik = 0;
@@ -5935,7 +5937,6 @@ async function haftalikOzetOlustur(ogr){
   const satirlar = [];
   satirlar.push(`<div class="hoz-satir"><span>📝 Sınav</span><strong>${buHaftaSinav.length} yeni</strong>${netTrend!==null?`<span style="color:${netTrend>=0?'var(--G)':'var(--R)'};font-size:11px;margin-left:4px">${netTrend>=0?'↑':'↓'}${Math.abs(netTrend).toFixed(1)} net</span>`:''}</div>`);
   satirlar.push(`<div class="hoz-satir"><span>🍅 Pomodoro</span><strong>${pomoHaftalik}</strong></div>`);
-  satirlar.push(`<div class="hoz-satir"><span>✉️ Mesaj</span><strong>${mesajSayisi}</strong></div>`);
   satirlar.push(`<div class="hoz-satir"><span>✅ Tamamlanan Ödev/Video</span><strong>${tamamlananSayisi} <span style="font-size:9px;color:var(--mu2)">(toplam)</span></strong></div>`);
 
   if(kendim){
