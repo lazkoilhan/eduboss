@@ -4029,15 +4029,15 @@ async function renderDetPanel(id){
       const prevT=prev?Object.values(prev.tyt||{}).reduce((a,b)=>a+b,0):null;
       const trend=prevT!==null?t-prevT:null;
       return`<tr>
-        <td>${g.kaynak==='kendi'?'<span class="b bP" title="Öğrencinin kendi girdiği">👤 Kendi</span>':'<span class="b bB" title="Kurumda girilen">👨‍🏫 Kurum</span>'}</td>
-        <td>${tfmt(g.tarih)}</td>
-        <td><span class="b bP">${g.sinavAdi||'—'}</span></td>
-        <td style="color:var(--mu)">${g.sira||'—'}</td>
-        ${TYT.map(d=>`<td class="mono" style="color:${RC[d]}">${(g.tyt?.[d]||0).toFixed(2)}</td>`).join('')}
-        ${AYT.map(d=>`<td class="mono" style="color:${RC[d]}">${(g.ayt?.[d]||0).toFixed(2)}</td>`).join('')}
-        <td class="mono" style="color:var(--Y)">${g.puan?.toFixed(3)||'—'}</td>
-        <td class="mono"><strong>${t.toFixed(1)}</strong></td>
-        <td>${trend!==null?`<span style="color:${trend>=0?'var(--G)':'var(--R)'}">
+        <td data-label="Sınav"><span class="b bP">${g.sinavAdi||'—'}</span></td>
+        <td data-label="Kaynak">${g.kaynak==='kendi'?'<span class="b bP" title="Öğrencinin kendi girdiği">👤 Kendi</span>':'<span class="b bB" title="Kurumda girilen">👨‍🏫 Kurum</span>'}</td>
+        <td data-label="Tarih">${tfmt(g.tarih)}</td>
+        <td data-label="Sıra" style="color:var(--mu)">${g.sira||'—'}</td>
+        ${TYT.map(d=>`<td data-label="${d}" class="mono" style="color:${RC[d]}">${(g.tyt?.[d]||0).toFixed(2)}</td>`).join('')}
+        ${AYT.map(d=>`<td data-label="${d}" class="mono" style="color:${RC[d]}">${(g.ayt?.[d]||0).toFixed(2)}</td>`).join('')}
+        <td data-label="EA Puan" class="mono" style="color:var(--Y)">${g.puan?.toFixed(3)||'—'}</td>
+        <td data-label="TYT Top." class="mono"><strong>${t.toFixed(1)}</strong></td>
+        <td data-label="Değişim">${trend!==null?`<span style="color:${trend>=0?'var(--G)':'var(--R)'}">
           ${trend>=0?'↑':'↓'}${Math.abs(trend).toFixed(1)}</span>`:'—'}</td>
       </tr>`;}).reverse().join('')}
     </tbody></table></div>
@@ -5549,10 +5549,16 @@ async function opRender(ogr, userData){
     opRenderTakvim();
     opRenderNotlar(ogr.id);
   });
-  const tytTop=Object.values(ogr.tyt||{}).reduce((a,b)=>a+b,0);
-  const eaTop=EA_AYT.reduce((a,d)=>a+(ogr.ayt[d]||0),0);
   const gec = await ogrTumGecmisGetir(ogr);
   _opGecMerged = gec;
+  // Üstteki özet kartları SADECE öğretmenin resmi ogr.tyt/ogr.ayt alanına
+  // bakıyordu — öğrenci sadece kendi deneme girmişse (kurum sınavı hiç
+  // yoksa) bu alanlar hep 0 kalıyor, alttaki "Sınav Netleri" doluyken üstte
+  // "0.00" görünüp veri kaybolmuş gibi bir izlenim veriyordu. Artık en son
+  // sınavı (kendi ya da kurum, hangisi daha yeniyse) kullanıyor.
+  const sonSinavOzet = gec[gec.length-1];
+  const tytTop = sonSinavOzet ? Object.values(sonSinavOzet.tyt||{}).reduce((a,b)=>a+b,0) : Object.values(ogr.tyt||{}).reduce((a,b)=>a+b,0);
+  const eaTop = sonSinavOzet ? EA_AYT.reduce((a,d)=>a+(sonSinavOzet.ayt?.[d]||0),0) : EA_AYT.reduce((a,d)=>a+(ogr.ayt[d]||0),0);
   haftalikOzetOlustur(ogr); // async, sonucu geldiğinde kendi kartını dolduracak
 
   // Sınav seçici doldur (en yeni üstte — 100+ deneme birikince aramak kolaylaşsın)
@@ -5584,11 +5590,11 @@ async function opRender(ogr, userData){
       const t=Object.values(g.tyt||{}).reduce((a,b)=>a+b,0);
       const prev=gec[gi-1];const prevT=prev?Object.values(prev.tyt||{}).reduce((a,b)=>a+b,0):null;
       const deg=prevT!==null?t-prevT:null;
-      return`<tr><td>${g.kaynak==='kendi'?'<span class="b bP" title="Kendi girdiğin deneme">👤 Kendi</span>':'<span class="b bB" title="Öğretmenin girdiği">👨‍🏫 Kurum</span>'}</td><td>${tfmt(g.tarih)}</td><td><span class="b bP">${g.sinavAdi||'—'}</span></td>
-        <td style="color:var(--G)"><strong>${t.toFixed(1)}</strong></td>
-        <td style="color:var(--Y)">${g.puan?.toFixed(0)||'—'}</td>
-        <td style="color:var(--O)">${g.puanSAY?.toFixed(0)||'—'}</td>
-        <td>${deg!==null?`<span style="color:${deg>=0?'var(--G)':'var(--R)'}">${deg>=0?'↑':'↓'}${Math.abs(deg).toFixed(1)}</span>`:'—'}</td>
+      return`<tr><td data-label="Sınav"><span class="b bP">${g.sinavAdi||'—'}</span></td><td data-label="Kaynak">${g.kaynak==='kendi'?'<span class="b bP" title="Kendi girdiğin deneme">👤 Kendi</span>':'<span class="b bB" title="Öğretmenin girdiği">👨‍🏫 Kurum</span>'}</td><td data-label="Tarih">${tfmt(g.tarih)}</td>
+        <td data-label="TYT Top." style="color:var(--G)"><strong>${t.toFixed(1)}</strong></td>
+        <td data-label="EA Puan" style="color:var(--Y)">${g.puan?.toFixed(0)||'—'}</td>
+        <td data-label="SAY Puan" style="color:var(--O)">${g.puanSAY?.toFixed(0)||'—'}</td>
+        <td data-label="Değişim">${deg!==null?`<span style="color:${deg>=0?'var(--G)':'var(--R)'}">${deg>=0?'↑':'↓'}${Math.abs(deg).toFixed(1)}</span>`:'—'}</td>
       </tr>`;}).reverse().join('')}</tbody></table></div>`
     :'<div style="color:var(--mu);font-size:12px;padding:12px">Henüz tek sınav var.</div>';
 
@@ -8743,17 +8749,19 @@ function shCozumFotoSec(ev) {
 async function shGetir() {
   if (!db) { return SH_SORULAR; }
   try {
-    // Migration: tenant path boşsa eski flat path'e bak (sadece kendi UID'i)
-    var snap = await db.collection(tenantCol('v5_soruhavuzu')).orderBy('ts','desc').get();
-    if(snap.empty){
-      const isMine=_tenantUid&&mevcutKullanici&&_tenantUid===mevcutKullanici.uid;
-      const isSA=mevcutKullanici&&mevcutKullanici.rol==='superadmin';
-      if(isMine&&isSA){
-        snap = await db.collection('v5_soruhavuzu').orderBy('ts','desc').get();
-      }
-    }
+    // Öğrenci/veli girişinde tenantUid'in doğru ayarlanması yakın zamanda
+    // düzeltildi — ama öğretmenin ESKİ (tenant'sız, düz) yoldaki soruları
+    // hâlâ orada duruyor olabilir. Sadece "isMine&&isSA" (yani sadece
+    // öğretmen kendi eski verisini görsün) kısıtlaması öğrencinin o soruları
+    // hiç görememesine yol açıyordu — artık ikisini de çekip birleştiriyoruz.
+    const [tSnap, fSnap] = await Promise.all([
+      db.collection(tenantCol('v5_soruhavuzu')).orderBy('ts','desc').get(),
+      db.collection('v5_soruhavuzu').orderBy('ts','desc').get().catch(()=>({forEach:()=>{}}))
+    ]);
     SH_SORULAR = [];
-    snap.forEach(function(d) { SH_SORULAR.push(Object.assign({ _id: d.id }, d.data())); });
+    const gorulen = new Set();
+    tSnap.forEach(function(d){ SH_SORULAR.push(Object.assign({ _id: d.id }, d.data())); gorulen.add(d.id); });
+    fSnap.forEach(function(d){ if(!gorulen.has(d.id)) SH_SORULAR.push(Object.assign({ _id: d.id }, d.data())); });
     return SH_SORULAR;
   } catch(e) {
     console.warn('shGetir hata:', e.message);
