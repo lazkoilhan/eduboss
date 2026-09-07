@@ -53,181 +53,168 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
   background:radial-gradient(ellipse 60% 50% at 20% 0%,rgba(34,211,238,.07),transparent 60%),
     radial-gradient(ellipse 50% 40% at 80% 100%,rgba(167,139,250,.07),transparent 55%)}
 
-/* ── LOGIN EKRANI ── */
-#login-screen{display:none;position:fixed;inset:0;z-index:9998;flex-direction:row}
-#login-screen.show{display:flex}
+/* ── LANDING / GİRİŞ EKRANI ── */
+#login-screen{display:none;position:fixed;inset:0;z-index:9998;overflow-y:auto;overflow-x:hidden;background:var(--bg)}
+#login-screen.show{display:block}
 #app-wrap{display:none}#app-wrap.show{display:flex}
 
-/* Sol sahne */
-.ls-sol{flex:1;position:relative;overflow:hidden;
-  background:linear-gradient(160deg,#04080f 0%,#060d1c 35%,#0a1830 65%,#060d18 100%)}
-.ls-yildizlar{position:absolute;inset:0;overflow:hidden}
-.ls-yildizlar span{position:absolute;border-radius:50%;background:#fff;display:block;
-  animation:lsYildiz var(--d,3s) ease-in-out infinite var(--del,0s)}
-@keyframes lsYildiz{0%,100%{opacity:.1;transform:scale(1)}50%{opacity:.9;transform:scale(1.5)}}
-.ls-samanyolu{position:absolute;top:0;left:-20%;right:-20%;height:50%;
-  background:radial-gradient(ellipse 60% 100% at 55% 50%,rgba(80,120,255,.06),transparent 65%);
-  transform:rotate(-22deg);filter:blur(20px)}
-.ls-bulut{position:absolute;border-radius:50%;filter:blur(28px);
-  background:radial-gradient(ellipse,rgba(50,75,160,.2),transparent);
-  animation:bulutSur 20s ease-in-out infinite}
-@keyframes bulutSur{0%,100%{transform:translateX(0)}50%{transform:translateX(18px)}}
-.ls-b1{width:280px;height:110px;top:10%;left:3%;animation-duration:22s}
-.ls-b2{width:180px;height:70px;top:28%;right:5%;animation-duration:17s;animation-delay:-9s}
-.ls-b3{width:220px;height:90px;top:42%;left:15%;animation-duration:26s;animation-delay:-15s}
-.ls-kayanyildiz{position:absolute;height:1.5px;border-radius:100%;
-  background:linear-gradient(90deg,transparent,rgba(255,255,255,.85),transparent);
-  animation:kaysin 5s ease-in-out infinite}
-.ls-k1{width:160px;top:8%;left:-10%;transform:rotate(-18deg);animation-delay:.8s}
-.ls-k2{width:110px;top:18%;left:-5%;transform:rotate(-16deg);animation-delay:3.2s}
-@keyframes kaysin{0%{left:-20%;opacity:0}6%{opacity:1}40%{left:110%;opacity:0}100%{left:110%;opacity:0}}
-/* Holo ikonlar */
-.ls-holo{position:absolute;display:flex;align-items:center;justify-content:center;
-  width:52px;height:52px;border-radius:12px;font-size:22px;
-  background:rgba(77,140,255,.1);border:1px solid rgba(77,140,255,.3);
-  backdrop-filter:blur(8px);animation:holoUc 4s ease-in-out infinite;
-  box-shadow:0 0 16px rgba(77,140,255,.18)}
-@keyframes holoUc{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
-.ls-h1{top:28%;left:11%;animation-delay:0s}
-.ls-h2{top:50%;right:14%;animation-delay:-2s}
-.ls-h3{bottom:29%;left:17%;animation-delay:-3.5s}
-/* Neon akış çizgileri (SVG) */
-.ls-swoosh-svg{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;overflow:visible;z-index:1}
-.ls-sw-glow{opacity:.35;filter:blur(9px)}
-.ls-sw-line{opacity:.7;stroke-linecap:round;filter:drop-shadow(0 0 4px rgba(56,189,248,.8))}
-/* Holo ikonlar */
-.ls-holo{position:absolute;display:flex;align-items:center;justify-content:center;
-  width:52px;height:52px;border-radius:12px;font-size:22px;z-index:2;
-  background:rgba(77,140,255,.1);border:1px solid rgba(77,140,255,.3);
-  backdrop-filter:blur(8px);animation:holoUc 4s ease-in-out infinite;
-  box-shadow:0 0 16px rgba(77,140,255,.18)}
-@keyframes holoUc{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
-.ls-h1{top:22%;left:11%;animation-delay:0s}
-.ls-h2{top:46%;right:12%;animation-delay:-2s}
-.ls-h3{bottom:32%;left:15%;animation-delay:-3.5s}
-/* Roket sahnesi (özel SVG illüstrasyon) */
-.ls-roket-sahne{position:absolute;bottom:8%;left:0;right:0;height:56%;z-index:3;
-  display:flex;align-items:flex-end;justify-content:center}
-.ls-roket{position:relative;width:130px;
-  transform:rotate(-4deg);filter:drop-shadow(0 0 22px rgba(56,189,248,.45));
-  animation:roketSallan 4s ease-in-out infinite}
-.ls-roket svg{width:100%;height:auto;display:block}
-.ls-roket-alev{animation:aleveDalgalan 1.1s ease-in-out infinite;transform-origin:100px 248px}
-@keyframes roketSallan{0%,100%{transform:rotate(-4deg) translateY(0)}50%{transform:rotate(-1deg) translateY(-10px)}}
-@keyframes aleveDalgalan{0%,100%{opacity:.75;transform:scaleY(1)}50%{opacity:1;transform:scaleY(1.18)}}
-/* Sol marka */
-.ls-marka{position:absolute;bottom:5%;left:0;right:0;text-align:center;z-index:5}
-.ls-marka-ad{font-family:'Black Ops One','Arial Black',sans-serif;font-size:28px;
-  font-style:normal;font-weight:400;font-synthesis:none;
-  background:linear-gradient(180deg,#ffffff 0%,#cdeeff 35%,#7fd4ff 65%,#00b8e0 100%);
-  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
-  filter:drop-shadow(0 2px 6px rgba(0,0,0,.5)) drop-shadow(0 0 20px rgba(56,189,248,.4));
-  letter-spacing:2px}
-.ls-marka-sl{font-size:12px;font-style:normal;color:rgba(255,255,255,.42);margin-top:3px}
-.ls-sol::after{content:'';position:absolute;top:0;right:0;bottom:0;width:1px;
-  background:linear-gradient(180deg,transparent 5%,rgba(77,140,255,.22) 30%,rgba(77,140,255,.22) 70%,transparent 95%)}
+/* Header */
+.lp-header{position:sticky;top:0;z-index:20;backdrop-filter:blur(14px);
+  background:rgba(14,18,28,.72);border-bottom:1px solid rgba(255,255,255,.06)}
+.lp-header-inner{max-width:1100px;margin:0 auto;padding:14px 20px;
+  display:flex;align-items:center;justify-content:space-between}
+.lp-logo{display:flex;align-items:center;gap:9px;font-family:'Syne',sans-serif;
+  font-size:19px;font-weight:800;color:#fff;letter-spacing:.2px}
+.lp-logo-ic{width:34px;height:34px;border-radius:10px;display:flex;align-items:center;justify-content:center;
+  font-size:17px;background:linear-gradient(135deg,#3b82f6,#22d3ee);box-shadow:0 2px 12px rgba(56,189,248,.35)}
+.lp-header-actions{display:flex;align-items:center;gap:8px}
+.lp-icon-btn{position:relative;width:38px;height:38px;border-radius:11px;border:1px solid rgba(255,255,255,.1);
+  background:rgba(255,255,255,.04);color:rgba(220,230,245,.8);font-size:16px;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;transition:.15s}
+.lp-icon-btn:hover{background:rgba(255,255,255,.09);border-color:rgba(255,255,255,.2)}
+.lp-dot{position:absolute;top:7px;right:7px;width:7px;height:7px;border-radius:50%;background:var(--R);
+  box-shadow:0 0 0 2px rgba(14,18,28,.9)}
 
-/* Sağ panel */
-.ls-sag{width:420px;flex-shrink:0;
-  background:linear-gradient(160deg,#0c1627 0%,#0e121c 60%,#060c18 100%);
-  display:flex;flex-direction:column;align-items:center;justify-content:center;
-  padding:32px 32px;position:relative;overflow-y:auto;overflow-x:hidden}
-.ls-sag::before{content:'';position:absolute;inset:0;pointer-events:none;
-  background:radial-gradient(ellipse 70% 50% at 50% 30%,rgba(77,140,255,.04),transparent 65%)}
-/* Sağ yıldızlar */
-.ls-sag-yildiz{position:absolute;inset:0;overflow:hidden;pointer-events:none}
-.ls-sag-yildiz span{position:absolute;border-radius:50%;background:#fff;display:block;opacity:.25;
-  animation:lsYildiz var(--d,4s) ease-in-out infinite var(--del,0s)}
-/* Açıklama */
-.ls-aciklama{font-size:12px;color:rgba(200,220,245,.5);text-align:center;line-height:1.6;
-  max-width:300px;margin-bottom:16px}
-/* Hızlı özellik şeridi */
-.ls-ozellikler{width:100%;display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:20px}
-.ls-oz-item{display:flex;flex-direction:column;align-items:center;gap:6px;padding:10px 2px;
-  border-radius:13px;background:rgba(255,255,255,.03);border:1px solid rgba(56,189,248,.14)}
-.ls-oz-ic{width:32px;height:32px;border-radius:10px;display:flex;align-items:center;justify-content:center;
-  font-size:15px;background:rgba(56,189,248,.1);border:1px solid rgba(56,189,248,.22);
-  box-shadow:0 0 12px rgba(56,189,248,.12)}
-.ls-oz-lbl{font-size:8.5px;color:rgba(200,220,245,.6);text-align:center;font-weight:700;line-height:1.25}
-/* Butonlar (cam kart, 2 sütun) */
-.ls-butonlar{width:100%;display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:16px}
-.ls-btn{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;
-  width:100%;aspect-ratio:1/1.05;border-radius:20px;cursor:pointer;
-  font-family:'Plus Jakarta Sans',sans-serif;color:#fff;position:relative;overflow:hidden;
-  background:rgba(255,255,255,.05);backdrop-filter:blur(10px);
-  border:1px solid rgba(56,189,248,.28);
-  box-shadow:0 4px 24px rgba(0,0,0,.3),inset 0 1px 0 rgba(255,255,255,.06);
-  transition:transform .14s,filter .14s}
-.ls-btn::after{content:'';position:absolute;inset:0;
-  background:linear-gradient(160deg,rgba(56,189,248,.1),transparent 60%);pointer-events:none}
-.ls-btn:hover{transform:translateY(-3px);filter:brightness(1.15);border-color:rgba(56,189,248,.5)}
-.ls-btn-avatar{width:50px;height:50px;border-radius:50%;flex-shrink:0;
-  background:linear-gradient(135deg,rgba(56,189,248,.18),rgba(251,146,60,.1));
-  border:1px solid rgba(56,189,248,.35);display:flex;align-items:center;justify-content:center;
-  font-size:22px;box-shadow:0 0 18px rgba(56,189,248,.2)}
-.ls-btn-etiket{font-size:13px;font-weight:800;text-align:center;line-height:1.3}
-/* Kayıt bölümü — tek vurgu rengi, tema burada kasıtlı turuncu kalıyor */
-.ls-kayit-bolum{width:100%;flex-shrink:0}
-.ls-kayit-btn{width:100%;padding:15px;border:none;border-radius:14px;cursor:pointer;
-  font-family:'Plus Jakarta Sans',sans-serif;font-size:14px;font-weight:800;
-  background:linear-gradient(135deg,#ff8c42,#ffca28);color:#07090f;
-  box-shadow:0 4px 20px rgba(255,150,50,.4);transition:all .14s}
-.ls-kayit-btn:hover{filter:brightness(1.08);transform:translateY(-2px);box-shadow:0 8px 26px rgba(255,150,50,.55)}
-/* Güven şeridi */
-.ls-guven{width:100%;display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:18px}
-.ls-guven-item{display:flex;flex-direction:column;align-items:center;gap:5px;font-size:9px;
-  color:rgba(190,210,235,.42);font-weight:700;text-align:center}
-.ls-guven-ic{font-size:15px;opacity:.75}
+/* Hero */
+.lp-hero{max-width:1100px;margin:0 auto;padding:52px 20px 40px;
+  display:flex;flex-direction:column;align-items:center;text-align:center;gap:28px}
+.lp-hero-text{display:flex;flex-direction:column;align-items:center;gap:16px;max-width:560px}
+.lp-badge{display:inline-flex;align-items:center;gap:6px;padding:7px 14px;border-radius:20px;
+  background:rgba(59,130,246,.12);border:1px solid rgba(59,130,246,.3);
+  color:#7db8ff;font-size:12px;font-weight:700;
+  animation:lpFadeIn .6s ease-out both}
+.lp-h1{font-family:'Syne',sans-serif;font-weight:800;font-size:clamp(28px,7vw,44px);
+  line-height:1.15;color:#fff;animation:lpSlideUp .65s .08s ease-out both}
+.lp-h1-accent{background:linear-gradient(100deg,#3b82f6,#22d3ee);-webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;background-clip:text}
+.lp-sub{font-size:14.5px;line-height:1.6;color:var(--mu2);max-width:460px;
+  animation:lpSlideUp .65s .16s ease-out both}
+.lp-cta{display:inline-flex;align-items:center;gap:8px;padding:15px 30px;border:none;border-radius:16px;
+  cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;font-size:15px;font-weight:800;color:#07121e;
+  background:linear-gradient(120deg,#3b82f6,#22d3ee);box-shadow:0 8px 26px rgba(56,189,248,.32);
+  transition:transform .16s,box-shadow .16s;animation:lpSlideUp .65s .24s ease-out both, lpPulse 3.2s 1.5s ease-in-out infinite}
+.lp-cta:hover{transform:translateY(-2px);box-shadow:0 10px 32px rgba(56,189,248,.45)}
+.lp-cta span{transition:transform .16s}
+.lp-cta:hover span{transform:translateX(3px)}
+
+.lp-hero-art{width:100%;max-width:300px;animation:lpFadeIn .7s .2s ease-out both}
+.lp-hero-art svg{width:100%;height:auto;display:block;animation:lpFloat 5s ease-in-out infinite}
+
+@keyframes lpFadeIn{from{opacity:0}to{opacity:1}}
+@keyframes lpSlideUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+@keyframes lpFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
+@keyframes lpPulse{0%,100%{box-shadow:0 8px 26px rgba(56,189,248,.32)}50%{box-shadow:0 8px 34px rgba(56,189,248,.55)}}
+
+/* Özellik kartları */
+.lp-features{max-width:1100px;margin:0 auto;padding:8px 20px 36px;
+  display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
+.lp-feat{padding:20px 16px;border-radius:20px;background:rgba(255,255,255,.035);
+  border:1px solid rgba(255,255,255,.08);backdrop-filter:blur(6px);
+  transition:transform .16s,border-color .16s;cursor:default;
+  opacity:0;animation:lpSlideUp .55s ease-out forwards}
+.lp-feat:nth-child(1){animation-delay:.32s}
+.lp-feat:nth-child(2){animation-delay:.38s}
+.lp-feat:nth-child(3){animation-delay:.44s}
+.lp-feat:nth-child(4){animation-delay:.5s}
+.lp-feat:hover,.lp-feat:active{transform:translateY(-4px);border-color:rgba(255,255,255,.18)}
+.lp-feat-ic{width:44px;height:44px;border-radius:13px;display:flex;align-items:center;justify-content:center;
+  font-size:20px;margin-bottom:12px}
+.lp-feat[data-c="blue"] .lp-feat-ic{background:rgba(96,165,250,.16)}
+.lp-feat[data-c="green"] .lp-feat-ic{background:rgba(16,185,129,.16)}
+.lp-feat[data-c="purple"] .lp-feat-ic{background:rgba(167,139,250,.16)}
+.lp-feat[data-c="orange"] .lp-feat-ic{background:rgba(251,146,60,.16)}
+.lp-feat-t{font-size:14.5px;font-weight:800;color:#fff;margin-bottom:4px}
+.lp-feat-d{font-size:12px;color:var(--mu2);line-height:1.5}
+
+/* Banner */
+.lp-banner{max-width:1100px;margin:0 auto 36px;padding:24px 20px;
+  display:flex;align-items:center;gap:16px;flex-wrap:wrap;
+  background:linear-gradient(120deg,rgba(59,130,246,.16),rgba(34,211,238,.1));
+  border:1px solid rgba(56,189,248,.24);border-radius:22px;margin-left:20px;margin-right:20px}
+.lp-banner-ic{width:48px;height:48px;border-radius:14px;flex-shrink:0;
+  background:rgba(255,255,255,.08);display:flex;align-items:center;justify-content:center;font-size:22px}
+.lp-banner-text{flex:1;min-width:180px}
+.lp-banner-eyebrow{font-size:11.5px;color:#8fc9ff;font-weight:700;margin-bottom:2px}
+.lp-banner-h{font-size:16px;font-weight:800;color:#fff;font-family:'Syne',sans-serif}
+.lp-banner-btn{flex-shrink:0;padding:11px 20px;border-radius:12px;border:none;cursor:pointer;
+  background:#fff;color:#0e121c;font-weight:800;font-size:13px;font-family:'Plus Jakarta Sans',sans-serif;
+  transition:transform .15s}
+.lp-banner-btn:hover{transform:translateY(-2px)}
+
+/* Hızlı Giriş */
+.lp-girisler{max-width:1100px;margin:0 auto;padding:8px 20px 8px}
+.lp-girisler-head{display:flex;align-items:baseline;justify-content:space-between;flex-wrap:wrap;
+  gap:8px;margin-bottom:16px}
+.lp-girisler-head h2{font-family:'Syne',sans-serif;font-size:20px;font-weight:800;color:#fff}
+.lp-girisler-link{font-size:12.5px;color:var(--mu2)}
+.lp-girisler-link a{color:#7db8ff;font-weight:700;cursor:pointer;text-decoration:none}
+.lp-girisler-link a:hover{text-decoration:underline}
+.lp-giris-grid{display:grid;grid-template-columns:1fr;gap:14px}
+.lp-giris-card{position:relative;text-align:left;padding:22px;border-radius:20px;cursor:pointer;
+  border:1px solid rgba(255,255,255,.08);color:inherit;font-family:inherit;
+  transition:transform .16s,border-color .16s;overflow:hidden}
+.lp-giris-card:hover,.lp-giris-card:active{transform:translateY(-4px)}
+.lp-giris-card[data-c="blue"]{background:linear-gradient(155deg,rgba(59,130,246,.16),rgba(59,130,246,.03))}
+.lp-giris-card[data-c="blue"]:hover{border-color:rgba(96,165,250,.4)}
+.lp-giris-card[data-c="teal"]{background:linear-gradient(155deg,rgba(34,211,238,.16),rgba(34,211,238,.03))}
+.lp-giris-card[data-c="teal"]:hover{border-color:rgba(34,211,238,.4)}
+.lp-giris-card[data-c="purple"]{background:linear-gradient(155deg,rgba(167,139,250,.18),rgba(167,139,250,.03))}
+.lp-giris-card[data-c="purple"]:hover{border-color:rgba(167,139,250,.4)}
+.lp-giris-ic{width:46px;height:46px;border-radius:13px;background:rgba(255,255,255,.09);
+  display:flex;align-items:center;justify-content:center;font-size:21px;margin-bottom:14px}
+.lp-giris-t{font-size:16px;font-weight:800;color:#fff;margin-bottom:4px}
+.lp-giris-d{font-size:12.5px;color:var(--mu2);line-height:1.5;margin-bottom:14px;max-width:80%}
+.lp-giris-arrow{width:32px;height:32px;border-radius:50%;background:rgba(255,255,255,.1);
+  display:flex;align-items:center;justify-content:center;font-size:14px;color:#fff;transition:.16s}
+.lp-giris-card:hover .lp-giris-arrow{background:rgba(255,255,255,.2);transform:translateX(3px)}
+
+/* Footer */
+.lp-footer{max-width:1100px;margin:24px auto 0;padding:22px 20px 34px;text-align:center;
+  font-size:11px;letter-spacing:.5px;color:rgba(150,170,200,.4);font-weight:700}
+.lp-footer span{margin:0 10px;opacity:.5}
+
 /* Form alanı (role-tabs form üzerinde çalışıyor - orijinal JS korunuyor) */
+#ls-form{display:none;max-width:400px;margin:64px auto;padding:32px 26px;
+  background:rgba(255,255,255,.035);border:1px solid rgba(255,255,255,.09);border-radius:22px;
+  backdrop-filter:blur(10px);animation:lpSlideUp .35s ease-out both}
 .login-box{width:100%;display:flex;flex-direction:column;gap:0}
 .login-role-tabs{display:flex;gap:8px;margin-bottom:14px}
 .login-role-tab{flex:1;padding:9px;border-radius:9px;text-align:center;cursor:pointer;
   font-size:12px;font-weight:600;color:rgba(180,210,255,.55);
   background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);transition:.14s}
 .login-role-tab.active{background:rgba(34,211,238,.1);color:var(--C);border-color:rgba(34,211,238,.28)}
-.login-title{font-family:'Syne',sans-serif;font-size:15px;font-weight:700;color:#fff;margin-bottom:3px}
+.login-title{font-family:'Syne',sans-serif;font-size:17px;font-weight:700;color:#fff;margin-bottom:3px}
 .login-sub{font-size:11px;color:var(--mu2);margin-bottom:12px}
 .login-err{display:none;background:rgba(248,113,113,.1);color:var(--R);
   border:1px solid rgba(248,113,113,.22);border-radius:8px;padding:8px 12px;
   font-size:11px;margin-bottom:10px}
-.btn-login{width:100%;padding:12px;border:none;border-radius:10px;cursor:pointer;
-  margin-top:14px;font-family:'Plus Jakarta Sans',sans-serif;font-size:14px;font-weight:800;
-  background:linear-gradient(135deg,#38bdf8,#fb923c);color:#07090f;
-  box-shadow:0 4px 16px rgba(56,189,248,.3);transition:all .14s}
+.btn-login{width:100%;padding:13px;border:none;border-radius:12px;cursor:pointer;
+  margin-top:14px;font-family:'Plus Jakarta Sans',sans-serif;font-size:14px;font-weight:800;color:#07121e;
+  background:linear-gradient(120deg,#3b82f6,#22d3ee);
+  box-shadow:0 6px 20px rgba(56,189,248,.3);transition:all .14s}
 .btn-login:hover{filter:brightness(1.08);transform:translateY(-1px)}
 .btn-login:disabled{opacity:.5;cursor:not-allowed;transform:none}
-/* Form toggle — görünürlük lsFormAc()/lsFormKapat() JS fonksiyonlarıyla yönetiliyor */
 .ls-geri-btn{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);
   color:rgba(200,220,255,.65);border-radius:8px;padding:5px 12px;cursor:pointer;
   font-family:'Plus Jakarta Sans',sans-serif;font-size:12px;transition:.14s;margin-bottom:14px}
 .ls-geri-btn:hover{background:rgba(255,255,255,.11);color:#fff}
-/* Mobil */
-/* Tablet + Mobil — kayan/aşırı boş görünen 2 sütunlu masaüstü tasarımı yerine
-   iPad gibi orta genişlikteki ekranlarda da alt-üst (stacked) düzene geçiyoruz.
-   Eskiden bu eşik 700px'ti; iPad (768-1024px CSS genişliği) bu aralığın dışında
-   kalıp sabit 420px'lik sağ panel + esnek sol paneldeki roket/ikonlar sabit
-   piksel boyutlarında kaldığı için ekranın çoğu boş/dağınık görünüyordu.
-   Bu blok sadece DÜZENİ değiştirir; boyut küçültmeleri aşağıdaki 700px'lik
-   blokta sadece dar telefonlara uygulanıyor. */
-@media(max-width:1024px){
-  #login-screen{flex-direction:column}
-  .ls-sol{height:42vh;min-height:220px;flex:none}
-  .ls-sol::after{display:none}
-  .ls-sag{width:100%;flex:1;padding:24px 18px;border-radius:22px 22px 0 0;
-    margin-top:-18px;z-index:5;box-shadow:0 -8px 28px rgba(0,0,0,.5);
-    justify-content:flex-start;padding-top:28px}
-  .ls-aciklama{margin-bottom:16px}
-  .ls-ozellikler{margin-bottom:16px}
+
+/* Tablet ve üzeri */
+@media(min-width:760px){
+  .lp-hero{flex-direction:row;text-align:left;padding-top:70px;padding-bottom:56px;gap:40px}
+  .lp-hero-text{align-items:flex-start;max-width:52%}
+  .lp-hero-art{max-width:38%}
+  .lp-features{grid-template-columns:repeat(4,1fr)}
+  .lp-giris-grid{grid-template-columns:repeat(3,1fr)}
+  .lp-giris-d{max-width:100%}
 }
-/* Mobil — dar telefon ekranlarına özel ek küçültmeler */
-@media(max-width:700px){
-  .ls-marka{bottom:42%}
-  .ls-marka-ad{font-size:22px}
-  .ls-roket{width:92px}
-  .ls-oz-lbl{font-size:7.5px}
-  .ls-btn{padding:6px}
-  .ls-btn-avatar{width:42px;height:42px;font-size:19px}
-  .ls-holo{width:38px;height:38px;font-size:17px}
+@media(min-width:1024px){
+  .lp-hero{padding-top:84px}
+  .lp-h1{font-size:46px}
+}
+@media(prefers-reduced-motion:reduce){
+  .lp-badge,.lp-h1,.lp-sub,.lp-cta,.lp-hero-art,.lp-feat,#ls-form{animation:none;opacity:1}
+  .lp-hero-art svg{animation:none}
 }
 
 /* ── SIDEBAR ── */
@@ -841,132 +828,133 @@ hr.dv{border:none;border-top:1px solid rgba(255,255,255,.055);margin:12px 0}
 <!-- ═══ LOGIN SCREEN ═══ -->
 <div id="login-screen">
 
-  <!-- SOL: Roket sahnesi -->
-  <div class="ls-sol">
-    <div class="ls-yildizlar" id="ls-yildizlar"></div>
-    <div class="ls-samanyolu"></div>
-    <div class="ls-bulut ls-b1"></div>
-    <div class="ls-bulut ls-b2"></div>
-    <div class="ls-bulut ls-b3"></div>
-    <div class="ls-kayanyildiz ls-k1"></div>
-    <div class="ls-kayanyildiz ls-k2"></div>
-    <!-- Neon akış çizgileri (gerçek SVG, gerçekten parlıyor) -->
-    <svg class="ls-swoosh-svg" viewBox="0 0 400 700" preserveAspectRatio="none">
-      <path class="ls-sw-glow" d="M440,60 C300,110 250,190 330,270 C430,360 470,440 370,540" fill="none" stroke="#38bdf8" stroke-width="16"/>
-      <path class="ls-sw-line" d="M440,60 C300,110 250,190 330,270 C430,360 470,440 370,540" fill="none" stroke="#5fe8ff" stroke-width="2.5"/>
-      <path class="ls-sw-glow" d="M-50,500 C60,440 130,480 105,545 C80,610 30,655 150,680" fill="none" stroke="#fb923c" stroke-width="14"/>
-      <path class="ls-sw-line" d="M-50,500 C60,440 130,480 105,545 C80,610 30,655 150,680" fill="none" stroke="#7fb4ff" stroke-width="2"/>
-    </svg>
-    <!-- Holo ikonlar -->
-    <div class="ls-holo ls-h1">📊</div>
-    <div class="ls-holo ls-h2">📈</div>
-    <div class="ls-holo ls-h3">🎓</div>
-    <!-- Roket (özel SVG illüstrasyon) -->
-    <div class="ls-roket-sahne">
-      <div class="ls-roket">
-        <svg viewBox="0 0 200 340" xmlns="http://www.w3.org/2000/svg">
+  <div id="ls-landing">
+
+    <!-- Header -->
+    <header class="lp-header">
+      <div class="lp-header-inner">
+        <div class="lp-logo"><span class="lp-logo-ic">🎓</span>EDU-BOSS</div>
+        <div class="lp-header-actions">
+          <button class="lp-icon-btn" aria-label="Duyurular">🔔<span class="lp-dot"></span></button>
+          <button class="lp-icon-btn" aria-label="Menü" onclick="document.querySelector('.lp-girisler').scrollIntoView({behavior:'smooth'})">☰</button>
+        </div>
+      </div>
+    </header>
+
+    <!-- Hero -->
+    <section class="lp-hero">
+      <div class="lp-hero-text">
+        <div class="lp-badge">✦ Akıllı Eğitim Yönetim Sistemi</div>
+        <h1 class="lp-h1">Eğitimini Yönet,<br><span class="lp-h1-accent">Geleceğini Tasarla</span></h1>
+        <p class="lp-sub">Öğrenci takibi, sınav analizi, yapay zeka koçluk ve daha fazlasıyla eğitim sürecini tek platformda yönetin.</p>
+        <button class="lp-cta" onclick="lsKayitBilgi()">Kayıt Ol <span>→</span></button>
+      </div>
+      <div class="lp-hero-art">
+        <svg viewBox="0 0 320 300" xmlns="http://www.w3.org/2000/svg">
           <defs>
-            <linearGradient id="rBody" x1="0" y1="0" x2="1" y2="0">
-              <stop offset="0%" stop-color="#f4f9fd"/>
-              <stop offset="48%" stop-color="#d3e3f0"/>
-              <stop offset="100%" stop-color="#8ba5c4"/>
-            </linearGradient>
-            <linearGradient id="rNose" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stop-color="#4a3a8c"/>
-              <stop offset="100%" stop-color="#1c2f6e"/>
-            </linearGradient>
-            <radialGradient id="rWin" cx="35%" cy="30%" r="75%">
-              <stop offset="0%" stop-color="#d4f6ff"/>
-              <stop offset="45%" stop-color="#2fb6ef"/>
-              <stop offset="100%" stop-color="#0a3a63"/>
-            </radialGradient>
-            <linearGradient id="rFin" x1="0" y1="0" x2="1" y2="1">
-              <stop offset="0%" stop-color="#4a63b8"/>
-              <stop offset="100%" stop-color="#181f4a"/>
-            </linearGradient>
-            <linearGradient id="rFlame" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stop-color="#ffffff"/>
-              <stop offset="35%" stop-color="#8ceeff"/>
-              <stop offset="100%" stop-color="#00b8e8" stop-opacity="0"/>
-            </linearGradient>
+            <linearGradient id="lpBook1" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#3b82f6"/><stop offset="100%" stop-color="#1d4ed8"/></linearGradient>
+            <linearGradient id="lpBook2" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#fb923c"/><stop offset="100%" stop-color="#ea580c"/></linearGradient>
+            <linearGradient id="lpCap" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#0f172a"/><stop offset="100%" stop-color="#1e293b"/></linearGradient>
+            <linearGradient id="lpPhone" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#1e2740"/><stop offset="100%" stop-color="#0e1524"/></linearGradient>
+            <linearGradient id="lpBar" x1="0" y1="1" x2="0" y2="0"><stop offset="0%" stop-color="#22d3ee"/><stop offset="100%" stop-color="#3b82f6"/></linearGradient>
           </defs>
-          <path class="ls-roket-alev" d="M84 248 Q100 300 100 340 Q100 300 116 248 Q100 268 84 248 Z" fill="url(#rFlame)"/>
-          <path d="M64 208 L20 266 L64 254 Z" fill="url(#rFin)"/>
-          <path d="M136 208 L180 266 L136 254 Z" fill="url(#rFin)"/>
-          <path d="M100 4 C130 38 142 98 142 188 C142 218 130 238 100 248 C70 238 58 218 58 188 C58 98 70 38 100 4 Z" fill="url(#rBody)" stroke="#93aecb" stroke-width="1.5"/>
-          <path d="M100 4 C113 21 121 44 125 70 C112 55 100 46 100 46 C100 46 88 55 75 70 C79 44 87 21 100 4 Z" fill="url(#rNose)"/>
-          <rect x="97" y="86" width="6" height="132" rx="3" fill="#ffffff" opacity=".3"/>
-          <circle cx="100" cy="108" r="27" fill="#0a1830" stroke="#5fd4ff" stroke-width="3"/>
-          <circle cx="100" cy="108" r="20" fill="url(#rWin)"/>
-          <circle cx="92" cy="100" r="5" fill="#ffffff" opacity=".85"/>
+          <ellipse cx="160" cy="264" rx="108" ry="14" fill="#3b82f6" opacity=".08"/>
+          <!-- Kitaplar -->
+          <rect x="70" y="196" width="180" height="26" rx="5" fill="url(#lpBook2)"/>
+          <rect x="82" y="168" width="156" height="26" rx="5" fill="url(#lpBook1)"/>
+          <rect x="82" y="168" width="156" height="7" rx="3.5" fill="#fff" opacity=".18"/>
+          <!-- Mezuniyet kepi -->
+          <g transform="translate(160,116)">
+            <path d="M-64,0 L0,-26 L64,0 L0,26 Z" fill="url(#lpCap)"/>
+            <path d="M-64,0 L0,26 L64,0" fill="none" stroke="#000" stroke-opacity=".15" stroke-width="2"/>
+            <rect x="-8" y="20" width="16" height="34" rx="6" fill="#1e293b"/>
+            <circle cx="0" cy="56" r="7" fill="#fb923c"/>
+            <line x1="46" y1="-8" x2="60" y2="30" stroke="#fb923c" stroke-width="2.5"/>
+            <circle cx="60" cy="30" r="5" fill="#fb923c"/>
+          </g>
+          <!-- Telefon / rapor -->
+          <g transform="translate(224,120)">
+            <rect x="0" y="0" width="66" height="118" rx="14" fill="url(#lpPhone)" stroke="#3b82f6" stroke-opacity=".4" stroke-width="1.5"/>
+            <rect x="10" y="14" width="46" height="72" rx="4" fill="#0a1220"/>
+            <rect x="17" y="62" width="7" height="16" rx="2" fill="url(#lpBar)"/>
+            <rect x="28" y="50" width="7" height="28" rx="2" fill="url(#lpBar)"/>
+            <rect x="39" y="40" width="7" height="38" rx="2" fill="url(#lpBar)"/>
+            <circle cx="33" cy="24" r="4" fill="#22d3ee"/>
+            <rect x="24" y="98" width="18" height="5" rx="2.5" fill="#38507a"/>
+          </g>
+          <circle cx="52" cy="70" r="5" fill="#22d3ee" opacity=".8"/>
+          <circle cx="270" cy="60" r="4" fill="#fb923c" opacity=".7"/>
+          <circle cx="40" cy="150" r="3.5" fill="#a78bfa" opacity=".7"/>
         </svg>
       </div>
-    </div>
-    <div class="ls-marka">
-      <div class="ls-marka-ad">EDU-BOSS</div>
-      <div class="ls-marka-sl">Önce Eğitim!</div>
-    </div>
+    </section>
+
+    <!-- Özellikler -->
+    <section class="lp-features">
+      <div class="lp-feat" data-c="blue"><div class="lp-feat-ic">📊</div><div class="lp-feat-t">Sınav Analizi</div><div class="lp-feat-d">Başarıyı ölç, gelişimi gör.</div></div>
+      <div class="lp-feat" data-c="green"><div class="lp-feat-ic">👥</div><div class="lp-feat-t">Öğrenci Takip</div><div class="lp-feat-d">Her öğrenciye özel takip.</div></div>
+      <div class="lp-feat" data-c="purple"><div class="lp-feat-ic">🤖</div><div class="lp-feat-t">AI Koçluk</div><div class="lp-feat-d">Yapay zekâ ile kişiselleştirilmiş yol haritası.</div></div>
+      <div class="lp-feat" data-c="orange"><div class="lp-feat-ic">📄</div><div class="lp-feat-t">Raporlar</div><div class="lp-feat-d">Detaylı raporlarla daha bilinçli kararlar.</div></div>
+    </section>
+
+    <!-- Banner -->
+    <section class="lp-banner">
+      <div class="lp-banner-ic">🎯</div>
+      <div class="lp-banner-text">
+        <div class="lp-banner-eyebrow">Başarıya Giden Yol</div>
+        <div class="lp-banner-h">Doğru Planlama ile Daha Kolay!</div>
+      </div>
+      <button class="lp-banner-btn" onclick="document.querySelector('.lp-girisler').scrollIntoView({behavior:'smooth'})">Keşfet →</button>
+    </section>
+
+    <!-- Hızlı Giriş -->
+    <section class="lp-girisler">
+      <div class="lp-girisler-head">
+        <h2>Hızlı Giriş</h2>
+        <div class="lp-girisler-link">Hesabın var mı? <a onclick="lsFormAc()">Giriş Yap →</a></div>
+      </div>
+      <div class="lp-giris-grid">
+        <button class="lp-giris-card" data-c="blue" onclick="loginRolSec('ogretmen',this);lsFormAc()">
+          <div class="lp-giris-ic">👨‍🏫</div>
+          <div class="lp-giris-t">Öğretmen Girişi</div>
+          <div class="lp-giris-d">Sınıfını yönet, öğrencilerini takip et.</div>
+          <div class="lp-giris-arrow">→</div>
+        </button>
+        <button class="lp-giris-card" data-c="teal" onclick="loginRolSec('ogrenci',this);lsFormAc()">
+          <div class="lp-giris-ic">🎓</div>
+          <div class="lp-giris-t">Öğrenci Girişi</div>
+          <div class="lp-giris-d">Sınavlarını gör, hedeflerine odaklan.</div>
+          <div class="lp-giris-arrow">→</div>
+        </button>
+        <button class="lp-giris-card" data-c="purple" onclick="loginRolSec('veli',this);lsFormAc()">
+          <div class="lp-giris-ic">👨‍👩‍👧</div>
+          <div class="lp-giris-t">Veli Girişi</div>
+          <div class="lp-giris-d">Çocuğunuzun gelişimini takip edin.</div>
+          <div class="lp-giris-arrow">→</div>
+        </button>
+      </div>
+    </section>
+
+    <footer class="lp-footer">DAHA İYİ BİR EĞİTİM<span>|</span>DAHA PARLAK BİR GELECEK</footer>
+
   </div>
 
-  <!-- SAĞ: Giriş paneli -->
-  <div class="ls-sag" id="ls-sag">
-    <div class="ls-sag-yildiz" id="ls-sag-yildiz"></div>
-
-    <div class="ls-aciklama" id="ls-aciklama">Sınav takibinden AI koçluğuna, eğitimi yönetmenin en hızlı ve güvenli yolu.</div>
-
-    <!-- Hızlı özellik şeridi -->
-    <div class="ls-ozellikler" id="ls-ozellikler">
-      <div class="ls-oz-item"><div class="ls-oz-ic">📈</div><div class="ls-oz-lbl">Sınav<br>Analizi</div></div>
-      <div class="ls-oz-item"><div class="ls-oz-ic">👥</div><div class="ls-oz-lbl">Öğrenci<br>Takip</div></div>
-      <div class="ls-oz-item"><div class="ls-oz-ic">🤖</div><div class="ls-oz-lbl">AI<br>Koçluk</div></div>
-      <div class="ls-oz-item"><div class="ls-oz-ic">📋</div><div class="ls-oz-lbl">Raporlar</div></div>
+  <!-- Login formu (role-tabs orijinal JS ile çalışıyor) -->
+  <div class="login-box" id="ls-form" style="display:none">
+    <button class="ls-geri-btn" onclick="lsFormKapat()">← Geri</button>
+    <div class="login-role-tabs">
+      <div class="login-role-tab active" onclick="loginRolSec('ogretmen',this)">👨‍🏫 Öğretmen</div>
+      <div class="login-role-tab" onclick="loginRolSec('ogrenci',this)">👨‍🎓 Öğrenci</div>
+      <div class="login-role-tab" onclick="loginRolSec('veli',this)">👪 Veli</div>
     </div>
-
-    <!-- Ana buton seçimi (default görünen) -->
-    <div class="ls-butonlar" id="ls-butonlar">
-      <button class="ls-btn ls-btn-ogretmen" onclick="loginRolSec('ogretmen',this);lsFormAc()">
-        <span class="ls-btn-avatar">👩‍🏫</span>
-        <span class="ls-btn-etiket">Öğretmen<br>Girişi</span>
-      </button>
-      <button class="ls-btn ls-btn-ogrenci" onclick="loginRolSec('ogrenci',this);lsFormAc()">
-        <span class="ls-btn-avatar">🎓</span>
-        <span class="ls-btn-etiket">Öğrenci<br>Girişi</span>
-      </button>
+    <div class="login-title" id="login-title">Öğretmen Girişi</div>
+    <div class="login-sub" id="login-sub">E-posta ve şifrenizle giriş yapın</div>
+    <div class="login-err" id="login-err"></div>
+    <div class="fg">
+      <div class="f"><label>E-posta</label><input id="login-email" type="email" placeholder="ornek@mail.com" autocomplete="email"></div>
+      <div class="f"><label>Şifre</label><input id="login-sifre" type="password" placeholder="••••••••" autocomplete="current-password"></div>
     </div>
-    <div style="width:100%;text-align:center;margin:-8px 0 16px">
-      <span style="font-size:11px;color:rgba(200,220,245,.45);cursor:pointer;text-decoration:underline;text-underline-offset:2px" onclick="loginRolSec('veli',this);lsFormAc()">👪 Veli misiniz? Buradan giriş yapın</span>
-    </div>
-
-    <!-- Kayıt ol -->
-    <div class="ls-kayit-bolum" id="ls-kayit-bolum">
-      <button class="ls-kayit-btn" onclick="lsKayitBilgi()">Kayıt Ol</button>
-    </div>
-
-    <!-- Güven şeridi -->
-    <div class="ls-guven" id="ls-guven">
-      <div class="ls-guven-item"><span class="ls-guven-ic">🛡️</span>Güvenli</div>
-      <div class="ls-guven-item"><span class="ls-guven-ic">☁️</span>Bulut Yedekli</div>
-      <div class="ls-guven-item"><span class="ls-guven-ic">📱</span>Her Cihazda</div>
-      <div class="ls-guven-item"><span class="ls-guven-ic">🤖</span>AI Destekli</div>
-    </div>
-
-    <!-- Login formu (role-tabs orijinal JS ile çalışıyor) -->
-    <div class="login-box" id="ls-form" style="display:none;width:100%">
-      <button class="ls-geri-btn" onclick="lsFormKapat()">← Geri</button>
-      <div class="login-role-tabs">
-        <div class="login-role-tab active" onclick="loginRolSec('ogretmen',this)">👨‍🏫 Öğretmen</div>
-        <div class="login-role-tab" onclick="loginRolSec('ogrenci',this)">👨‍🎓 Öğrenci</div>
-        <div class="login-role-tab" onclick="loginRolSec('veli',this)">👪 Veli</div>
-      </div>
-      <div class="login-title" id="login-title">Öğretmen Girişi</div>
-      <div class="login-sub" id="login-sub">E-posta ve şifrenizle giriş yapın</div>
-      <div class="login-err" id="login-err"></div>
-      <div class="fg">
-        <div class="f"><label>E-posta</label><input id="login-email" type="email" placeholder="ornek@mail.com" autocomplete="email"></div>
-        <div class="f"><label>Şifre</label><input id="login-sifre" type="password" placeholder="••••••••" autocomplete="current-password"></div>
-      </div>
-      <button class="btn-login" id="login-btn" onclick="loginGiris()">Giriş Yap</button>
-    </div>
+    <button class="btn-login" id="login-btn" onclick="loginGiris()">Giriş Yap</button>
   </div>
 
 </div>
@@ -5121,20 +5109,13 @@ function introGiris(){
 
 // v9 login ekranı yardımcıları
 function lsFormAc(){
-  document.getElementById('ls-butonlar').style.display='none';
-  document.getElementById('ls-kayit-bolum').style.display='none';
-  const oz=document.getElementById('ls-ozellikler'); if(oz) oz.style.display='none';
-  const gv=document.getElementById('ls-guven'); if(gv) gv.style.display='none';
-  const ab=document.getElementById('ls-alt-bilgi'); if(ab) ab.style.display='none';
+  document.getElementById('ls-landing').style.display='none';
   document.getElementById('ls-form').style.display='block';
+  window.scrollTo(0,0);
   document.getElementById('login-email').focus();
 }
 function lsFormKapat(){
-  document.getElementById('ls-butonlar').style.display='grid';
-  document.getElementById('ls-kayit-bolum').style.display='block';
-  const oz=document.getElementById('ls-ozellikler'); if(oz) oz.style.display='grid';
-  const gv=document.getElementById('ls-guven'); if(gv) gv.style.display='grid';
-  const ab=document.getElementById('ls-alt-bilgi'); if(ab) ab.style.display='block';
+  document.getElementById('ls-landing').style.display='block';
   document.getElementById('ls-form').style.display='none';
 }
 function lsKayitBilgi(){
@@ -5275,14 +5256,12 @@ async function ogretmenGiris(){
         if(auth) auth.signOut().catch(()=>{});
         mevcutKullanici = null;
         document.getElementById('login-screen').classList.add('show');
+        lsFormAc();
         const err = document.getElementById('login-err');
         if(err){
           err.style.display='block';
           err.innerHTML='⛔ Aboneliğiniz <strong>'+new Date(bitis+'T00:00').toLocaleDateString('tr-TR')+'</strong> tarihinde sona erdi.<br><span style="font-size:10px;opacity:.8">Yenileme için sistem yöneticisiyle iletişime geçin.</span>';
         }
-        document.getElementById('ls-form').style.display='block';
-        document.getElementById('ls-butonlar').style.display='none';
-        document.getElementById('ls-kayit-bolum').style.display='none';
         const btn=document.getElementById('login-btn');
         if(btn){btn.disabled=false;btn.textContent='Giriş Yap';}
         return;
@@ -5451,6 +5430,7 @@ function cikisYap(){
   aw2.classList.remove('show');
   document.getElementById('ogrenci-panel').classList.remove('show');
   document.getElementById('login-screen').classList.add('show');
+  lsFormKapat();
   document.getElementById('login-email').value='';
   document.getElementById('login-sifre').value='';
   document.getElementById('login-err').style.display='none';
@@ -7716,19 +7696,6 @@ function superAdminGeriDon(){
 // introGiris Firebase yüklemesini tetikler — fonksiyon yukarıda tanımlı
 
 // v9 — Login ekranı yıldızları
-(function(){
-  ['ls-yildizlar','ls-sag-yildiz'].forEach(function(id){
-    var c=document.getElementById(id);
-    if(!c)return;
-    var count=id==='ls-yildizlar'?130:35;
-    for(var i=0;i<count;i++){
-      var s=document.createElement('span');
-      var sz=(Math.random()*2+0.4).toFixed(1);
-      s.style.cssText='width:'+sz+'px;height:'+sz+'px;top:'+(Math.random()*100).toFixed(1)+'%;left:'+(Math.random()*100).toFixed(1)+'%;--d:'+(2+Math.random()*5).toFixed(1)+'s;--del:-'+(Math.random()*6).toFixed(1)+'s';
-      c.appendChild(s);
-    }
-  });
-})();
 
 
 // ═══════════════════════════════════════════════════════
