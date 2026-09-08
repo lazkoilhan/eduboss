@@ -61,117 +61,126 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
 /* Header */
 .lp-header{position:sticky;top:0;z-index:20;backdrop-filter:blur(14px);
   background:rgba(14,18,28,.72);border-bottom:1px solid rgba(255,255,255,.06)}
-.lp-header-inner{max-width:1100px;margin:0 auto;padding:14px 20px;
+.lp-header-inner{max-width:1120px;margin:0 auto;padding:16px 20px;
   display:flex;align-items:center;justify-content:space-between}
-.lp-logo{display:flex;align-items:center;gap:9px;font-family:'Syne',sans-serif;
-  font-size:19px;font-weight:800;color:#fff;letter-spacing:.2px}
-.lp-logo-ic{width:34px;height:34px;border-radius:10px;display:flex;align-items:center;justify-content:center;
-  font-size:17px;background:linear-gradient(135deg,#3b82f6,#22d3ee);box-shadow:0 2px 12px rgba(56,189,248,.35)}
-.lp-header-actions{display:flex;align-items:center;gap:8px}
-.lp-icon-btn{position:relative;width:38px;height:38px;border-radius:11px;border:1px solid rgba(255,255,255,.1);
-  background:rgba(255,255,255,.04);color:rgba(220,230,245,.8);font-size:16px;cursor:pointer;
-  display:flex;align-items:center;justify-content:center;transition:.15s}
-.lp-icon-btn:hover{background:rgba(255,255,255,.09);border-color:rgba(255,255,255,.2)}
-.lp-dot{position:absolute;top:7px;right:7px;width:7px;height:7px;border-radius:50%;background:var(--R);
-  box-shadow:0 0 0 2px rgba(14,18,28,.9)}
+.lp-logo{display:flex;align-items:center;gap:10px;font-family:'Plus Jakarta Sans',sans-serif;
+  font-size:20px;font-weight:800;color:#fff;letter-spacing:.2px}
+.lp-logo b{color:#38bdf8;font-weight:800}
+.lp-logo-ic{width:38px;height:38px;border-radius:11px;display:flex;align-items:center;justify-content:center;flex-shrink:0;
+  background:linear-gradient(145deg,#3b82f6,#22d3ee);box-shadow:0 3px 14px rgba(56,189,248,.4)}
+.lp-logo-ic svg{width:21px;height:21px}
+.lp-header-actions{display:flex;align-items:center;gap:18px}
+.lp-icon-btn{position:relative;background:none;border:none;color:#e8eef8;font-size:0;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;opacity:.9;transition:.15s;padding:2px}
+.lp-icon-btn:hover{opacity:1;transform:translateY(-1px)}
+.lp-icon-btn svg{width:23px;height:23px}
+.lp-dot{position:absolute;top:-1px;right:-1px;width:8px;height:8px;border-radius:50%;background:#ef4444;
+  box-shadow:0 0 0 2px #0e121c}
 
 /* Hero */
-.lp-hero{max-width:1100px;margin:0 auto;padding:52px 20px 40px;
-  display:flex;flex-direction:column;align-items:center;text-align:center;gap:28px}
-.lp-hero-text{display:flex;flex-direction:column;align-items:center;gap:16px;max-width:560px}
+.lp-hero{max-width:1120px;margin:0 auto;padding:44px 20px 40px;
+  display:flex;flex-direction:column;align-items:flex-start;text-align:left;gap:28px}
+.lp-hero-text{display:flex;flex-direction:column;align-items:flex-start;gap:16px;max-width:560px}
 .lp-badge{display:inline-flex;align-items:center;gap:6px;padding:7px 14px;border-radius:20px;
-  background:rgba(59,130,246,.12);border:1px solid rgba(59,130,246,.3);
+  background:rgba(59,130,246,.14);border:1px solid rgba(59,130,246,.35);
   color:#7db8ff;font-size:12px;font-weight:700;
   animation:lpFadeIn .6s ease-out both}
-.lp-h1{font-family:'Syne',sans-serif;font-weight:800;font-size:clamp(28px,7vw,44px);
-  line-height:1.15;color:#fff;animation:lpSlideUp .65s .08s ease-out both}
-.lp-h1-accent{background:linear-gradient(100deg,#3b82f6,#22d3ee);-webkit-background-clip:text;
-  -webkit-text-fill-color:transparent;background-clip:text}
-.lp-sub{font-size:14.5px;line-height:1.6;color:var(--mu2);max-width:460px;
+.lp-h1{font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:clamp(30px,8vw,40px);
+  line-height:1.18;color:#fff;animation:lpSlideUp .65s .08s ease-out both}
+.lp-h1-accent{color:#38bdf8}
+.lp-sub{font-size:14.5px;line-height:1.65;color:var(--mu2);max-width:440px;
   animation:lpSlideUp .65s .16s ease-out both}
-.lp-cta{display:inline-flex;align-items:center;gap:8px;padding:15px 30px;border:none;border-radius:16px;
-  cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;font-size:15px;font-weight:800;color:#07121e;
-  background:linear-gradient(120deg,#3b82f6,#22d3ee);box-shadow:0 8px 26px rgba(56,189,248,.32);
+.lp-cta{display:inline-flex;align-items:center;gap:8px;padding:16px 34px;border:none;border-radius:16px;
+  cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;font-size:15.5px;font-weight:800;color:#fff;
+  background:linear-gradient(100deg,#1d9bf0,#22d3ee);box-shadow:0 10px 28px rgba(29,155,240,.4);
   transition:transform .16s,box-shadow .16s;animation:lpSlideUp .65s .24s ease-out both, lpPulse 3.2s 1.5s ease-in-out infinite}
-.lp-cta:hover{transform:translateY(-2px);box-shadow:0 10px 32px rgba(56,189,248,.45)}
+.lp-cta:hover{transform:translateY(-2px);box-shadow:0 12px 34px rgba(29,155,240,.5)}
 .lp-cta span{transition:transform .16s}
 .lp-cta:hover span{transform:translateX(3px)}
 
-.lp-hero-art{width:100%;max-width:300px;animation:lpFadeIn .7s .2s ease-out both}
-.lp-hero-art svg{width:100%;height:auto;display:block;animation:lpFloat 5s ease-in-out infinite}
+.lp-hero-art{width:100%;max-width:340px;margin:0 auto;position:relative;animation:lpFadeIn .7s .2s ease-out both}
+.lp-hero-art svg{width:100%;height:auto;display:block;position:relative;z-index:1}
+.lp-hero-art .lp-glow{position:absolute;inset:8%;border-radius:50%;
+  background:radial-gradient(circle,rgba(56,120,220,.28),transparent 70%);filter:blur(6px);z-index:0}
+.lp-hero-float{animation:lpFloat 5s ease-in-out infinite}
 
 @keyframes lpFadeIn{from{opacity:0}to{opacity:1}}
 @keyframes lpSlideUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
-@keyframes lpFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
-@keyframes lpPulse{0%,100%{box-shadow:0 8px 26px rgba(56,189,248,.32)}50%{box-shadow:0 8px 34px rgba(56,189,248,.55)}}
+@keyframes lpFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-9px)}}
+@keyframes lpPulse{0%,100%{box-shadow:0 10px 28px rgba(29,155,240,.4)}50%{box-shadow:0 10px 36px rgba(34,211,238,.6)}}
 
-/* Özellik kartları */
-.lp-features{max-width:1100px;margin:0 auto;padding:8px 20px 36px;
-  display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
-.lp-feat{padding:20px 16px;border-radius:20px;background:rgba(255,255,255,.035);
-  border:1px solid rgba(255,255,255,.08);backdrop-filter:blur(6px);
-  transition:transform .16s,border-color .16s;cursor:default;
-  opacity:0;animation:lpSlideUp .55s ease-out forwards}
+/* Özellik kartları — tek çerçeveli panel içinde 2x2/4 ızgara (referans birebir) */
+.lp-features-wrap{max-width:1120px;margin:8px auto 30px;padding:0 20px}
+.lp-features{display:grid;grid-template-columns:repeat(2,1fr);gap:0;
+  border:1px solid rgba(255,255,255,.09);border-radius:22px;overflow:hidden;
+  background:rgba(255,255,255,.025)}
+.lp-feat{padding:22px 18px;transition:background .16s;cursor:default;
+  opacity:0;animation:lpSlideUp .55s ease-out forwards;
+  border-right:1px solid rgba(255,255,255,.07);border-bottom:1px solid rgba(255,255,255,.07)}
+.lp-feat:nth-child(2n){border-right:none}
 .lp-feat:nth-child(1){animation-delay:.32s}
 .lp-feat:nth-child(2){animation-delay:.38s}
-.lp-feat:nth-child(3){animation-delay:.44s}
-.lp-feat:nth-child(4){animation-delay:.5s}
-.lp-feat:hover,.lp-feat:active{transform:translateY(-4px);border-color:rgba(255,255,255,.18)}
-.lp-feat-ic{width:44px;height:44px;border-radius:13px;display:flex;align-items:center;justify-content:center;
-  font-size:20px;margin-bottom:12px}
-.lp-feat[data-c="blue"] .lp-feat-ic{background:rgba(96,165,250,.16)}
-.lp-feat[data-c="green"] .lp-feat-ic{background:rgba(16,185,129,.16)}
-.lp-feat[data-c="purple"] .lp-feat-ic{background:rgba(167,139,250,.16)}
-.lp-feat[data-c="orange"] .lp-feat-ic{background:rgba(251,146,60,.16)}
-.lp-feat-t{font-size:14.5px;font-weight:800;color:#fff;margin-bottom:4px}
+.lp-feat:nth-child(3){animation-delay:.44s;border-bottom:none}
+.lp-feat:nth-child(4){animation-delay:.5s;border-bottom:none}
+.lp-feat:hover{background:rgba(255,255,255,.035)}
+.lp-feat-ic{width:46px;height:46px;border-radius:13px;display:flex;align-items:center;justify-content:center;
+  margin-bottom:14px;box-shadow:0 4px 14px rgba(0,0,0,.25)}
+.lp-feat-ic svg{width:22px;height:22px}
+.lp-feat[data-c="blue"] .lp-feat-ic{background:linear-gradient(145deg,#6366f1,#4338ca)}
+.lp-feat[data-c="green"] .lp-feat-ic{background:linear-gradient(145deg,#10b981,#047857)}
+.lp-feat[data-c="purple"] .lp-feat-ic{background:linear-gradient(145deg,#a855f7,#7e22ce)}
+.lp-feat[data-c="orange"] .lp-feat-ic{background:linear-gradient(145deg,#f59e0b,#c2660a)}
+.lp-feat-t{font-size:15px;font-weight:800;color:#fff;margin-bottom:5px}
 .lp-feat-d{font-size:12px;color:var(--mu2);line-height:1.5}
 
 /* Banner */
-.lp-banner{max-width:1100px;margin:0 auto 36px;padding:24px 20px;
-  display:flex;align-items:center;gap:16px;flex-wrap:wrap;
-  background:linear-gradient(120deg,rgba(59,130,246,.16),rgba(34,211,238,.1));
-  border:1px solid rgba(56,189,248,.24);border-radius:22px;margin-left:20px;margin-right:20px}
-.lp-banner-ic{width:48px;height:48px;border-radius:14px;flex-shrink:0;
-  background:rgba(255,255,255,.08);display:flex;align-items:center;justify-content:center;font-size:22px}
-.lp-banner-text{flex:1;min-width:180px}
-.lp-banner-eyebrow{font-size:11.5px;color:#8fc9ff;font-weight:700;margin-bottom:2px}
-.lp-banner-h{font-size:16px;font-weight:800;color:#fff;font-family:'Syne',sans-serif}
-.lp-banner-btn{flex-shrink:0;padding:11px 20px;border-radius:12px;border:none;cursor:pointer;
-  background:#fff;color:#0e121c;font-weight:800;font-size:13px;font-family:'Plus Jakarta Sans',sans-serif;
-  transition:transform .15s}
+.lp-banner{max-width:1120px;margin:0 auto 34px;padding:26px 24px;
+  display:flex;align-items:center;gap:18px;flex-wrap:wrap;position:relative;overflow:hidden;
+  background:linear-gradient(115deg,#1741c9 0%,#1d6fd6 45%,#5b3fc9 100%);
+  border-radius:22px;margin-left:20px;margin-right:20px}
+.lp-banner-wave{position:absolute;left:0;right:0;bottom:0;width:100%;height:60%;opacity:.5;pointer-events:none}
+.lp-banner-ic{width:50px;height:50px;border-radius:50%;flex-shrink:0;position:relative;z-index:1;
+  background:rgba(255,255,255,.16);display:flex;align-items:center;justify-content:center}
+.lp-banner-ic svg{width:24px;height:24px}
+.lp-banner-text{flex:1;min-width:180px;position:relative;z-index:1}
+.lp-banner-eyebrow{font-size:11.5px;color:#bfe0ff;font-weight:700;margin-bottom:3px}
+.lp-banner-h{font-size:17px;font-weight:800;color:#fff;font-family:'Plus Jakarta Sans',sans-serif;line-height:1.3}
+.lp-banner-btn{flex-shrink:0;position:relative;z-index:1;padding:12px 22px;border-radius:12px;border:none;cursor:pointer;
+  background:#fff;color:#1741c9;font-weight:800;font-size:13px;font-family:'Plus Jakarta Sans',sans-serif;
+  transition:transform .15s;display:inline-flex;align-items:center;gap:6px}
 .lp-banner-btn:hover{transform:translateY(-2px)}
 
 /* Hızlı Giriş */
-.lp-girisler{max-width:1100px;margin:0 auto;padding:8px 20px 8px}
-.lp-girisler-head{display:flex;align-items:baseline;justify-content:space-between;flex-wrap:wrap;
-  gap:8px;margin-bottom:16px}
-.lp-girisler-head h2{font-family:'Syne',sans-serif;font-size:20px;font-weight:800;color:#fff}
-.lp-girisler-link{font-size:12.5px;color:var(--mu2)}
-.lp-girisler-link a{color:#7db8ff;font-weight:700;cursor:pointer;text-decoration:none}
+.lp-girisler{max-width:1120px;margin:0 auto;padding:8px 20px 8px}
+.lp-girisler-head{display:flex;align-items:center;gap:16px;margin-bottom:18px}
+.lp-girisler-head h2{font-family:'Plus Jakarta Sans',sans-serif;font-size:20px;font-weight:800;color:#fff;white-space:nowrap}
+.lp-girisler-rule{flex:1;height:1px;background:linear-gradient(90deg,rgba(255,255,255,.18),transparent)}
+.lp-girisler-link{font-size:12.5px;color:var(--mu2);white-space:nowrap}
+.lp-girisler-link a{color:#38bdf8;font-weight:700;cursor:pointer;text-decoration:none}
 .lp-girisler-link a:hover{text-decoration:underline}
-.lp-giris-grid{display:grid;grid-template-columns:1fr;gap:14px}
-.lp-giris-card{position:relative;text-align:left;padding:22px;border-radius:20px;cursor:pointer;
-  border:1px solid rgba(255,255,255,.08);color:inherit;font-family:inherit;
-  transition:transform .16s,border-color .16s;overflow:hidden}
-.lp-giris-card:hover,.lp-giris-card:active{transform:translateY(-4px)}
-.lp-giris-card[data-c="blue"]{background:linear-gradient(155deg,rgba(59,130,246,.16),rgba(59,130,246,.03))}
-.lp-giris-card[data-c="blue"]:hover{border-color:rgba(96,165,250,.4)}
-.lp-giris-card[data-c="teal"]{background:linear-gradient(155deg,rgba(34,211,238,.16),rgba(34,211,238,.03))}
-.lp-giris-card[data-c="teal"]:hover{border-color:rgba(34,211,238,.4)}
-.lp-giris-card[data-c="purple"]{background:linear-gradient(155deg,rgba(167,139,250,.18),rgba(167,139,250,.03))}
-.lp-giris-card[data-c="purple"]:hover{border-color:rgba(167,139,250,.4)}
-.lp-giris-ic{width:46px;height:46px;border-radius:13px;background:rgba(255,255,255,.09);
-  display:flex;align-items:center;justify-content:center;font-size:21px;margin-bottom:14px}
-.lp-giris-t{font-size:16px;font-weight:800;color:#fff;margin-bottom:4px}
-.lp-giris-d{font-size:12.5px;color:var(--mu2);line-height:1.5;margin-bottom:14px;max-width:80%}
-.lp-giris-arrow{width:32px;height:32px;border-radius:50%;background:rgba(255,255,255,.1);
-  display:flex;align-items:center;justify-content:center;font-size:14px;color:#fff;transition:.16s}
-.lp-giris-card:hover .lp-giris-arrow{background:rgba(255,255,255,.2);transform:translateX(3px)}
+.lp-giris-grid{display:grid;grid-template-columns:1fr;gap:16px}
+.lp-giris-card{position:relative;text-align:left;padding:24px;border-radius:20px;cursor:pointer;
+  border:none;color:inherit;font-family:inherit;min-height:190px;
+  display:flex;flex-direction:column;
+  transition:transform .16s,box-shadow .16s;overflow:hidden}
+.lp-giris-card:hover{transform:translateY(-5px)}
+.lp-giris-card[data-c="blue"]{background:linear-gradient(160deg,#2451c9,#16234f);box-shadow:0 10px 26px rgba(36,81,201,.28)}
+.lp-giris-card[data-c="teal"]{background:linear-gradient(160deg,#0d9c7f,#0b2d2a);box-shadow:0 10px 26px rgba(13,156,127,.26)}
+.lp-giris-card[data-c="purple"]{background:linear-gradient(160deg,#7b3fd4,#2c1a52);box-shadow:0 10px 26px rgba(123,63,212,.28)}
+.lp-giris-ic{width:50px;height:50px;border-radius:50%;background:rgba(255,255,255,.16);
+  display:flex;align-items:center;justify-content:center;margin-bottom:16px;flex-shrink:0}
+.lp-giris-ic svg{width:24px;height:24px}
+.lp-giris-t{font-size:17px;font-weight:800;color:#fff;margin-bottom:5px}
+.lp-giris-d{font-size:12.5px;color:rgba(255,255,255,.68);line-height:1.5;margin-bottom:auto}
+.lp-giris-arrow{width:34px;height:34px;border-radius:50%;background:rgba(255,255,255,.18);
+  display:flex;align-items:center;justify-content:center;transition:.16s;margin-top:16px}
+.lp-giris-arrow svg{width:15px;height:15px}
+.lp-giris-card:hover .lp-giris-arrow{background:rgba(255,255,255,.32);transform:translateX(3px)}
 
 /* Footer */
-.lp-footer{max-width:1100px;margin:24px auto 0;padding:22px 20px 34px;text-align:center;
-  font-size:11px;letter-spacing:.5px;color:rgba(150,170,200,.4);font-weight:700}
-.lp-footer span{margin:0 10px;opacity:.5}
+.lp-footer{max-width:1120px;margin:24px auto 0;padding:22px 20px 34px;text-align:center;
+  font-size:11px;letter-spacing:1.5px;color:rgba(150,170,200,.4);font-weight:700}
+.lp-footer span{margin:0 12px;opacity:.5}
 
 /* Form alanı (role-tabs form üzerinde çalışıyor - orijinal JS korunuyor) */
 #ls-form{display:none;max-width:400px;margin:64px auto;padding:32px 26px;
@@ -189,9 +198,9 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
   border:1px solid rgba(248,113,113,.22);border-radius:8px;padding:8px 12px;
   font-size:11px;margin-bottom:10px}
 .btn-login{width:100%;padding:13px;border:none;border-radius:12px;cursor:pointer;
-  margin-top:14px;font-family:'Plus Jakarta Sans',sans-serif;font-size:14px;font-weight:800;color:#07121e;
-  background:linear-gradient(120deg,#3b82f6,#22d3ee);
-  box-shadow:0 6px 20px rgba(56,189,248,.3);transition:all .14s}
+  margin-top:14px;font-family:'Plus Jakarta Sans',sans-serif;font-size:14px;font-weight:800;color:#fff;
+  background:linear-gradient(100deg,#1d9bf0,#22d3ee);
+  box-shadow:0 6px 20px rgba(29,155,240,.35);transition:all .14s}
 .btn-login:hover{filter:brightness(1.08);transform:translateY(-1px)}
 .btn-login:disabled{opacity:.5;cursor:not-allowed;transform:none}
 .ls-geri-btn{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);
@@ -201,20 +210,21 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
 
 /* Tablet ve üzeri */
 @media(min-width:760px){
-  .lp-hero{flex-direction:row;text-align:left;padding-top:70px;padding-bottom:56px;gap:40px}
-  .lp-hero-text{align-items:flex-start;max-width:52%}
+  .lp-hero{flex-direction:row;align-items:center;padding-top:64px;padding-bottom:56px;gap:40px}
+  .lp-hero-text{max-width:54%}
   .lp-hero-art{max-width:38%}
   .lp-features{grid-template-columns:repeat(4,1fr)}
+  .lp-feat{border-bottom:none !important}
+  .lp-feat:not(:last-child){border-right:1px solid rgba(255,255,255,.07) !important}
   .lp-giris-grid{grid-template-columns:repeat(3,1fr)}
-  .lp-giris-d{max-width:100%}
 }
 @media(min-width:1024px){
-  .lp-hero{padding-top:84px}
-  .lp-h1{font-size:46px}
+  .lp-hero{padding-top:78px}
+  .lp-h1{font-size:42px}
 }
 @media(prefers-reduced-motion:reduce){
   .lp-badge,.lp-h1,.lp-sub,.lp-cta,.lp-hero-art,.lp-feat,#ls-form{animation:none;opacity:1}
-  .lp-hero-art svg{animation:none}
+  .lp-hero-float{animation:none}
 }
 
 /* ── SIDEBAR ── */
@@ -833,10 +843,10 @@ hr.dv{border:none;border-top:1px solid rgba(255,255,255,.055);margin:12px 0}
     <!-- Header -->
     <header class="lp-header">
       <div class="lp-header-inner">
-        <div class="lp-logo"><span class="lp-logo-ic">🎓</span>EDU-BOSS</div>
+        <div class="lp-logo"><span class="lp-logo-ic"><svg viewBox="0 0 24 24" fill="none"><path d="M12 3L2 8l10 5 8-4.36V16h2V8L12 3z" fill="#fff"/><path d="M6 11.5V16c0 1.5 2.7 3 6 3s6-1.5 6-3v-4.5l-6 3-6-3z" fill="#fff" opacity=".85"/></svg></span><span>EDU-<b>BOSS</b></span></div>
         <div class="lp-header-actions">
-          <button class="lp-icon-btn" aria-label="Duyurular">🔔<span class="lp-dot"></span></button>
-          <button class="lp-icon-btn" aria-label="Menü" onclick="document.querySelector('.lp-girisler').scrollIntoView({behavior:'smooth'})">☰</button>
+          <button class="lp-icon-btn" aria-label="Duyurular"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 1 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg><span class="lp-dot"></span></button>
+          <button class="lp-icon-btn" aria-label="Menü" onclick="document.querySelector('.lp-girisler').scrollIntoView({behavior:'smooth'})"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button>
         </div>
       </div>
     </header>
@@ -850,87 +860,94 @@ hr.dv{border:none;border-top:1px solid rgba(255,255,255,.055);margin:12px 0}
         <button class="lp-cta" onclick="lsKayitBilgi()">Kayıt Ol <span>→</span></button>
       </div>
       <div class="lp-hero-art">
-        <svg viewBox="0 0 320 300" xmlns="http://www.w3.org/2000/svg">
+        <div class="lp-glow"></div>
+        <svg class="lp-hero-float" viewBox="0 0 320 300" xmlns="http://www.w3.org/2000/svg">
           <defs>
             <linearGradient id="lpBook1" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#3b82f6"/><stop offset="100%" stop-color="#1d4ed8"/></linearGradient>
             <linearGradient id="lpBook2" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#fb923c"/><stop offset="100%" stop-color="#ea580c"/></linearGradient>
-            <linearGradient id="lpCap" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#0f172a"/><stop offset="100%" stop-color="#1e293b"/></linearGradient>
-            <linearGradient id="lpPhone" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#1e2740"/><stop offset="100%" stop-color="#0e1524"/></linearGradient>
+            <linearGradient id="lpCap" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#1e293b"/><stop offset="100%" stop-color="#0b1222"/></linearGradient>
+            <linearGradient id="lpPhone" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#22304f"/><stop offset="100%" stop-color="#0e1524"/></linearGradient>
             <linearGradient id="lpBar" x1="0" y1="1" x2="0" y2="0"><stop offset="0%" stop-color="#22d3ee"/><stop offset="100%" stop-color="#3b82f6"/></linearGradient>
           </defs>
-          <ellipse cx="160" cy="264" rx="108" ry="14" fill="#3b82f6" opacity=".08"/>
+          <ellipse cx="150" cy="266" rx="112" ry="14" fill="#3b82f6" opacity=".1"/>
           <!-- Kitaplar -->
-          <rect x="70" y="196" width="180" height="26" rx="5" fill="url(#lpBook2)"/>
-          <rect x="82" y="168" width="156" height="26" rx="5" fill="url(#lpBook1)"/>
-          <rect x="82" y="168" width="156" height="7" rx="3.5" fill="#fff" opacity=".18"/>
+          <rect x="62" y="198" width="180" height="27" rx="5" fill="url(#lpBook2)"/>
+          <rect x="76" y="169" width="156" height="27" rx="5" fill="url(#lpBook1)"/>
+          <rect x="76" y="169" width="156" height="7" rx="3.5" fill="#fff" opacity=".2"/>
           <!-- Mezuniyet kepi -->
-          <g transform="translate(160,116)">
-            <path d="M-64,0 L0,-26 L64,0 L0,26 Z" fill="url(#lpCap)"/>
-            <path d="M-64,0 L0,26 L64,0" fill="none" stroke="#000" stroke-opacity=".15" stroke-width="2"/>
-            <rect x="-8" y="20" width="16" height="34" rx="6" fill="#1e293b"/>
-            <circle cx="0" cy="56" r="7" fill="#fb923c"/>
-            <line x1="46" y1="-8" x2="60" y2="30" stroke="#fb923c" stroke-width="2.5"/>
-            <circle cx="60" cy="30" r="5" fill="#fb923c"/>
+          <g transform="translate(156,118)">
+            <path d="M-62,0 L0,-25 L62,0 L0,25 Z" fill="url(#lpCap)"/>
+            <path d="M-62,0 L0,25 L62,0" fill="none" stroke="#000" stroke-opacity=".15" stroke-width="2"/>
+            <rect x="-7" y="19" width="14" height="32" rx="5" fill="#0b1222"/>
+            <circle cx="0" cy="53" r="7" fill="#fb923c"/>
+            <line x1="44" y1="-8" x2="58" y2="28" stroke="#fb923c" stroke-width="2.5"/>
+            <circle cx="58" cy="28" r="5" fill="#fb923c"/>
           </g>
           <!-- Telefon / rapor -->
-          <g transform="translate(224,120)">
-            <rect x="0" y="0" width="66" height="118" rx="14" fill="url(#lpPhone)" stroke="#3b82f6" stroke-opacity=".4" stroke-width="1.5"/>
-            <rect x="10" y="14" width="46" height="72" rx="4" fill="#0a1220"/>
-            <rect x="17" y="62" width="7" height="16" rx="2" fill="url(#lpBar)"/>
-            <rect x="28" y="50" width="7" height="28" rx="2" fill="url(#lpBar)"/>
-            <rect x="39" y="40" width="7" height="38" rx="2" fill="url(#lpBar)"/>
-            <circle cx="33" cy="24" r="4" fill="#22d3ee"/>
-            <rect x="24" y="98" width="18" height="5" rx="2.5" fill="#38507a"/>
+          <g transform="translate(216,124)">
+            <rect x="0" y="0" width="68" height="120" rx="15" fill="url(#lpPhone)" stroke="#5b8def" stroke-opacity=".5" stroke-width="1.5"/>
+            <rect x="10" y="14" width="48" height="74" rx="4" fill="#0a1220"/>
+            <rect x="18" y="62" width="7" height="18" rx="2" fill="url(#lpBar)"/>
+            <rect x="29" y="48" width="7" height="32" rx="2" fill="url(#lpBar)"/>
+            <rect x="40" y="38" width="7" height="42" rx="2" fill="url(#lpBar)"/>
+            <circle cx="34" cy="24" r="4" fill="#22d3ee"/>
+            <rect x="25" y="100" width="18" height="5" rx="2.5" fill="#3a5a8f"/>
           </g>
-          <circle cx="52" cy="70" r="5" fill="#22d3ee" opacity=".8"/>
-          <circle cx="270" cy="60" r="4" fill="#fb923c" opacity=".7"/>
-          <circle cx="40" cy="150" r="3.5" fill="#a78bfa" opacity=".7"/>
+          <circle cx="44" cy="72" r="5" fill="#22d3ee" opacity=".85"/>
+          <circle cx="272" cy="58" r="4" fill="#fb923c" opacity=".75"/>
+          <circle cx="32" cy="152" r="3.5" fill="#a78bfa" opacity=".75"/>
+          <path d="M245,58 C255,44 262,40 270,44" fill="none" stroke="#38bdf8" stroke-width="1.6" stroke-dasharray="3 4" opacity=".8"/>
+          <path d="M264,38 l7,5 l-8,3z" fill="#38bdf8" opacity=".8"/>
+          <text x="228" y="24" fill="#7dd3fc" font-size="11" font-family="'Plus Jakarta Sans',sans-serif" font-weight="600">Daha iyi bir gelecek</text>
+          <text x="228" y="38" fill="#7dd3fc" font-size="11" font-family="'Plus Jakarta Sans',sans-serif" font-weight="600">seninle mümkün!</text>
         </svg>
       </div>
     </section>
 
     <!-- Özellikler -->
-    <section class="lp-features">
-      <div class="lp-feat" data-c="blue"><div class="lp-feat-ic">📊</div><div class="lp-feat-t">Sınav Analizi</div><div class="lp-feat-d">Başarıyı ölç, gelişimi gör.</div></div>
-      <div class="lp-feat" data-c="green"><div class="lp-feat-ic">👥</div><div class="lp-feat-t">Öğrenci Takip</div><div class="lp-feat-d">Her öğrenciye özel takip.</div></div>
-      <div class="lp-feat" data-c="purple"><div class="lp-feat-ic">🤖</div><div class="lp-feat-t">AI Koçluk</div><div class="lp-feat-d">Yapay zekâ ile kişiselleştirilmiş yol haritası.</div></div>
-      <div class="lp-feat" data-c="orange"><div class="lp-feat-ic">📄</div><div class="lp-feat-t">Raporlar</div><div class="lp-feat-d">Detaylı raporlarla daha bilinçli kararlar.</div></div>
-    </section>
+    <section class="lp-features-wrap"><div class="lp-features">
+      <div class="lp-feat" data-c="blue"><div class="lp-feat-ic"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><rect x="7" y="12" width="3" height="6" fill="#fff" stroke="none"/><rect x="12" y="8" width="3" height="10" fill="#fff" stroke="none"/><rect x="17" y="5" width="3" height="13" fill="#fff" stroke="none"/></svg></div><div class="lp-feat-t">Sınav Analizi</div><div class="lp-feat-d">Başarıyı ölç, gelişimi gör.</div></div>
+      <div class="lp-feat" data-c="green"><div class="lp-feat-ic"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.2"/><path d="M3.5 20c0-3.6 2.5-6 5.5-6s5.5 2.4 5.5 6"/><circle cx="17" cy="9" r="2.6" opacity=".85"/><path d="M15.5 14.2c2.4.3 4 2.3 4 5.8" opacity=".85"/></svg></div><div class="lp-feat-t">Öğrenci Takip</div><div class="lp-feat-d">Her öğrenciye özel takip.</div></div>
+      <div class="lp-feat" data-c="purple"><div class="lp-feat-ic"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="7" width="14" height="11" rx="2.5"/><path d="M9 7V5a3 3 0 0 1 6 0v2"/><circle cx="9.5" cy="12.5" r="1.2" fill="#fff" stroke="none"/><circle cx="14.5" cy="12.5" r="1.2" fill="#fff" stroke="none"/><path d="M2.5 11h2.5M19 11h2.5"/></svg></div><div class="lp-feat-t">AI Koçluk</div><div class="lp-feat-d">Yapay zekâ ile kişiselleştirilmiş yol haritası.</div></div>
+      <div class="lp-feat" data-c="orange"><div class="lp-feat-ic"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 3h7l4 4v14H7z"/><path d="M14 3v4h4"/><path d="M9.5 13h5M9.5 16.5h5"/></svg></div><div class="lp-feat-t">Raporlar</div><div class="lp-feat-d">Detaylı raporlarla daha bilinçli kararlar.</div></div>
+    </div></section>
 
     <!-- Banner -->
     <section class="lp-banner">
-      <div class="lp-banner-ic">🎯</div>
+      <svg class="lp-banner-wave" viewBox="0 0 500 140" preserveAspectRatio="none"><path d="M0,90 C120,140 180,40 320,80 C400,105 450,70 500,90 L500,140 L0,140 Z" fill="#fff" opacity=".06"/><path d="M0,100 C150,60 200,130 340,90 C420,66 460,110 500,95" fill="none" stroke="#fff" stroke-opacity=".18" stroke-width="2"/></svg>
+      <div class="lp-banner-ic"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.4" fill="#fff"/></svg></div>
       <div class="lp-banner-text">
         <div class="lp-banner-eyebrow">Başarıya Giden Yol</div>
         <div class="lp-banner-h">Doğru Planlama ile Daha Kolay!</div>
       </div>
-      <button class="lp-banner-btn" onclick="document.querySelector('.lp-girisler').scrollIntoView({behavior:'smooth'})">Keşfet →</button>
+      <button class="lp-banner-btn" onclick="document.querySelector('.lp-girisler').scrollIntoView({behavior:'smooth'})">Keşfet <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="#1741c9" stroke-width="2.4" stroke-linecap="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
     </section>
 
     <!-- Hızlı Giriş -->
     <section class="lp-girisler">
       <div class="lp-girisler-head">
         <h2>Hızlı Giriş</h2>
+        <div class="lp-girisler-rule"></div>
         <div class="lp-girisler-link">Hesabın var mı? <a onclick="lsFormAc()">Giriş Yap →</a></div>
       </div>
       <div class="lp-giris-grid">
         <button class="lp-giris-card" data-c="blue" onclick="loginRolSec('ogretmen',this);lsFormAc()">
-          <div class="lp-giris-ic">👨‍🏫</div>
+          <div class="lp-giris-ic"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="7" r="3"/><path d="M3.5 19c0-3.3 2.5-5.5 5.5-5.5s5.5 2.2 5.5 5.5"/><rect x="14.5" y="6" width="7.5" height="6" rx="1"/><path d="M18.25 16v3M16.5 19h3.5"/></svg></div>
           <div class="lp-giris-t">Öğretmen Girişi</div>
           <div class="lp-giris-d">Sınıfını yönet, öğrencilerini takip et.</div>
-          <div class="lp-giris-arrow">→</div>
+          <div class="lp-giris-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></div>
         </button>
         <button class="lp-giris-card" data-c="teal" onclick="loginRolSec('ogrenci',this);lsFormAc()">
-          <div class="lp-giris-ic">🎓</div>
+          <div class="lp-giris-ic"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3L2 8l10 5 10-5-10-5z"/><path d="M6 11v4.5c0 1.4 2.7 2.5 6 2.5s6-1.1 6-2.5V11"/></svg></div>
           <div class="lp-giris-t">Öğrenci Girişi</div>
           <div class="lp-giris-d">Sınavlarını gör, hedeflerine odaklan.</div>
-          <div class="lp-giris-arrow">→</div>
+          <div class="lp-giris-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></div>
         </button>
         <button class="lp-giris-card" data-c="purple" onclick="loginRolSec('veli',this);lsFormAc()">
-          <div class="lp-giris-ic">👨‍👩‍👧</div>
+          <div class="lp-giris-ic"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="8.5" cy="7.5" r="2.6"/><circle cx="15.5" cy="7.5" r="2.6"/><path d="M2.5 19c0-3 2.6-5 6-5s6 2 6 5"/><path d="M13 14.2c3 .2 5 2.1 5 4.8"/></svg></div>
           <div class="lp-giris-t">Veli Girişi</div>
           <div class="lp-giris-d">Çocuğunuzun gelişimini takip edin.</div>
-          <div class="lp-giris-arrow">→</div>
+          <div class="lp-giris-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></div>
         </button>
       </div>
     </section>
