@@ -109,45 +109,47 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
 @keyframes lpFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-9px)}}
 @keyframes lpPulse{0%,100%{box-shadow:0 10px 28px rgba(29,155,240,.4)}50%{box-shadow:0 10px 36px rgba(34,211,238,.6)}}
 
-/* Özellik kartları — tek çerçeveli panel içinde 2x2/4 ızgara (referans birebir) */
-.lp-features-wrap{max-width:1120px;margin:8px auto 30px;padding:0 20px}
-.lp-features{display:grid;grid-template-columns:repeat(2,1fr);gap:0;
-  border:1px solid rgba(255,255,255,.09);border-radius:22px;overflow:hidden;
+/* Özellik kartları — tek çerçeveli panel içinde her zaman 4'lü tek satır (referans birebir) */
+.lp-features-wrap{max-width:1120px;margin:8px auto 30px;padding:0 16px}
+.lp-features{display:grid;grid-template-columns:repeat(4,1fr);gap:0;
+  border:1px solid rgba(255,255,255,.09);border-radius:18px;overflow:hidden;
   background:rgba(255,255,255,.025)}
-.lp-feat{padding:22px 18px;transition:background .16s;cursor:default;
+.lp-feat{padding:clamp(8px,2.6vw,22px) clamp(6px,2vw,18px);transition:background .16s;cursor:default;
   opacity:0;animation:lpSlideUp .55s ease-out forwards;
-  border-right:1px solid rgba(255,255,255,.07);border-bottom:1px solid rgba(255,255,255,.07)}
-.lp-feat:nth-child(2n){border-right:none}
+  border-right:1px solid rgba(255,255,255,.07)}
+.lp-feat:last-child{border-right:none}
 .lp-feat:nth-child(1){animation-delay:.32s}
 .lp-feat:nth-child(2){animation-delay:.38s}
-.lp-feat:nth-child(3){animation-delay:.44s;border-bottom:none}
-.lp-feat:nth-child(4){animation-delay:.5s;border-bottom:none}
+.lp-feat:nth-child(3){animation-delay:.44s}
+.lp-feat:nth-child(4){animation-delay:.5s}
 .lp-feat:hover{background:rgba(255,255,255,.035)}
-.lp-feat-ic{width:46px;height:46px;border-radius:13px;display:flex;align-items:center;justify-content:center;
-  margin-bottom:14px;box-shadow:0 4px 14px rgba(0,0,0,.25)}
-.lp-feat-ic svg{width:22px;height:22px}
+.lp-feat-ic{width:clamp(24px,7vw,46px);height:clamp(24px,7vw,46px);border-radius:11px;display:flex;align-items:center;justify-content:center;
+  margin-bottom:clamp(5px,2vw,14px);box-shadow:0 4px 14px rgba(0,0,0,.25)}
+.lp-feat-ic svg{width:55%;height:55%}
 .lp-feat[data-c="blue"] .lp-feat-ic{background:linear-gradient(145deg,#6366f1,#4338ca)}
 .lp-feat[data-c="green"] .lp-feat-ic{background:linear-gradient(145deg,#10b981,#047857)}
 .lp-feat[data-c="purple"] .lp-feat-ic{background:linear-gradient(145deg,#a855f7,#7e22ce)}
 .lp-feat[data-c="orange"] .lp-feat-ic{background:linear-gradient(145deg,#f59e0b,#c2660a)}
-.lp-feat-t{font-size:15px;font-weight:800;color:#fff;margin-bottom:5px}
-.lp-feat-d{font-size:12px;color:var(--mu2);line-height:1.5}
+.lp-feat-t{font-size:clamp(8.5px,2.2vw,15px);font-weight:800;color:#fff;margin-bottom:3px;line-height:1.2}
+.lp-feat-d{font-size:clamp(7px,1.8vw,12px);color:var(--mu2);line-height:1.35}
+@media(max-width:420px){.lp-feat-d{display:none}}
 
 /* Banner */
-.lp-banner{max-width:1120px;margin:0 auto 34px;padding:26px 24px;
-  display:flex;align-items:center;gap:18px;flex-wrap:wrap;position:relative;overflow:hidden;
+.lp-banner{max-width:1120px;margin:0 auto 34px;padding:clamp(12px,3.5vw,26px) clamp(12px,4vw,24px);
+  display:flex;align-items:center;gap:clamp(8px,2.5vw,18px);flex-wrap:nowrap;position:relative;overflow:hidden;
   background:linear-gradient(115deg,#1741c9 0%,#1d6fd6 45%,#5b3fc9 100%);
-  border-radius:22px;margin-left:20px;margin-right:20px}
+  border-radius:18px;margin-left:16px;margin-right:16px}
 .lp-banner-wave{position:absolute;left:0;right:0;bottom:0;width:100%;height:60%;opacity:.5;pointer-events:none}
-.lp-banner-ic{width:50px;height:50px;border-radius:50%;flex-shrink:0;position:relative;z-index:1;
+.lp-banner-ic{width:clamp(30px,7vw,50px);height:clamp(30px,7vw,50px);border-radius:50%;flex-shrink:0;position:relative;z-index:1;
   background:rgba(255,255,255,.16);display:flex;align-items:center;justify-content:center}
-.lp-banner-ic svg{width:24px;height:24px}
-.lp-banner-text{flex:1;min-width:180px;position:relative;z-index:1}
-.lp-banner-eyebrow{font-size:11.5px;color:#bfe0ff;font-weight:700;margin-bottom:3px}
-.lp-banner-h{font-size:17px;font-weight:800;color:#fff;font-family:'Plus Jakarta Sans',sans-serif;line-height:1.3}
-.lp-banner-btn{flex-shrink:0;position:relative;z-index:1;padding:12px 22px;border-radius:12px;border:none;cursor:pointer;
-  background:#fff;color:#1741c9;font-weight:800;font-size:13px;font-family:'Plus Jakarta Sans',sans-serif;
-  transition:transform .15s;display:inline-flex;align-items:center;gap:6px}
+.lp-banner-ic svg{width:55%;height:55%}
+.lp-banner-text{flex:1;min-width:0;position:relative;z-index:1}
+.lp-banner-eyebrow{font-size:clamp(7.5px,2vw,11.5px);color:#bfe0ff;font-weight:700;margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.lp-banner-h{font-size:clamp(9.5px,2.9vw,17px);font-weight:800;color:#fff;font-family:'Plus Jakarta Sans',sans-serif;line-height:1.25}
+.lp-banner-btn{flex-shrink:0;position:relative;z-index:1;padding:clamp(6px,2vw,12px) clamp(10px,3vw,22px);border-radius:10px;border:none;cursor:pointer;
+  background:#fff;color:#1741c9;font-weight:800;font-size:clamp(8.5px,2.2vw,13px);font-family:'Plus Jakarta Sans',sans-serif;
+  white-space:nowrap;transition:transform .15s;display:inline-flex;align-items:center;gap:5px}
+.lp-banner-btn svg{width:clamp(9px,2.2vw,14px);height:clamp(9px,2.2vw,14px)}
 .lp-banner-btn:hover{transform:translateY(-2px)}
 
 /* Hızlı Giriş */
@@ -211,9 +213,6 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
 /* Tablet ve üzeri */
 @media(min-width:760px){
   .lp-hero{padding-top:64px;padding-bottom:56px;gap:40px}
-  .lp-features{grid-template-columns:repeat(4,1fr)}
-  .lp-feat{border-bottom:none !important}
-  .lp-feat:not(:last-child){border-right:1px solid rgba(255,255,255,.07) !important}
 }
 @media(min-width:1024px){
   .lp-hero{padding-top:78px}
@@ -865,35 +864,47 @@ hr.dv{border:none;border-top:1px solid rgba(255,255,255,.055);margin:12px 0}
         <div class="lp-glow"></div>
         <svg class="lp-hero-float" viewBox="0 0 320 300" xmlns="http://www.w3.org/2000/svg">
           <defs>
-            <linearGradient id="lpBook1" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#3b82f6"/><stop offset="100%" stop-color="#1d4ed8"/></linearGradient>
-            <linearGradient id="lpBook2" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#fb923c"/><stop offset="100%" stop-color="#ea580c"/></linearGradient>
-            <linearGradient id="lpCap" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#1e293b"/><stop offset="100%" stop-color="#0b1222"/></linearGradient>
-            <linearGradient id="lpPhone" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#22304f"/><stop offset="100%" stop-color="#0e1524"/></linearGradient>
+            <linearGradient id="lpBook1" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#5b9dff"/><stop offset="55%" stop-color="#2f6bff"/><stop offset="100%" stop-color="#1946c9"/></linearGradient>
+            <linearGradient id="lpBook2" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#ffb454"/><stop offset="55%" stop-color="#fb923c"/><stop offset="100%" stop-color="#d9560c"/></linearGradient>
+            <linearGradient id="lpCapTop" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#2a3a63"/><stop offset="100%" stop-color="#16223f"/></linearGradient>
+            <linearGradient id="lpCapFront" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#16223f"/><stop offset="100%" stop-color="#0a1122"/></linearGradient>
+            <linearGradient id="lpPhone" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#2c3b63"/><stop offset="100%" stop-color="#0e1524"/></linearGradient>
+            <linearGradient id="lpScreen" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#132038"/><stop offset="100%" stop-color="#0a1220"/></linearGradient>
             <linearGradient id="lpBar" x1="0" y1="1" x2="0" y2="0"><stop offset="0%" stop-color="#22d3ee"/><stop offset="100%" stop-color="#3b82f6"/></linearGradient>
+            <filter id="lpShadow" x="-40%" y="-40%" width="180%" height="180%">
+              <feDropShadow dx="0" dy="10" stdDeviation="10" flood-color="#020817" flood-opacity=".45"/>
+            </filter>
           </defs>
-          <ellipse cx="150" cy="266" rx="112" ry="14" fill="#3b82f6" opacity=".1"/>
+          <ellipse cx="150" cy="266" rx="112" ry="14" fill="#3b82f6" opacity=".12"/>
           <!-- Kitaplar -->
-          <rect x="62" y="198" width="180" height="27" rx="5" fill="url(#lpBook2)"/>
-          <rect x="76" y="169" width="156" height="27" rx="5" fill="url(#lpBook1)"/>
-          <rect x="76" y="169" width="156" height="7" rx="3.5" fill="#fff" opacity=".2"/>
-          <!-- Mezuniyet kepi -->
-          <g transform="translate(156,118)">
-            <path d="M-62,0 L0,-25 L62,0 L0,25 Z" fill="url(#lpCap)"/>
-            <path d="M-62,0 L0,25 L62,0" fill="none" stroke="#000" stroke-opacity=".15" stroke-width="2"/>
-            <rect x="-7" y="19" width="14" height="32" rx="5" fill="#0b1222"/>
-            <circle cx="0" cy="53" r="7" fill="#fb923c"/>
-            <line x1="44" y1="-8" x2="58" y2="28" stroke="#fb923c" stroke-width="2.5"/>
-            <circle cx="58" cy="28" r="5" fill="#fb923c"/>
+          <g filter="url(#lpShadow)">
+            <rect x="60" y="198" width="182" height="28" rx="6" fill="url(#lpBook2)"/>
+            <rect x="60" y="198" width="182" height="6" rx="3" fill="#fff" opacity=".22"/>
+            <rect x="74" y="167" width="158" height="28" rx="6" fill="url(#lpBook1)"/>
+            <rect x="74" y="167" width="158" height="7" rx="3.5" fill="#fff" opacity=".3"/>
+            <rect x="74" y="167" width="6" height="28" rx="3" fill="#000" opacity=".12"/>
+          </g>
+          <!-- Mezuniyet kepi (iki yüzeyli, hafif 3D) -->
+          <g transform="translate(156,116)" filter="url(#lpShadow)">
+            <path d="M-64,0 L0,-27 L64,0 L0,15 Z" fill="url(#lpCapTop)"/>
+            <path d="M-64,0 L0,15 L0,27 L-46,10 Z" fill="url(#lpCapFront)"/>
+            <path d="M64,0 L0,15 L0,27 L46,10 Z" fill="url(#lpCapFront)" opacity=".85"/>
+            <path d="M-64,0 L0,-27 L64,0" fill="none" stroke="#5b7ac9" stroke-opacity=".35" stroke-width="1.5"/>
+            <rect x="-7" y="24" width="14" height="30" rx="5" fill="#0a1122"/>
+            <circle cx="0" cy="56" r="7.5" fill="url(#lpBook2)"/>
+            <line x1="46" y1="-6" x2="60" y2="30" stroke="#fb923c" stroke-width="2.5" stroke-linecap="round"/>
+            <circle cx="60" cy="30" r="5" fill="#fb923c"/>
           </g>
           <!-- Telefon / rapor -->
-          <g transform="translate(216,124)">
-            <rect x="0" y="0" width="68" height="120" rx="15" fill="url(#lpPhone)" stroke="#5b8def" stroke-opacity=".5" stroke-width="1.5"/>
-            <rect x="10" y="14" width="48" height="74" rx="4" fill="#0a1220"/>
-            <rect x="18" y="62" width="7" height="18" rx="2" fill="url(#lpBar)"/>
-            <rect x="29" y="48" width="7" height="32" rx="2" fill="url(#lpBar)"/>
-            <rect x="40" y="38" width="7" height="42" rx="2" fill="url(#lpBar)"/>
-            <circle cx="34" cy="24" r="4" fill="#22d3ee"/>
-            <rect x="25" y="100" width="18" height="5" rx="2.5" fill="#3a5a8f"/>
+          <g transform="translate(216,122)" filter="url(#lpShadow)">
+            <rect x="0" y="0" width="70" height="122" rx="16" fill="url(#lpPhone)" stroke="#7ba6ff" stroke-opacity=".5" stroke-width="1.5"/>
+            <rect x="4" y="4" width="62" height="114" rx="12" fill="none" stroke="#fff" stroke-opacity=".08" stroke-width="1"/>
+            <rect x="10" y="14" width="50" height="76" rx="5" fill="url(#lpScreen)"/>
+            <rect x="18" y="62" width="7.5" height="20" rx="2" fill="url(#lpBar)"/>
+            <rect x="29.5" y="46" width="7.5" height="36" rx="2" fill="url(#lpBar)"/>
+            <rect x="41" y="34" width="7.5" height="48" rx="2" fill="url(#lpBar)"/>
+            <circle cx="35" cy="22" r="4" fill="#22d3ee"/>
+            <rect x="25" y="102" width="20" height="5" rx="2.5" fill="#41639c"/>
           </g>
           <circle cx="44" cy="72" r="5" fill="#22d3ee" opacity=".85"/>
           <circle cx="272" cy="58" r="4" fill="#fb923c" opacity=".75"/>
