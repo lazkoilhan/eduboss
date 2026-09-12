@@ -38,7 +38,7 @@
 })();
 </script>
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Mono:wght@400;500&family=Black+Ops+One&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Mono:wght@400;500&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
   --bg:#0e121c;--s1:#141b2b;--s2:#19223a;--s3:#202b42;
@@ -240,10 +240,10 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
 .sb-logo-ikon{width:34px;height:34px;border-radius:10px;flex-shrink:0;
   background:linear-gradient(135deg,#38bdf8,#fb923c);
   display:flex;align-items:center;justify-content:center;
-  font-family:'Black Ops One','Arial Black',sans-serif;font-size:12px;color:#07090f;
+  font-family:'Syne',sans-serif;font-size:12px;color:#07090f;
   box-shadow:0 4px 12px rgba(56,189,248,.28)}
 .sb-marka{flex:1;overflow:hidden}
-.sb-name{font-family:'Black Ops One','Arial Black',sans-serif;font-size:13px;letter-spacing:.5px;
+.sb-name{font-family:'Syne',sans-serif;font-size:13px;letter-spacing:.5px;
   background:linear-gradient(135deg,#38bdf8,#fb923c);
   -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
 .sb-ver{font-size:9px;color:var(--mu2);letter-spacing:1.4px;text-transform:uppercase;margin-top:1px}
@@ -318,7 +318,7 @@ nav{padding:8px;flex:1}
   border-radius:50%;opacity:.08}
 .sc.G::after{background:var(--G)}.sc.R::after{background:var(--R)}.sc.B::after{background:var(--B)}
 .sc.Y::after{background:var(--Y)}.sc.C::after{background:var(--C)}.sc.P::after{background:var(--P)}.sc.O::after{background:var(--O)}
-.sl{font-size:9px;text-transform:uppercase;letter-spacing:1.8px;color:var(--mu);margin-bottom:5px;font-weight:600}
+.sl{font-size:11px;text-transform:uppercase;letter-spacing:1px;color:var(--mu);margin-bottom:5px;font-weight:600}
 .sv{font-family:'Syne',sans-serif;font-size:clamp(14px,3.5vw,22px);font-weight:800;line-height:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .sv.G{color:var(--G)}.sv.R{color:var(--R)}.sv.B{color:var(--B)}.sv.Y{color:var(--Y)}.sv.C{color:var(--C)}.sv.P{color:var(--P)}.sv.O{color:var(--O)}
 .ss{font-size:9px;color:var(--mu);margin-top:3px}
@@ -336,7 +336,7 @@ nav{padding:8px;flex:1}
 /* ── TABLO ── */
 .tbl-wrap{overflow-x:auto}
 table{width:100%;border-collapse:collapse;font-size:11px}
-th{text-align:left;padding:7px 9px;font-size:9px;text-transform:uppercase;letter-spacing:1px;
+th{text-align:left;padding:7px 9px;font-size:11px;text-transform:uppercase;letter-spacing:.6px;
   color:var(--mu);border-bottom:1px solid rgba(255,255,255,.055);font-weight:600}
 td{padding:7px 9px;border-bottom:1px solid rgba(255,255,255,.028);vertical-align:middle}
 tr:last-child td{border-bottom:none}
@@ -351,7 +351,7 @@ tr:hover td{background:rgba(255,255,255,.018)}
 /* ── FORM ── */
 .fg{display:grid;gap:10px}.fr{display:grid;grid-template-columns:repeat(auto-fit,minmax(142px,1fr));gap:10px}
 .f{display:flex;flex-direction:column;gap:3px}
-.f label{font-size:9px;text-transform:uppercase;letter-spacing:1.1px;color:var(--mu);font-weight:600}
+.f label{font-size:11px;text-transform:uppercase;letter-spacing:.6px;color:var(--mu);font-weight:600}
 .f input,.f select,.f textarea{background:rgba(255,255,255,.038);border:1px solid rgba(255,255,255,.08);
   border-radius:9px;padding:8px 11px;color:var(--tx);font-family:'Plus Jakarta Sans',sans-serif;
   font-size:12px;outline:none;transition:border-color .14s;width:100%}
@@ -533,12 +533,21 @@ hr.dv{border:none;border-top:1px solid rgba(255,255,255,.055);margin:12px 0}
 .op-tab.active .op-tab-ic{transform:scale(1.1)}
 .op-tab.active::after{width:70%}
 @media(max-width:700px){
-  /* 12 sekme tek satırda yatay kaydırılınca hem parmakla bulması zor
-     oluyordu hem de sayfa kaydırmasıyla karışıyordu — telefonda sabit
-     6x2 bir ızgaraya alıp kaydırma ihtiyacını tamamen kaldırıyoruz. */
-  .op-tabs{display:grid;grid-template-columns:repeat(6,1fr);overflow-x:hidden;scroll-snap-type:none}
-  .op-tab{padding:7px 1px 6px;font-size:8px;letter-spacing:0}
+  /* Sabit 6x2 ızgara başlıkları kırpıyor ve dokunma alanını küçültüyordu —
+     yatay kaydırmalı, min 40px yükseklikte pill/çip yapısına dönüldü. */
+  .op-tabs{display:flex;gap:8px;overflow-x:auto;overflow-y:hidden;
+    scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;
+    padding:10px 12px;background:rgba(255,255,255,.025);
+    border-bottom:1px solid rgba(255,255,255,.07);border-radius:0}
+  .op-tab{flex:0 0 auto;flex-direction:row;align-items:center;gap:6px;
+    padding:11px 15px;min-height:40px;border-radius:22px;
+    background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.09);
+    font-size:11px;letter-spacing:.2px;scroll-snap-align:start;
+    text-transform:none}
   .op-tab .op-tab-ic{font-size:15px}
+  .op-tab::after{display:none}
+  .op-tab.active{background:rgba(34,211,238,.14);border-color:rgba(34,211,238,.4);color:var(--C)}
+  .op-tab.active .op-tab-ic{transform:none}
 }
 
 /* ── QA KARTLARI ── */
@@ -547,21 +556,21 @@ hr.dv{border:none;border-top:1px solid rgba(255,255,255,.055);margin:12px 0}
   transition:transform .14s,box-shadow .14s;border:1px solid rgba(255,255,255,.07)}
 .qa-kart:hover{transform:translateY(-3px);box-shadow:0 12px 30px rgba(0,0,0,.38)}
 .qa-kart.one-cikan{background:linear-gradient(135deg,#091d3d,#0c2a50);grid-column:span 2}
-.qa-kart.mavi{background:linear-gradient(135deg,#0c1f3d,#0a2a4a)}
-.qa-kart.mor{background:linear-gradient(135deg,#1a0d2e,#1e0a38)}
-.qa-kart.yesil{background:linear-gradient(135deg,#0a2a1a,#0a3222)}
+.qa-kart.mavi{background:linear-gradient(135deg,#0a2233,#0a3348)}
+.qa-kart.mor{background:linear-gradient(135deg,#0b1c3d,#0d2652)}
+.qa-kart.yesil{background:linear-gradient(135deg,#0a1f3d,#0c2b4d)}
 .qa-pirl{position:absolute;top:-28px;right:-28px;width:110px;height:110px;
   border-radius:50%;opacity:.16;filter:blur(28px)}
-.qa-kart.one-cikan .qa-pirl{background:#60a5fa;width:190px;height:190px;top:-55px;right:-35px;opacity:.22}
+.qa-kart.one-cikan .qa-pirl{background:#38bdf8;width:190px;height:190px;top:-55px;right:-35px;opacity:.22}
 .qa-kart.mavi .qa-pirl{background:#22d3ee}
-.qa-kart.mor .qa-pirl{background:#a78bfa}
-.qa-kart.yesil .qa-pirl{background:#10b981}
+.qa-kart.mor .qa-pirl{background:#3b82f6}
+.qa-kart.yesil .qa-pirl{background:#60a5fa}
 .qa-ikon{width:40px;height:40px;border-radius:11px;display:flex;align-items:center;
   justify-content:center;font-size:19px;margin-bottom:13px;position:relative;z-index:1}
-.qa-kart.one-cikan .qa-ikon{background:rgba(96,165,250,.13);border:1px solid rgba(96,165,250,.22)}
+.qa-kart.one-cikan .qa-ikon{background:rgba(56,189,248,.14);border:1px solid rgba(56,189,248,.24)}
 .qa-kart.mavi .qa-ikon{background:rgba(34,211,238,.11);border:1px solid rgba(34,211,238,.18)}
-.qa-kart.mor .qa-ikon{background:rgba(167,139,250,.11);border:1px solid rgba(167,139,250,.18)}
-.qa-kart.yesil .qa-ikon{background:rgba(16,185,129,.11);border:1px solid rgba(16,185,129,.18)}
+.qa-kart.mor .qa-ikon{background:rgba(59,130,246,.12);border:1px solid rgba(59,130,246,.2)}
+.qa-kart.yesil .qa-ikon{background:rgba(96,165,250,.11);border:1px solid rgba(96,165,250,.18)}
 .qa-baslik{font-family:'Syne',sans-serif;font-size:13px;font-weight:700;color:#fff;
   margin-bottom:4px;position:relative;z-index:1}
 .qa-kart.one-cikan .qa-baslik{font-size:17px}
@@ -569,10 +578,10 @@ hr.dv{border:none;border-top:1px solid rgba(255,255,255,.055);margin:12px 0}
 .qa-aksiyon{display:inline-flex;align-items:center;gap:4px;margin-top:11px;
   font-size:11px;font-weight:600;padding:5px 13px;border-radius:8px;
   position:relative;z-index:1;color:#fff}
-.qa-kart.one-cikan .qa-aksiyon{background:linear-gradient(135deg,#1a8cff,#0066cc)}
-.qa-kart.mavi .qa-aksiyon{background:linear-gradient(135deg,#00b4cc,#007a8c)}
-.qa-kart.mor .qa-aksiyon{background:linear-gradient(135deg,#7833cc,#5520aa)}
-.qa-kart.yesil .qa-aksiyon{background:linear-gradient(135deg,#00aa66,#007744)}
+.qa-kart.one-cikan .qa-aksiyon{background:linear-gradient(135deg,#38bdf8,#0284c7)}
+.qa-kart.mavi .qa-aksiyon{background:linear-gradient(135deg,#22d3ee,#0891b2)}
+.qa-kart.mor .qa-aksiyon{background:linear-gradient(135deg,#3b82f6,#1d4ed8)}
+.qa-kart.yesil .qa-aksiyon{background:linear-gradient(135deg,#60a5fa,#2563eb)}
 
 /* ── ÖĞRENCİ PANELİ ── */
 #ogrenci-panel{display:none;position:fixed;inset:0;z-index:9997;background:var(--bg);flex-direction:column}
@@ -580,7 +589,7 @@ hr.dv{border:none;border-top:1px solid rgba(255,255,255,.055);margin:12px 0}
 .op-header{padding:14px 18px;border-bottom:1px solid rgba(255,255,255,.055);
   display:flex;align-items:center;justify-content:space-between;
   background:linear-gradient(180deg,#0a1220,#080e1c);flex-shrink:0;width:100%}
-.op-logo{font-family:'Black Ops One','Arial Black',sans-serif;font-size:16px;
+.op-logo{font-family:'Syne',sans-serif;font-size:16px;
   background:linear-gradient(135deg,#38bdf8,#fb923c);
   -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
 .op-main{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:0;width:100%}
@@ -1268,7 +1277,7 @@ hr.dv{border:none;border-top:1px solid rgba(255,255,255,.055);margin:12px 0}
   <div class="pomo-modal">
     <button class="pomo-close" onclick="pomoKapat()">&#10005;</button>
     <div style="text-align:center;margin-bottom:16px">
-      <div style="font-family:'Black Ops One','Arial Black',sans-serif;font-size:18px;letter-spacing:1px;background:linear-gradient(135deg,#f87171,#fb923c);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">🍅 POMODORO</div>
+      <div style="font-family:'Syne',sans-serif;font-size:18px;letter-spacing:1px;background:linear-gradient(135deg,#f87171,#fb923c);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">🍅 POMODORO</div>
     </div>
     <div class="pomo-mod-tabs">
       <div class="pomo-mod-tab aktif" onclick="pomoModSec('pomo',this)">Pomodoro</div>
@@ -4147,7 +4156,7 @@ h2{font-size:13px;font-weight:600;color:var(--mu2);margin-bottom:18px}
 .stat.g .val{color:var(--G)}.stat.r .val{color:var(--R)}.stat.b .val{color:var(--B)}
 .sec{font-size:13px;font-weight:800;margin:22px 0 10px;padding-bottom:6px;border-bottom:2px solid rgba(255,255,255,.1)}
 table{width:100%;border-collapse:collapse;font-size:11px;margin-bottom:8px}
-th{text-align:left;padding:7px 9px;font-size:9px;text-transform:uppercase;letter-spacing:.6px;color:var(--mu2);border-bottom:1px solid rgba(255,255,255,.15)}
+th{text-align:left;padding:7px 9px;font-size:11px;text-transform:uppercase;letter-spacing:.5px;color:var(--mu2);border-bottom:1px solid rgba(255,255,255,.15)}
 td{padding:7px 9px;border-bottom:1px solid rgba(255,255,255,.06);vertical-align:middle}
 .up{color:var(--G)}.dn{color:var(--R)}
 .noprint{padding:8px 18px;background:#171f33;color:#fff;border:1px solid rgba(255,255,255,.15);border-radius:8px;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;font-size:13px;font-weight:700;margin-bottom:16px}
