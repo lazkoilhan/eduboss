@@ -2,7 +2,7 @@
   "name": "EDU-BOSS",
   "short_name": "EDU-BOSS",
   "description": "Akıllı eğitim yönetim sistemi — öğrenci takibi, sınav analizi, AI koçluk",
-  "start_url": ".",
+  "start_url": "./EDU-BOSS-v36.html",
   "scope": ".",
   "display": "standalone",
   "background_color": "#0e121c",
