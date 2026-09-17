@@ -1085,6 +1085,14 @@ hr.dv{border:none;border-top:1px solid rgba(255,255,255,.055);margin:12px 0}
     <div class="op-content" id="op-gelisim">
       <div class="card"><div class="ct">📈 Gelişim Grafiği</div><div class="ch200"><canvas id="op-ch-gelisim"></canvas></div></div>
       <div class="card mt3"><div class="ct">Net Dağılımı</div><div class="ch200"><canvas id="op-ch-bar"></canvas></div></div>
+      <div class="card mt3">
+        <div class="ct" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px">
+          <span>📚 Ders Bazlı Gelişim</span>
+          <select id="op-ders-secici" onchange="opDersGrafikCiz(this.value)" style="background:var(--s2);border:1px solid var(--b2);border-radius:7px;padding:5px 10px;color:var(--tx);font-family:'DM Mono',monospace;font-size:11px;outline:none"></select>
+        </div>
+        <div class="ch200"><canvas id="op-ch-ders"></canvas></div>
+        <div id="op-ders-ozet" style="text-align:center;font-size:11px;color:var(--mu2);margin-top:6px"></div>
+      </div>
     </div>
     <!-- Hedefim -->
     <div class="op-content" id="op-hedef">
@@ -5478,6 +5486,38 @@ function cikisYap(){
 
 // ─── Öğrenci Paneli Render ───
 const opCharts={};
+
+// ─── Ders Bazlı Gelişim Grafiği ───
+// Toplam netler (TYT/EA/SAY) yeterli değildi — öğrenci tek bir dersteki
+// (örn. Matematik) artış/azalışını görmek istiyor. _opGecMerged (kurum +
+// kendi denemeler) üzerinden seçilen dersin net dizisini çiziyor.
+function opDersGrafikCiz(ders){
+  const canvas = document.getElementById('op-ch-ders');
+  if(!ders || !_opGecMerged.length || !canvas) return;
+  const gec = _opGecMerged;
+  const veri = gec.map(g => TYT.includes(ders) ? (g.tyt?.[ders]||0) : (g.ayt?.[ders]||0));
+  const labels = gec.map(g => g.sinavAdi || g.tarih);
+  if(opCharts.ders) opCharts.ders.destroy();
+  const renk = RC[ders] || '#38bdf8';
+  opCharts.ders = new Chart(canvas, {type:'line',
+    data:{labels, datasets:[{label:ders, data:veri, borderColor:renk, backgroundColor:renk+'22',
+      tension:.35, pointRadius:4, borderWidth:2, pointBackgroundColor:renk}]},
+    options:{responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}},
+      scales:{
+        x:{grid:{color:'rgba(255,255,255,.04)'}, ticks:{color:'#527a98', font:{size:10}}},
+        y:{grid:{color:'rgba(255,255,255,.04)'}, ticks:{color:'#527a98', font:{size:10}}, min:0}
+      }}});
+  const ozetEl = document.getElementById('op-ders-ozet');
+  if(ozetEl){
+    if(veri.length >= 2){
+      const fark = veri[veri.length-1] - veri[0];
+      ozetEl.innerHTML = `İlk sınavdan bugüne: <strong style="color:${fark>=0?'var(--G)':'var(--R)'}">${fark>=0?'↑':'↓'}${Math.abs(fark).toFixed(1)} net</strong>`;
+    } else {
+      ozetEl.textContent = 'Karşılaştırma için bu dersten birden fazla sınav gerekli';
+    }
+  }
+}
+
 let _opOgr=null;
 let _opUserData=null;
 function opTab(tab, el){
@@ -5528,6 +5568,7 @@ function opTab(tab, el){
 // oraya yazması, öğretmenin aynı anda yaptığı toplu kayıtları ezme riski
 // taşırdı. Bu yüzden ayrı koleksiyon + render'da birleştirme tercih edildi.
 let _opGecMerged = [];
+let _opVideoDersSecili = null; // null = klasör (ders) görünümü, dolu = o dersin videoları
 async function ogrTumGecmisGetir(ogr){
   const kurumGec = (ogr.gecmis||[]).map(g=>({...g, kaynak:'kurum'}));
   let kendiGec = [];
@@ -5670,6 +5711,18 @@ async function opRender(ogr, userData){
       data:{labels:[...TYT,...AYT],datasets:[{data:[...TYT.map(d=>barTyt[d]||0),...AYT.map(d=>barAyt[d]||0)],
         backgroundColor:[...TYT,...AYT].map(d=>RC[d]+'88'),borderColor:[...TYT,...AYT].map(d=>RC[d]),borderWidth:1,borderRadius:4}]},
       options:cBase2});
+
+    // Ders bazlı seçici — hangi derste veri varsa listede o çıkar
+    const dersSec = document.getElementById('op-ders-secici');
+    if(dersSec){
+      const mevcutDersler = [...TYT,...AYT].filter(d=>gec.some(g=>(TYT.includes(d)?(g.tyt?.[d]||0):(g.ayt?.[d]||0))>0));
+      const oncekiSecim = dersSec.value;
+      dersSec.innerHTML = mevcutDersler.map(d=>`<option value="${d}">${d}</option>`).join('') || '<option value="">Veri yok</option>';
+      const secilecek = mevcutDersler.includes(oncekiSecim) ? oncekiSecim : (mevcutDersler[0]||'');
+      dersSec.value = secilecek;
+      if(secilecek) opDersGrafikCiz(secilecek);
+      else { const dEl=document.getElementById('op-ch-ders'); if(dEl) dEl.parentElement.innerHTML='<div class="empty" style="padding:20px">Henüz veri yok</div>'; }
+    }
     if(gec.length>1){
       const cokSinav = gec.length>25;
       // TYT Toplam 0-120 arası olabilir — bar grafiğin per-ders 0-40 eksenini
@@ -8186,6 +8239,10 @@ async function opGorevTamamla(gorevId) {
 }
 
 // ── Öğrenci paneli: Video Derslerim render ──
+function opVideoDersSec(ders){
+  _opVideoDersSecili = ders;
+  opRenderGorevlerim(_opOgr, _opUserData);
+}
 function opRenderGorevlerim(ogr, userData) {
   var el = document.getElementById('op-gorevlerim-ic');
   if (!el) return;
@@ -8238,7 +8295,50 @@ function opRenderGorevlerim(ogr, userData) {
     html += '<div style="font-size:9px;color:var(--mu);text-transform:uppercase;letter-spacing:1px">Tamamlama</div>';
     html += '</div></div>';
 
-    // Kart grid
+    // Kart grid (klasör veya detay görünümü)
+    var gruplar = {};
+    benimGorevler.forEach(function(g){
+      var d = g.ders || 'Diğer';
+      if (!gruplar[d]) gruplar[d] = [];
+      gruplar[d].push(g);
+    });
+
+    if (!_opVideoDersSecili) {
+      // ── KLASÖR GÖRÜNÜMÜ: dersler 2'li kutu halinde ──
+      html += '<div style="display:grid;grid-template-columns:repeat(2,1fr);gap:12px">';
+      Object.keys(gruplar).sort().forEach(function(ders){
+        var liste = gruplar[ders];
+        var izl = liste.filter(function(g){ return ogrId && (g.tamamlayan||[]).indexOf(ogrId) >= 0; }).length;
+        var toplam = liste.length;
+        var yzd = toplam ? Math.round(izl/toplam*100) : 0;
+        var dersEsc = ders.replace(/'/g,"\\'").replace(/"/g,'&quot;');
+        html += '<div onclick="opVideoDersSec(\'' + dersEsc + '\')" style="cursor:pointer;padding:16px;' +
+          'border-radius:14px;background:var(--s1);border:1px solid rgba(255,255,255,.08);' +
+          'display:flex;flex-direction:column;gap:8px">';
+        html += '<div style="display:flex;align-items:center;justify-content:space-between">';
+        html += '<div style="width:42px;height:42px;border-radius:12px;background:rgba(34,211,238,.12);' +
+          'border:1px solid rgba(34,211,238,.2);display:flex;align-items:center;justify-content:center;font-size:20px">📁</div>';
+        if (yzd === 100) html += '<span style="font-size:15px">✅</span>';
+        html += '</div>';
+        html += '<div style="font-family:Syne,sans-serif;font-size:12.5px;font-weight:800;color:#fff;line-height:1.3">' + ders + '</div>';
+        html += '<div style="font-size:10.5px;color:var(--mu2)">' + toplam + ' video · ' + izl + ' izlendi</div>';
+        html += '<div style="height:4px;background:rgba(255,255,255,.08);border-radius:4px;overflow:hidden">';
+        html += '<div style="height:100%;width:' + yzd + '%;background:' + (yzd===100?'var(--G)':'var(--C)') + ';border-radius:4px"></div>';
+        html += '</div></div>';
+      });
+      html += '</div>';
+      el.innerHTML = html;
+      return;
+    }
+
+    // ── DETAY GÖRÜNÜMÜ: seçilen dersin videoları ──
+    if (!gruplar[_opVideoDersSecili]) { _opVideoDersSecili = null; opRenderGorevlerim(ogr, userData); return; }
+    html += '<button onclick="opVideoDersSec(null)" style="display:flex;align-items:center;gap:6px;' +
+      'padding:8px 14px;border-radius:10px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);' +
+      'color:var(--mu2);font-size:11.5px;font-weight:700;cursor:pointer;margin-bottom:12px">← Derslere Dön</button>';
+    html += '<div style="font-family:Syne,sans-serif;font-size:14px;font-weight:800;color:#fff;margin-bottom:12px">📁 ' + _opVideoDersSecili + '</div>';
+    benimGorevler = gruplar[_opVideoDersSecili];
+
     html += '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:12px">';
 
     for (var gi = 0; gi < benimGorevler.length; gi++) {
