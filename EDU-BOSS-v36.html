@@ -47,6 +47,19 @@
   --Y:#38bdf8;--Yd:#0c2e42;--B:#60a5fa;--Bd:#0f2748;
   --C:#22d3ee;--Cd:#062e38;--P:#a78bfa;--Pd:#241b47;--O:#fb923c;--Od:#3d2008;
 }
+/* Açık tema — öğrenci panelinde 🌓 düğmesiyle değiştirilebilir. Sadece
+   #ogrenci-panel'e uygulanır (login ekranı/öğretmen paneli etkilenmez).
+   Vurgu renkleri (G/R/Y/B/C/P/O) aynı kalır, sadece zemin/yüzey/metin
+   tersine döner ki anlamlı renk kodlaması (başarı/hata/ders renkleri) bozulmasın. */
+#ogrenci-panel[data-theme="light"]{
+  --bg:#f4f6fb;--s1:#ffffff;--s2:#eef1f8;--s3:#e4e9f4;
+  --b1:#dbe1ee;--b2:#c6cfe2;--tx:#131a2c;--mu:#5b6b8c;--mu2:#374863;
+  --Gd:#e3faf0;--Rd:#ffe9e9;--Yd:#e6f6ff;--Bd:#eaf1ff;--Cd:#e4fbff;--Pd:#f1ecff;--Od:#fff2e4;
+}
+#ogrenci-panel[data-theme="light"] .op-header{
+  background:linear-gradient(180deg,#ffffff,#f4f6fb);border-bottom-color:rgba(20,30,50,.08)}
+#ogrenci-panel[data-theme="light"] .op-tabs{background:rgba(20,30,50,.02);border-bottom-color:rgba(20,30,50,.08)}
+#ogrenci-panel[data-theme="light"] .op-tab{background:rgba(20,30,50,.035);border-color:rgba(20,30,50,.09)}
 html{scroll-behavior:smooth}
 body{background:var(--bg);color:var(--tx);font-family:'Plus Jakarta Sans',sans-serif;min-height:100vh;display:flex;overflow-x:hidden}
 body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
@@ -1008,6 +1021,7 @@ hr.dv{border:none;border-top:1px solid rgba(255,255,255,.055);margin:12px 0}
       <span class="xp-mini" id="op-header-xp" onclick="const bpTab=document.querySelector('[onclick*=bossPuan]');if(bpTab)opTab('bossPuan',bpTab);bossPuanRender()" style="cursor:pointer;display:none">⚡ 0 XP</span>
       <button style="background:rgba(96,165,250,.12);border:1px solid rgba(96,165,250,.3);color:var(--B);border-radius:8px;padding:4px 9px;cursor:pointer;font-size:13px;font-family:inherit" onclick="turBaslat('ogrenci')" title="Nasıl Kullanılır">❓</button>
       <button style="background:rgba(248,113,113,.12);border:1px solid rgba(248,113,113,.3);color:var(--R);border-radius:8px;padding:4px 10px;cursor:pointer;font-size:13px;font-family:inherit" onclick="pomoAc()" title="Pomodoro Başlat">🍅</button>
+      <button id="op-tema-btn" style="background:rgba(167,139,250,.12);border:1px solid rgba(167,139,250,.3);color:var(--P);border-radius:8px;padding:4px 9px;cursor:pointer;font-size:13px;font-family:inherit" onclick="opTemaDegistir()" title="Açık/Koyu Tema">🌙</button>
       <button class="btn btn-d btn-sm" onclick="cikisYap()">Çıkış</button>
     </div>
   </div>
@@ -1721,7 +1735,10 @@ hr.dv{border:none;border-top:1px solid rgba(255,255,255,.055);margin:12px 0}
 <div class="pg" id="pg-dersler">
   <div class="ph">
     <div><div class="pt">Ders Takibi</div><div class="psub">Yapılan dersleri kaydet</div></div>
-    <button class="btn btn-p" onclick="mAc('ders')">+ Ders Ekle</button>
+    <div class="flex gap2">
+      <button class="btn btn-n" onclick="otomatikDersleriOlustur()" title="Ders programından saati geçmiş dersleri tarayıp otomatik işler">🔄 Programdan Güncelle</button>
+      <button class="btn btn-p" onclick="mAc('ders')">+ Ders Ekle</button>
+    </div>
   </div>
   <div class="card">
     <div class="ct">Takvim <span class="sub" id="cal-lbl"></span>
@@ -4598,6 +4615,55 @@ function okKaydet(){
 function okSil(id){FOK=FOK.filter(o=>o.id!==id);sv.fok();toast('Öğrenci silindi');render(CUR);}
 
 
+// ─── Ders Programından Otomatik Ders/Borç Oluşturma ───
+// Eskiden öğretmen her ders sonrası "Geldi" diye elle işaretlemek zorundaydı,
+// unutunca borç/alacak eksik görünüyordu. Artık haftalık program (PROG) baz
+// alınıp, saati geçmiş her ders slotu için otomatik "Yapıldı" kaydı (ve
+// dolayısıyla borç) açılıyor. Gerçekten yapılmayan bir ders varsa öğretmen
+// Dersler tablosundan bu kaydı silebilir/düzenleyebilir (🤖 rozetiyle işaretli).
+async function otomatikDersleriOlustur(sessizMi){
+  if(!PROG.length || !FOK.length) return;
+  const simdi = new Date();
+  const GUN_GECMIS = 35; // en fazla 35 gün geriye tara
+  let eklenen = 0;
+
+  for(let i=0; i<GUN_GECMIS; i++){
+    const gunTarihi = new Date(simdi); gunTarihi.setDate(simdi.getDate()-i); gunTarihi.setHours(0,0,0,0);
+    const gunIndex = gunTarihi.getDay()===0 ? 6 : gunTarihi.getDay()-1; // Pazartesi=0 ... Pazar=6
+    const tarihStr = gunTarihi.getFullYear()+'-'+String(gunTarihi.getMonth()+1).padStart(2,'0')+'-'+String(gunTarihi.getDate()).padStart(2,'0');
+
+    const gununSlotlari = PROG.filter(s => +s.gun === gunIndex);
+    for(const sl of gununSlotlari){
+      const ok = FOK.find(o => o.id === sl.okId);
+      if(!ok || !sl.bit || !sl.bas) continue;
+
+      const [bitH,bitM] = sl.bit.split(':').map(Number);
+      const slotBitisAni = new Date(gunTarihi); slotBitisAni.setHours(bitH,bitM,0,0);
+      if(slotBitisAni > simdi) continue; // ders henüz bitmemiş, atla
+
+      const zatenVar = DERS.find(d => d.okId===ok.id && d.tarih===tarihStr && d.slotId===sl.id);
+      if(zatenVar) continue;
+
+      const [basH,basM] = sl.bas.split(':').map(Number);
+      const sure = Math.max(0, ((bitH*60+bitM)-(basH*60+basM))/60);
+      if(sure <= 0) continue;
+
+      DERS.push({id:uid(), okId:ok.id, tarih:tarihStr, sure, ucret:(ok.ucret||0)*sure,
+        konu:sl.konu||'', durum:'Yapıldı', not:'', slotId:sl.id, otomatik:true});
+      eklenen++;
+    }
+  }
+
+  if(eklenen > 0){
+    await sv.ders();
+    toast(`📋 Ders programından ${eklenen} ders otomatik işlendi, borçlar güncellendi`, 'inf');
+    if(typeof renderFOK==='function') renderFOK();
+    if(typeof renderDers==='function') renderDers();
+  } else if(!sessizMi){
+    toast('✓ Güncel — programdan işlenecek yeni ders yok', 'ok');
+  }
+}
+
 function borcH(okId){
   const od=ODEM.filter(o=>o.okId===okId).reduce((s,o)=>s+o.tutar,0);
   const al=DERS.filter(d=>d.okId===okId&&d.durum==='Yapıldı').reduce((s,d)=>s+d.ucret,0);
@@ -4680,7 +4746,7 @@ function renderDers(){
       <td data-label="Süre" class="mono">${d.sure}s</td>
       <td data-label="Konu" style="font-size:10px;color:var(--mu2)">${d.konu||'—'}</td>
       <td data-label="Ücret" class="mono" style="color:var(--G)">${para(d.ucret)}</td>
-      <td data-label="Durum"><span class="b ${rm[d.durum]||'bB'}">${d.durum}</span></td>
+      <td data-label="Durum"><span class="b ${rm[d.durum]||'bB'}">${d.durum}</span>${d.otomatik?' <span class="b bC" title="Ders programından otomatik oluşturuldu">🤖 Otomatik</span>':''}</td>
       <td><button class="btn btn-n btn-sm" onclick="mAc('ders','${d.id}')">✏️</button><button class="btn btn-d btn-sm" onclick="drSil('${d.id}')">✕</button></td>
     </tr>`;
   }).join('')||`<tr><td colspan="7" class="empty">Ders yok</td></tr>`;
@@ -5345,6 +5411,7 @@ async function ogretmenGiris(){
   apiKeyFirestoreYukle(); // API key'i bu cihaza senkronize et (hesaba bağlı, cihaza değil)
   turOtomatikBaslat('ogretmen');
   await fbYukle();
+  otomatikDersleriOlustur(true); // programdan saati geçmiş dersleri otomatik "Yapıldı" işaretle (sessiz)
 }
 
 // ─── Öğrenci/Veli girişinde tenant (öğretmen) uid'ini bul ───
@@ -5363,10 +5430,25 @@ async function ogrenciTenantBul(userData){
   return null;
 }
 
+// ─── Açık/Koyu Tema (öğrenci paneli) ───
+function opTemaUygula(){
+  const tema = localStorage.getItem('op_tema') || 'dark';
+  const panel = document.getElementById('ogrenci-panel');
+  if(panel) panel.setAttribute('data-theme', tema);
+  const btn = document.getElementById('op-tema-btn');
+  if(btn) btn.textContent = tema==='light' ? '☀️' : '🌙';
+}
+function opTemaDegistir(){
+  const yeni = (localStorage.getItem('op_tema')||'dark') === 'light' ? 'dark' : 'light';
+  localStorage.setItem('op_tema', yeni);
+  opTemaUygula();
+}
+
 async function ogrenciGiris(userData){
   _opUserData = userData;
   mevcutKullanici = userData;
   document.getElementById('ogrenci-panel').classList.add('show');
+  opTemaUygula();
   document.getElementById('op-ad').textContent = userData.ad || '';
 
   // ── KRİTİK: tenant çözümleme ──
