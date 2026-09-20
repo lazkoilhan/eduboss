@@ -9360,7 +9360,10 @@ async function shSoruSil(soruId) {
   SH_SORULAR = SH_SORULAR.filter(function(s) { return s._id !== soruId && s.id !== soruId; });
   toast('Soru silindi', 'ok');
   shModalKapat('sh-detay');
-  shOgretmenRender();
+  // Hangi ekrandan çağrıldıysa (öğretmen ya da öğrenci) o yenilensin —
+  // ikisi de kendi DOM elemanı yoksa zaten sessizce çıkıyor, güvenli.
+  if (typeof shOgretmenRender === 'function') shOgretmenRender();
+  if (typeof opShRender === 'function') opShRender();
   shBadgeGuncelle();
 }
 
@@ -9538,6 +9541,7 @@ async function shOgretmenRender() {
       + '<span style="font-size:10px;color:var(--R)">😩 ' + (s.takildimlar||[]).length + '</span>'
       + '<span style="font-size:10px;color:var(--G)">💡 ' + (s.cozumler||[]).length + '</span>'
       + '<button class="sh-cozum-btn-sm" onclick="shCozumModalAc(\'' + sid + '\')">✏️ Çöz</button>'
+      + '<button class="sh-cozum-btn-sm" style="background:rgba(248,113,113,.14);color:var(--R)" onclick="event.stopPropagation();shSoruSil(\'' + sid + '\')" title="Soruyu sil">🗑</button>'
       + '</div>'
       + '</div>';
   });
@@ -9611,6 +9615,7 @@ async function opShRender() {
         + '<span style="font-size:10px;color:var(--R)">😩 ' + (s.takildimlar||[]).length + '</span>'
         + '<span style="font-size:10px;color:var(--G)">💡 ' + (s.cozumler||[]).length + '</span>'
         + (benTakildi ? '<span style="font-size:9px;background:rgba(248,113,113,.12);color:var(--R);padding:2px 6px;border-radius:6px">Sen de takıldın</span>' : '')
+        + (s.ogrId===ogrId ? '<button class="sh-cozum-btn-sm" style="background:rgba(248,113,113,.14);color:var(--R)" onclick="event.stopPropagation();shSoruSil(\'' + sid + '\')" title="Soruyu sil">🗑 Sil</button>' : '')
         + '</div>'
         + '</div>';
     });
