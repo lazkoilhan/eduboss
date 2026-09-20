@@ -4029,6 +4029,7 @@ async function renderDetPanel(id){
     </div>
     <div class="flex gap2 fwrap">
       <button class="btn btn-pf btn-sm" onclick="ogPDF('${id}')">🖨️ PDF Çıktı</button>
+      <button class="btn btn-pf btn-sm" onclick="karnePDF('${id}')" title="Tüm sınav geçmişi + gelişim grafiği + hedef karşılaştırması">📋 Dönem Karnesi</button>
       ${o.tel?`<button class="btn btn-g btn-sm" onclick="waSinav('${id}')">📱 WhatsApp</button>`:`<button class="btn btn-n btn-sm" onclick="mAc('ao','${id}')" title="Tel ekle">📵 Tel Ekle</button>`}
       <button class="btn btn-n btn-sm" onclick="mAc('ao','${id}')">✏️ Düzenle</button>
       <button class="btn btn-n btn-sm" onclick="mAc('manuel','${id}')">📝 Manuel Sınav</button>
@@ -4211,6 +4212,110 @@ function _raporPenceresiAc(title, bodyHtml){
   </body></html>`);
   win.document.close();
   return win;
+}
+
+// ── Dönem Sonu Karne PDF (tüm sınav geçmişi + gelişim grafiği + hedef karşılaştırması) ──
+async function karnePDF(id){
+  const o=AOK.find(x=>x.id===id);if(!o)return;
+  const gec = await ogrTumGecmisGetir(o); // kurum + kendi denemeler birleşik
+  const h = HEDEFLER.find(x=>x.ogrId===o.id);
+  const tytT=Object.values(o.tyt||{}).reduce((a,b)=>a+b,0);
+  const eaT=EA_AYT.reduce((a,d)=>a+(o.ayt[d]||0),0);
+  const sayT=SAY_AYT.reduce((a,d)=>a+(o.ayt[d]||0),0);
+
+  const _bodyHtml = `
+  <h1>${o.ad} — Dönem Sonu Karnesi</h1>
+  <h2>${o.sinif||''} ${o.sira?'· Sıra #'+o.sira:''} · Rapor Tarihi: ${new Date().toLocaleDateString('tr-TR')}</h2>
+  <div class="grid4">
+    <div class="stat"><div class="lbl">TYT Net</div><div class="val">${tytT.toFixed(2)}</div></div>
+    <div class="stat"><div class="lbl">EA AYT Net</div><div class="val">${eaT.toFixed(2)}</div></div>
+    <div class="stat"><div class="lbl">SAY AYT Net</div><div class="val">${sayT.toFixed(2)}</div></div>
+    <div class="stat"><div class="lbl">Toplam Sınav</div><div class="val">${gec.length}</div></div>
+  </div>
+  ${h?`<div class="sec">🎯 Hedef Karşılaştırması</div>
+  <table><thead><tr><th></th><th>Mevcut</th><th>Hedef</th><th>Fark</th></tr></thead><tbody>
+    <tr><td>TYT Net</td><td>${tytT.toFixed(1)}</td><td>${h.tyt||'—'}</td><td>${h.tyt?`<span class="${tytT>=h.tyt?'up':'dn'}">${tytT>=h.tyt?'↑':'↓'}${Math.abs(tytT-h.tyt).toFixed(1)}</span>`:'—'}</td></tr>
+    <tr><td>EA AYT Net</td><td>${eaT.toFixed(1)}</td><td>${h.eaNet||'—'}</td><td>${h.eaNet?`<span class="${eaT>=h.eaNet?'up':'dn'}">${eaT>=h.eaNet?'↑':'↓'}${Math.abs(eaT-h.eaNet).toFixed(1)}</span>`:'—'}</td></tr>
+    <tr><td>SAY AYT Net</td><td>${sayT.toFixed(1)}</td><td>${h.sayNet||'—'}</td><td>${h.sayNet?`<span class="${sayT>=h.sayNet?'up':'dn'}">${sayT>=h.sayNet?'↑':'↓'}${Math.abs(sayT-h.sayNet).toFixed(1)}</span>`:'—'}</td></tr>
+    ${h.uni?`<tr><td colspan="4">🎓 Hedef: <b>${h.uni}</b>${h.not?' — '+h.not:''}</td></tr>`:''}
+  </tbody></table>`:'<div class="sec">🎯 Hedef Karşılaştırması</div><p style="font-size:12px;color:#777">Bu öğrenci için henüz hedef belirlenmemiş.</p>'}
+  <div class="sec">📈 Gelişim Grafiği</div>
+  <div style="max-width:700px;margin:0 auto 10px"><canvas id="karne-chart" height="260"></canvas></div>
+  <div class="sec">📋 Sınav Geçmişi — Tarihsel Sıralama (${gec.length} sınav)</div>
+  ${gec.length?`<table><thead><tr><th>Kaynak</th><th>Tarih</th><th>Sınav</th>${TYT.map(d=>`<th>${d}</th>`).join('')}<th>TYT Top.</th><th>Değişim</th></tr></thead>
+  <tbody>${gec.map((g,gi)=>{
+    const t=Object.values(g.tyt||{}).reduce((a,b)=>a+b,0);
+    const prev=gec[gi-1];const prevT=prev?Object.values(prev.tyt||{}).reduce((a,b)=>a+b,0):null;
+    const tr=prevT!==null?t-prevT:null;
+    return`<tr><td>${g.kaynak==='kendi'?'Kendi':'Kurum'}</td><td>${tfmt(g.tarih)}</td><td>${g.sinavAdi||'—'}</td>
+    ${TYT.map(d=>`<td>${(g.tyt?.[d]||0).toFixed(2)}</td>`).join('')}
+    <td><b>${t.toFixed(1)}</b></td>
+    <td>${tr!==null?`<span class="${tr>=0?'up':'dn'}">${tr>=0?'↑':'↓'}${Math.abs(tr).toFixed(1)}</span>`:'—'}</td></tr>`;
+  }).join('')}</tbody></table>`:'<p style="font-size:12px;color:#777">Henüz sınav kaydı yok.</p>'}`;
+
+  const win=_raporPenceresiAc(`${o.ad} — Dönem Sonu Karnesi`, _bodyHtml);
+  if(win && gec.length>1){
+    const s=win.document.createElement('script');
+    s.src='https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js';
+    s.onload=function(){
+      const ctx=win.document.getElementById('karne-chart');
+      if(!ctx||!win.Chart) return;
+      new win.Chart(ctx,{type:'line',data:{
+        labels:gec.map(g=>g.sinavAdi||g.tarih),
+        datasets:[{label:'TYT Toplam',data:gec.map(g=>Object.values(g.tyt||{}).reduce((a,b)=>a+b,0)),
+          borderColor:'#2563eb',backgroundColor:'rgba(37,99,235,.12)',tension:.3,pointRadius:3,borderWidth:2}]},
+        options:{responsive:true,plugins:{legend:{display:true}},scales:{y:{beginAtZero:true}}}});
+    };
+    win.document.body.appendChild(s);
+  } else if(win){
+    const ctx=win.document.getElementById('karne-chart');
+    if(ctx) ctx.parentElement.innerHTML='<p style="font-size:12px;color:#777;text-align:center">Grafik için birden fazla sınav gerekli.</p>';
+  }
+}
+
+// ── Aylık Özet / Makbuz PDF (bu ay ders + tahakkuk + ödenen + genel borç) ──
+function aylikOzetPDF(id){
+  const o=FOK.find(x=>x.id===id);if(!o)return;
+  const simdi=new Date();
+  const ay=simdi.getMonth(), yil=simdi.getFullYear();
+  const ayAdlari=['Ocak','Şubat','Mart','Nisan','Mayıs','Haziran','Temmuz','Ağustos','Eylül','Ekim','Kasım','Aralık'];
+
+  const buAyDersler=DERS.filter(d=>d.okId===o.id&&d.durum==='Yapıldı'&&new Date(d.tarih).getMonth()===ay&&new Date(d.tarih).getFullYear()===yil)
+    .sort((a,b)=>a.tarih.localeCompare(b.tarih));
+  const buAyOdemeler=ODEM.filter(p=>p.okId===o.id&&new Date(p.tarih).getMonth()===ay&&new Date(p.tarih).getFullYear()===yil)
+    .sort((a,b)=>a.tarih.localeCompare(b.tarih));
+  const buAyTahakkuk=buAyDersler.reduce((s,d)=>s+d.ucret,0);
+  const buAyOdenen=buAyOdemeler.reduce((s,p)=>s+p.tutar,0);
+  const genel=borcH(o.id);
+  const trPara=n=>'₺'+Number(n||0).toLocaleString('tr-TR',{maximumFractionDigits:0});
+
+  const _bodyHtml=`
+  <h1>${o.ad} — Aylık Özet</h1>
+  <h2>${ayAdlari[ay]} ${yil} · Rapor Tarihi: ${new Date().toLocaleDateString('tr-TR')}</h2>
+  <div class="grid4">
+    <div class="stat"><div class="lbl">Bu Ay Ders</div><div class="val">${buAyDersler.length}</div></div>
+    <div class="stat"><div class="lbl">Bu Ay Tahakkuk</div><div class="val">${trPara(buAyTahakkuk)}</div></div>
+    <div class="stat"><div class="lbl">Bu Ay Ödenen</div><div class="val">${trPara(buAyOdenen)}</div></div>
+    <div class="stat"><div class="lbl">Genel Kalan Borç</div><div class="val" style="color:${genel.borc>0?'#b91c1c':'#15803d'}">${trPara(genel.borc)}</div></div>
+  </div>
+  <div class="sec">📚 Bu Ay Yapılan Dersler (${buAyDersler.length})</div>
+  <table><thead><tr><th>Tarih</th><th>Süre</th><th>Konu</th><th>Ücret</th></tr></thead>
+  <tbody>${buAyDersler.map(d=>`<tr><td>${tfmt(d.tarih)}</td><td>${d.sure} sa</td><td>${d.konu||'—'}</td><td>${trPara(d.ucret)}</td></tr>`).join('')||'<tr><td colspan="4">Bu ay ders kaydı yok</td></tr>'}</tbody>
+  ${buAyDersler.length?`<tfoot><tr><td colspan="3"><b>Toplam</b></td><td><b>${trPara(buAyTahakkuk)}</b></td></tr></tfoot>`:''}
+  </table>
+  <div class="sec">💰 Bu Ay Yapılan Ödemeler (${buAyOdemeler.length})</div>
+  <table><thead><tr><th>Tarih</th><th>Tutar</th><th>Yöntem</th><th>Not</th></tr></thead>
+  <tbody>${buAyOdemeler.map(p=>`<tr><td>${tfmt(p.tarih)}</td><td>${trPara(p.tutar)}</td><td>${p.yontem||'—'}</td><td>${p.not||'—'}</td></tr>`).join('')||'<tr><td colspan="4">Bu ay ödeme kaydı yok</td></tr>'}</tbody>
+  ${buAyOdemeler.length?`<tfoot><tr><td><b>Toplam</b></td><td><b>${trPara(buAyOdenen)}</b></td><td colspan="2"></td></tr></tfoot>`:''}
+  </table>
+  <div class="sec">📊 Genel Durum (Tüm Zamanlar)</div>
+  <table><tbody>
+    <tr><td>Toplam Tahakkuk</td><td>${trPara(genel.al)}</td></tr>
+    <tr><td>Toplam Ödenen</td><td>${trPara(genel.od)}</td></tr>
+    <tr><td><b>Kalan Borç</b></td><td><b style="color:${genel.borc>0?'#b91c1c':'#15803d'}">${trPara(genel.borc)}</b></td></tr>
+  </tbody></table>`;
+
+  _raporPenceresiAc(`${o.ad} — ${ayAdlari[ay]} ${yil} Özeti`, _bodyHtml);
 }
 
 // ── Öğrenci PDF ──
@@ -4711,6 +4816,7 @@ function renderFOK(){
       <div class="flex gap2 mt3">
         <button class="btn btn-n btn-sm" style="flex:1" onclick="mAc('ok','${o.id}')">✏️</button>
         <button class="btn btn-p btn-sm" style="flex:1" onclick="mAc('ders');document.getElementById('dr-ok').value='${o.id}'">📅 Ders</button>
+        <button class="btn btn-pf btn-sm" onclick="aylikOzetPDF('${o.id}')" title="Bu ayın özetini PDF olarak al">🧾</button>
         <button class="btn btn-d btn-sm" onclick="okSil('${o.id}')">🗑</button>
       </div>
     </div>`;
