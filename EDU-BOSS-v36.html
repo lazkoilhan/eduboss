@@ -2156,7 +2156,7 @@ hr.dv{border:none;border-top:1px solid rgba(255,255,255,.055);margin:12px 0}
       <div class="fr"><div class="f"><label>Branşlar</label><input id="ok-brans"></div><div class="f"><label>Başlangıç</label><input id="ok-bas" type="date"></div></div>
       <div class="f"><label>Not</label><textarea id="ok-not"></textarea></div>
     </div>
-    <div class="mft"><button class="btn btn-n" onclick="mKapat('ok')">İptal</button><button class="btn btn-p" onclick="okKaydet()">💾 Kaydet</button></div>
+    <div class="mft"><button class="btn btn-n" onclick="mKapat('ok')">İptal</button><button class="btn btn-p" id="ok-kaydet-btn" onclick="okKaydet()">💾 Kaydet</button></div>
   </div>
 </div>
 
@@ -2686,7 +2686,7 @@ function fbInit(){
 // ── Koleksiyon adları (tenant izolasyonu) ──
 // Her öğretmenin verisi kendi UID'i altında: teachers/{uid}/v5_aok/data
 // Süper admin tüm öğretmenleri görebilir; normal öğretmen sadece kendi UID'ini kullanır
-const COL_NAMES={aok:'v5_aok',fok:'v5_fok',ders:'v5_ders',odem:'v5_odem',gidr:'v5_gidr',prog:'v5_prog',devam:'v5_devam',musait:'v5_musait',talep:'v5_talep',takvim:'v5_takvim',notlar:'v5_notlar',cevap:'v5_cevap',optik:'v5_optik',gorev:'v5_gorev',odev:'v5_odev'};
+const COL_NAMES={aok:'v5_aok',fok:'v5_fok',ders:'v5_ders',odem:'v5_odem',gidr:'v5_gidr',prog:'v5_prog',devam:'v5_devam',musait:'v5_musait',talep:'v5_talep',takvim:'v5_takvim',notlar:'v5_notlar',cevap:'v5_cevap',optik:'v5_optik',gorev:'v5_gorev',odev:'v5_odev',otoIptal:'v5_oto_iptal'};
 // Aktif öğretmenin tenant UID'i (login sonrası set edilir)
 let _tenantUid = null;
 // Koleksiyona tam path döndür: teachers/{tenantUid}/{colName}
@@ -2700,7 +2700,7 @@ const COL = new Proxy(COL_NAMES,{
 });
 
 // ── Yerel değişkenler (bellekte çalışır, Firebase ile senkronize) ──
-let AOK=[], FOK=[], DERS=[], ODEM=[], GIDR=[], PROG=[], DEVAM=[], MUSAIT=[], TALEP=[], TAKVIM=[], NOTLAR=[], GOREVLER=[], ODEVLER=[];
+let AOK=[], FOK=[], DERS=[], ODEM=[], GIDR=[], PROG=[], DEVAM=[], MUSAIT=[], TALEP=[], TAKVIM=[], NOTLAR=[], GOREVLER=[], ODEVLER=[], OTO_IPTAL=[];
 let _GOREVLER_dummy=[], CEVAPLAR=[], OPTIKLER=[];
 
 // localStorage fallback (offline için)
@@ -2766,6 +2766,7 @@ const sv={
   aok:  ()=>fbSet(COL.aok, AOK),
   fok:  ()=>fbSet(COL.fok, FOK),
   ders: ()=>fbSet(COL.ders,DERS),
+  otoIptal: ()=>fbSet(COL.otoIptal,OTO_IPTAL),
   odem: ()=>fbSet(COL.odem,ODEM),
   gidr: ()=>fbSet(COL.gidr,GIDR),
   prog: ()=>fbSet(COL.prog,PROG),
@@ -2788,10 +2789,10 @@ async function fbYukle(){
   if(fbOk&&syncEl)syncEl.textContent='☁️ Bağlanıyor...';
   else if(syncEl){syncEl.textContent='⚠️ Offline mod';syncEl.style.background='var(--Yd)';syncEl.style.color='var(--Y)';}
   try{
-    [AOK,FOK,DERS,ODEM,GIDR,PROG,DEVAM,MUSAIT,TALEP,TAKVIM,NOTLAR]=await Promise.all([
+    [AOK,FOK,DERS,ODEM,GIDR,PROG,DEVAM,MUSAIT,TALEP,TAKVIM,NOTLAR,OTO_IPTAL]=await Promise.all([
       fbGet(COL.aok),fbGet(COL.fok),fbGet(COL.ders),
       fbGet(COL.odem),fbGet(COL.gidr),fbGet(COL.prog),fbGet(COL.devam),
-      fbGet(COL.musait),fbGet(COL.talep),fbGet(COL.takvim),fbGet(COL.notlar)
+      fbGet(COL.musait),fbGet(COL.talep),fbGet(COL.takvim),fbGet(COL.notlar),fbGet(COL.otoIptal)
     ]);
     HEDEFLER=await fbGet(tenantCol('v5_hedef'));
     GOREVLER=await fbGet(COL.gorev);
@@ -2802,7 +2803,7 @@ async function fbYukle(){
   }catch(e){
     AOK=LS.g(COL.aok,[]);FOK=LS.g(COL.fok,[]);DERS=LS.g(COL.ders,[]);
     ODEM=LS.g(COL.odem,[]);GIDR=LS.g(COL.gidr,[]);PROG=LS.g(COL.prog,[]);DEVAM=LS.g(COL.devam,[]);
-    MUSAIT=LS.g(COL.musait,[]);TALEP=LS.g(COL.talep,[]);TAKVIM=LS.g(COL.takvim,[]);NOTLAR=LS.g(COL.notlar,[]);GOREVLER=LS.g(COL.gorev,[]);ODEVLER=LS.g(COL.odev,[]);
+    MUSAIT=LS.g(COL.musait,[]);TALEP=LS.g(COL.talep,[]);TAKVIM=LS.g(COL.takvim,[]);NOTLAR=LS.g(COL.notlar,[]);GOREVLER=LS.g(COL.gorev,[]);ODEVLER=LS.g(COL.odev,[]);OTO_IPTAL=LS.g(COL.otoIptal,[]);
     if(syncEl){syncEl.textContent='⚠️ Offline mod';syncEl.style.background='var(--Yd)';syncEl.style.color='var(--Y)';}
     toast('⚠️ Sunucuya bağlanılamadı — yerel veriler gösteriliyor ('+e.message+')','inf');
   }
@@ -4602,7 +4603,7 @@ function fillOkF(id){
   ['ad','sinif','tel','veli','ucret','haf','brans','not'].forEach(k=>{const e=document.getElementById('ok-'+k);if(e)e.value=o[k]||'';});
   document.getElementById('ok-bas').value=o.bas||bugun();
 }
-function okKaydet(){
+async function okKaydet(){
   const id=document.getElementById('ok-id').value;
   const o={id:id||uid(),ad:document.getElementById('ok-ad').value.trim(),sinif:document.getElementById('ok-sinif').value,
     tel:document.getElementById('ok-tel').value,veli:document.getElementById('ok-veli').value,
@@ -4610,9 +4611,21 @@ function okKaydet(){
     brans:document.getElementById('ok-brans').value,bas:document.getElementById('ok-bas').value,not:document.getElementById('ok-not').value};
   if(!o.ad){toast('Ad zorunlu','err');return;}
   if(id){const i=FOK.findIndex(x=>x.id===id);FOK[i]=o;}else FOK.push(o);
-  sv.fok();mKapat('ok');toast(id?'Güncellendi':'Eklendi');render(CUR);
+  // Kaydet butonunu bulut yazması bitene kadar bekletiyoruz — yoksa kullanıcı
+  // kaydet'e basar basmaz sayfayı yenilerse, yazma daha Firestore'a ulaşmadan
+  // yarıda kesilip değişiklik "kaybolmuş" gibi görünüyordu.
+  const btn=document.getElementById('ok-kaydet-btn');
+  if(btn){btn.disabled=true;btn.textContent='Kaydediliyor...';}
+  await sv.fok();
+  if(btn){btn.disabled=false;btn.textContent='💾 Kaydet';}
+  mKapat('ok');toast(id?'Güncellendi':'Eklendi');render(CUR);
 }
-function okSil(id){FOK=FOK.filter(o=>o.id!==id);sv.fok();toast('Öğrenci silindi');render(CUR);}
+async function okSil(id){
+  FOK=FOK.filter(o=>o.id!==id);
+  toast('Siliniyor...','inf');
+  await sv.fok();
+  toast('Öğrenci silindi');render(CUR);
+}
 
 
 // ─── Ders Programından Otomatik Ders/Borç Oluşturma ───
@@ -4624,43 +4637,47 @@ function okSil(id){FOK=FOK.filter(o=>o.id!==id);sv.fok();toast('Öğrenci silind
 async function otomatikDersleriOlustur(sessizMi){
   if(!PROG.length || !FOK.length) return;
   const simdi = new Date();
-  const GUN_GECMIS = 35; // en fazla 35 gün geriye tara
   let eklenen = 0;
 
-  for(let i=0; i<GUN_GECMIS; i++){
-    const gunTarihi = new Date(simdi); gunTarihi.setDate(simdi.getDate()-i); gunTarihi.setHours(0,0,0,0);
-    const gunIndex = gunTarihi.getDay()===0 ? 6 : gunTarihi.getDay()-1; // Pazartesi=0 ... Pazar=6
-    const tarihStr = gunTarihi.getFullYear()+'-'+String(gunTarihi.getMonth()+1).padStart(2,'0')+'-'+String(gunTarihi.getDate()).padStart(2,'0');
+  // Sadece BUGÜNÜ tara — geçmişe dönük tarama yok. Öğretmen bir dersi silip
+  // "bu ders yapılmadı" derse, aşağıdaki OTO_IPTAL kontrolü sayesinde aynı
+  // gün tekrar açılmaz.
+  const gunTarihi = new Date(simdi); gunTarihi.setHours(0,0,0,0);
+  const gunIndex = gunTarihi.getDay()===0 ? 6 : gunTarihi.getDay()-1; // Pazartesi=0 ... Pazar=6
+  const tarihStr = gunTarihi.getFullYear()+'-'+String(gunTarihi.getMonth()+1).padStart(2,'0')+'-'+String(gunTarihi.getDate()).padStart(2,'0');
 
-    const gununSlotlari = PROG.filter(s => +s.gun === gunIndex);
-    for(const sl of gununSlotlari){
-      const ok = FOK.find(o => o.id === sl.okId);
-      if(!ok || !sl.bit || !sl.bas) continue;
+  const gununSlotlari = PROG.filter(s => +s.gun === gunIndex);
+  for(const sl of gununSlotlari){
+    const ok = FOK.find(o => o.id === sl.okId);
+    if(!ok || !sl.bit || !sl.bas) continue;
 
-      const [bitH,bitM] = sl.bit.split(':').map(Number);
-      const slotBitisAni = new Date(gunTarihi); slotBitisAni.setHours(bitH,bitM,0,0);
-      if(slotBitisAni > simdi) continue; // ders henüz bitmemiş, atla
+    const [bitH,bitM] = sl.bit.split(':').map(Number);
+    const slotBitisAni = new Date(gunTarihi); slotBitisAni.setHours(bitH,bitM,0,0);
+    if(slotBitisAni > simdi) continue; // ders henüz bitmemiş, atla
 
-      const zatenVar = DERS.find(d => d.okId===ok.id && d.tarih===tarihStr && d.slotId===sl.id);
-      if(zatenVar) continue;
+    const zatenVar = DERS.find(d => d.okId===ok.id && d.tarih===tarihStr && d.slotId===sl.id);
+    if(zatenVar) continue;
 
-      const [basH,basM] = sl.bas.split(':').map(Number);
-      const sure = Math.max(0, ((bitH*60+bitM)-(basH*60+basM))/60);
-      if(sure <= 0) continue;
+    // Öğretmen bu dersi daha önce silip "yapılmadı" demişse bir daha açma
+    const iptalEdilmis = OTO_IPTAL.some(t => t.slotId===sl.id && t.tarih===tarihStr);
+    if(iptalEdilmis) continue;
 
-      DERS.push({id:uid(), okId:ok.id, tarih:tarihStr, sure, ucret:(ok.ucret||0)*sure,
-        konu:sl.konu||'', durum:'Yapıldı', not:'', slotId:sl.id, otomatik:true});
-      eklenen++;
-    }
+    const [basH,basM] = sl.bas.split(':').map(Number);
+    const sure = Math.max(0, ((bitH*60+bitM)-(basH*60+basM))/60);
+    if(sure <= 0) continue;
+
+    DERS.push({id:uid(), okId:ok.id, tarih:tarihStr, sure, ucret:(ok.ucret||0)*sure,
+      konu:sl.konu||'', durum:'Yapıldı', not:'', slotId:sl.id, otomatik:true});
+    eklenen++;
   }
 
   if(eklenen > 0){
     await sv.ders();
-    toast(`📋 Ders programından ${eklenen} ders otomatik işlendi, borçlar güncellendi`, 'inf');
+    toast(`📋 Bugünün programından ${eklenen} ders otomatik işlendi, borçlar güncellendi`, 'inf');
     if(typeof renderFOK==='function') renderFOK();
     if(typeof renderDers==='function') renderDers();
   } else if(!sessizMi){
-    toast('✓ Güncel — programdan işlenecek yeni ders yok', 'ok');
+    toast('✓ Güncel — bugün programdan işlenecek yeni ders yok', 'ok');
   }
 }
 
@@ -4722,7 +4739,16 @@ function drKaydet(){
   if(id){const i=DERS.findIndex(x=>x.id===id);DERS[i]=d;}else DERS.push(d);
   sv.ders();mKapat('ders');toast('Ders kaydedildi');render(CUR);
 }
-function drSil(id){DERS=DERS.filter(d=>d.id!==id);sv.ders();toast('Ders silindi');render(CUR);}
+async function drSil(id){
+  const d = DERS.find(x=>x.id===id);
+  if(d && d.otomatik && d.slotId){
+    OTO_IPTAL.push({slotId:d.slotId, tarih:d.tarih});
+    await sv.otoIptal();
+  }
+  DERS=DERS.filter(x=>x.id!==id);
+  await sv.ders();
+  toast('Ders silindi');render(CUR);
+}
 
 function renderDers(){
   const now=new Date();
