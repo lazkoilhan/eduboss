@@ -9169,13 +9169,22 @@ async function shFbGuncelle(soruId, data) {
 }
 
 // ── Firestore: soru sil ──
+// shGetir() sorular hem yeni (tenant'lı) hem eski (düz) konumdan okuyup
+// birleştiriyordu — ama silme sadece yeni konuma bakıyordu. Soru eski
+// konumdaysa silme "başarılı" görünüp asıl kayıt hiç silinmiyordu, bir
+// sonraki yenilemede aynı soru geri geliyordu. Artık ikisini de deniyor.
 async function shFbSil(soruId) {
   if (!db) return;
+  let basarili = false;
   try {
     await db.collection(tenantCol('v5_soruhavuzu')).doc(soruId).delete();
-  } catch(e) {
-    toast('Silme hatası: ' + e.message, 'err');
-  }
+    basarili = true;
+  } catch(e) { console.warn('Tenant yoldan silinemedi:', e.message); }
+  try {
+    await db.collection('v5_soruhavuzu').doc(soruId).delete();
+    basarili = true;
+  } catch(e) { console.warn('Düz yoldan silinemedi:', e.message); }
+  if(!basarili) toast('Silme hatası — bağlantını kontrol et', 'err');
 }
 
 // ── Yeni soru kaydet ──
